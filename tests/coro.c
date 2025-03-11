@@ -143,3 +143,24 @@ TEST(coro, wait_one_signal) {
 
 	bio_loop();
 }
+
+static void
+delayed_destruction_child(void* userdata) {
+	int arg = *(int*)userdata;
+	CHECK(arg == 42, "Corrupted arg");
+}
+
+static void
+delayed_destruction_parent(void* userdata) {
+	int arg = 42;
+	bio_spawn(delayed_destruction_child, &arg);
+
+	// Yield to give the child a chance to start
+	bio_yield();
+}
+
+TEST(coro, delayed_destruction) {
+	bio_spawn(delayed_destruction_parent, NULL);
+
+	bio_loop();
+}
