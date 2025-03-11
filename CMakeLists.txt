@@ -22,6 +22,8 @@ add_subdirectory(deps)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_EXTENSIONS OFF)
 
+option(BUILD_MINICORO "Should bio also build minicoro" ON)
+
 if (MSVC)
 	# 4200: Flexible array member is a standard feature since C99
 	add_compile_options(/W4 /WX /wd4200)

@@ -1,4 +1,3 @@
-#include "bio/bio.h"
 #include "common.h"
 
 static suite_t handle = {

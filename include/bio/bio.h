@@ -54,17 +54,11 @@ typedef enum {
 } bio_core_error_code_t;
 
 typedef enum {
-	BIO_CORO_DEAD,
-	BIO_CORO_RUNNING,
 	BIO_CORO_READY,
+	BIO_CORO_RUNNING,
 	BIO_CORO_WAITING,
+	BIO_CORO_DEAD,
 } bio_coro_state_t;
-
-bio_coro_ref_t
-bio_spawn(bio_entrypoint_t* entrypoint, void* userdata);
-
-bio_coro_state_t
-bio_coro_state(bio_coro_ref_t coro);
 
 void
 bio_init(bio_options_t options);
@@ -75,6 +69,18 @@ bio_loop(void);
 void
 bio_terminate(void);
 
+bio_coro_ref_t
+bio_spawn(bio_entrypoint_t entrypoint, void* userdata);
+
+bio_coro_state_t
+bio_coro_state(bio_coro_ref_t coro);
+
+void
+bio_yield(void);
+
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((format(printf, 4, 5)))
+#endif
 void
 bio_set_error(
 	bio_error_t* error,
@@ -101,12 +107,12 @@ bio_wait_for_signals(
 );
 
 bio_handle_t
-bio_make_handle(void* obj, bio_tag_t* tag);
+bio_make_handle(void* obj, const bio_tag_t* tag);
 
 void*
-bio_resolve_handle(bio_handle_t handle, bio_tag_t* tag);
+bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag);
 
 void
-bio_close_handle(bio_handle_t handle, bio_tag_t* tag);
+bio_close_handle(bio_handle_t handle, const bio_tag_t* tag);
 
 #endif

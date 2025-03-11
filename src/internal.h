@@ -15,8 +15,37 @@
 		struct NAME##_s* prev; \
 	} NAME##_t
 
+#define BIO_LIST_APPEND(list, item) \
+	do { \
+		(item)->next = (list); \
+		(item)->prev = (list)->prev; \
+		(list)->prev->next = (item); \
+		(list)->prev = (item); \
+	} while (0)
+
+#define BIO_LIST_REMOVE(item) \
+	do { \
+		(item)->next->prev = (item)->prev; \
+		(item)->prev->next = (item)->next; \
+	} while (0)
+
+#define BIO_LIST_IS_EMPTY(list) \
+	((list)->next == (list))
+
+#define BIO_LIST_INIT(list) \
+	do { \
+		(list)->next = (list); \
+		(list)->prev = (list); \
+	} while (0)
+
+#define BIO_LIST_POP(list) \
+	BIO_LIST_REMOVE((list)->next)
+
+#define BIO_CONTAINER_OF(ptr, type, member) \
+	((type *)((char *)(1 ? (ptr) : &((type *)0)->member) - offsetof(type, member)))
+
 typedef struct {
-	bio_tag_t* tag;
+	const bio_tag_t* tag;
 	void* obj;
 
 	int32_t gen;
@@ -42,6 +71,11 @@ struct bio_coro_s {
 	bio_coro_link_t link;
 
 	mco_coro* impl;
+	bio_entrypoint_t entrypoint;
+	void* userdata;
+
+	bio_handle_t handle;
+	bio_coro_state_t state;
 
 	bio_signal_link_t pending_signals;
 	bio_signal_link_t raised_signals;
@@ -62,8 +96,12 @@ typedef struct {
 	int32_t num_handles;
 
 	// Coro
-	bio_coro_link_t ready_coros;
+	bio_coro_link_t ready_coros_a;
+	bio_coro_link_t ready_coros_b;
 	bio_coro_link_t waiting_coros;
+	bio_coro_link_t* current_ready_coros;
+	bio_coro_link_t* next_ready_coros;
+	int32_t num_coros;
 } bio_ctx_t;
 
 extern bio_ctx_t bio_ctx;

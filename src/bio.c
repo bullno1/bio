@@ -1,4 +1,5 @@
 #include "internal.h"
+#include <minicoro.h>
 
 #define BIO_INITIAL_HANDLE_CAPACITY 4
 
@@ -6,6 +7,8 @@ bio_ctx_t bio_ctx = { 0 };
 
 const bio_tag_t BIO_OS_ERROR = BIO_TAG_INIT("bio.error.os");
 const bio_tag_t BIO_CORE_ERROR = BIO_TAG_INIT("bio.error.core");
+
+const bio_tag_t BIO_CORO_HANDLE = BIO_TAG_INIT("bio.handle.coro");
 
 static inline void
 bio_grow_handle_table(int32_t old_capacity, int32_t new_capacity) {
@@ -29,9 +32,17 @@ void
 bio_init(bio_options_t options) {
 	bio_ctx.options = options;
 
+	// Handle
 	bio_ctx.num_handles = 0;
 	bio_ctx.handle_slots = NULL;
 	bio_grow_handle_table(0, BIO_INITIAL_HANDLE_CAPACITY);
+
+	// Coro
+	BIO_LIST_INIT(&bio_ctx.ready_coros_a);
+	BIO_LIST_INIT(&bio_ctx.ready_coros_b);
+	BIO_LIST_INIT(&bio_ctx.waiting_coros);
+	bio_ctx.current_ready_coros = &bio_ctx.ready_coros_a;
+	bio_ctx.next_ready_coros = &bio_ctx.ready_coros_b;
 }
 
 void
@@ -40,7 +51,7 @@ bio_terminate(void) {
 }
 
 bio_handle_t
-bio_make_handle(void* obj, bio_tag_t* tag) {
+bio_make_handle(void* obj, const bio_tag_t* tag) {
 	if (bio_ctx.num_handles >= bio_ctx.handle_capacity) {
 		bio_grow_handle_table(bio_ctx.handle_capacity, bio_ctx.handle_capacity * 2);
 	}
@@ -59,7 +70,7 @@ bio_make_handle(void* obj, bio_tag_t* tag) {
 }
 
 void*
-bio_resolve_handle(bio_handle_t handle, bio_tag_t* tag) {
+bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag) {
 	if (BIO_LIKELY(handle.index < bio_ctx.handle_capacity)) {
 		bio_handle_slot_t* slot = &bio_ctx.handle_slots[handle.index];
 		if (BIO_LIKELY(slot->gen == handle.gen && slot->tag == tag)) {
@@ -71,7 +82,7 @@ bio_resolve_handle(bio_handle_t handle, bio_tag_t* tag) {
 }
 
 void
-bio_close_handle(bio_handle_t handle, bio_tag_t* tag) {
+bio_close_handle(bio_handle_t handle, const bio_tag_t* tag) {
 	if (BIO_LIKELY(handle.index < bio_ctx.handle_capacity)) {
 		bio_handle_slot_t* slot = &bio_ctx.handle_slots[handle.index];
 		if (BIO_LIKELY(slot->gen == handle.gen && slot->tag == tag)) {
@@ -81,4 +92,85 @@ bio_close_handle(bio_handle_t handle, bio_tag_t* tag) {
 			--bio_ctx.num_handles;
 		}
 	}
+}
+
+void
+bio_loop(void) {
+	while (true) {
+		// Do I/O
+
+		// Schedule coros
+		{
+			if (bio_ctx.num_coros == 0) { break; }
+
+			// Pop and run coros off the current list until it is empty
+			while (!BIO_LIST_IS_EMPTY(bio_ctx.current_ready_coros)) {
+				bio_coro_link_t* coro_link = bio_ctx.current_ready_coros->next;
+				BIO_LIST_REMOVE(coro_link);
+
+				bio_coro_t* coro = BIO_CONTAINER_OF(coro_link, bio_coro_t, link);
+				coro->state = BIO_CORO_RUNNING;
+				mco_resume(coro->impl);
+				if (mco_status(coro->impl) != MCO_DEAD) {
+					coro->state = BIO_CORO_READY;
+					BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
+				} else {
+					// TODO: Wait until all pending iops finished or cancel them
+					mco_destroy(coro->impl);
+					bio_close_handle(coro->handle, &BIO_CORO_HANDLE);
+					bio_free(coro);
+					--bio_ctx.num_coros;
+				}
+			}
+
+			// Swap the coro lists
+			bio_coro_link_t* tmp = bio_ctx.next_ready_coros;
+			bio_ctx.next_ready_coros = bio_ctx.current_ready_coros;
+			bio_ctx.current_ready_coros = tmp;
+		}
+	}
+}
+
+static void
+bio_coro_entry_wrapper(mco_coro* co) {
+	bio_coro_t* args = co->user_data;
+	args->entrypoint(args->userdata);
+}
+
+bio_coro_ref_t
+bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
+	bio_coro_t* coro = bio_malloc(sizeof(bio_coro_t));
+	*coro = (bio_coro_t){
+		.entrypoint = entrypoint,
+		.userdata = userdata,
+		.state = BIO_CORO_READY,
+	};
+	BIO_LIST_INIT(&coro->pending_signals);
+	BIO_LIST_INIT(&coro->raised_signals);
+
+	mco_desc desc = mco_desc_init(bio_coro_entry_wrapper, 0);
+	desc.user_data = coro;
+	mco_create(&coro->impl, &desc);
+
+	coro->handle = bio_make_handle(coro, &BIO_CORO_HANDLE);
+
+	BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
+	++bio_ctx.num_coros;
+
+	return (bio_coro_ref_t){ .handle = coro->handle };
+}
+
+bio_coro_state_t
+bio_coro_state(bio_coro_ref_t ref) {
+	bio_coro_t* coro = bio_resolve_handle(ref.handle, &BIO_CORO_HANDLE);
+	if (BIO_LIKELY(coro != NULL)) {
+		return coro->state;
+	} else {
+		return BIO_CORO_DEAD;
+	}
+}
+
+void
+bio_yield(void) {
+	mco_yield(mco_running());
 }
