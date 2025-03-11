@@ -3,12 +3,14 @@
 
 #define BIO_INITIAL_HANDLE_CAPACITY 4
 
+static bio_handle_t BIO_INVALID_HANDLE = { .index = -1 };
 bio_ctx_t bio_ctx = { 0 };
 
 const bio_tag_t BIO_OS_ERROR = BIO_TAG_INIT("bio.error.os");
 const bio_tag_t BIO_CORE_ERROR = BIO_TAG_INIT("bio.error.core");
 
 const bio_tag_t BIO_CORO_HANDLE = BIO_TAG_INIT("bio.handle.coro");
+const bio_tag_t BIO_SIGNAL_HANDLE = BIO_TAG_INIT("bio.handle.signal");
 
 static inline void
 bio_grow_handle_table(int32_t old_capacity, int32_t new_capacity) {
@@ -40,7 +42,6 @@ bio_init(bio_options_t options) {
 	// Coro
 	BIO_LIST_INIT(&bio_ctx.ready_coros_a);
 	BIO_LIST_INIT(&bio_ctx.ready_coros_b);
-	BIO_LIST_INIT(&bio_ctx.waiting_coros);
 	bio_ctx.current_ready_coros = &bio_ctx.ready_coros_a;
 	bio_ctx.next_ready_coros = &bio_ctx.ready_coros_b;
 }
@@ -71,7 +72,7 @@ bio_make_handle(void* obj, const bio_tag_t* tag) {
 
 void*
 bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag) {
-	if (BIO_LIKELY(handle.index < bio_ctx.handle_capacity)) {
+	if (BIO_LIKELY(0 <= handle.index && handle.index < bio_ctx.handle_capacity)) {
 		bio_handle_slot_t* slot = &bio_ctx.handle_slots[handle.index];
 		if (BIO_LIKELY(slot->gen == handle.gen && slot->tag == tag)) {
 			return slot->obj;
@@ -83,7 +84,7 @@ bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag) {
 
 void
 bio_close_handle(bio_handle_t handle, const bio_tag_t* tag) {
-	if (BIO_LIKELY(handle.index < bio_ctx.handle_capacity)) {
+	if (BIO_LIKELY(0 <= handle.index && handle.index < bio_ctx.handle_capacity)) {
 		bio_handle_slot_t* slot = &bio_ctx.handle_slots[handle.index];
 		if (BIO_LIKELY(slot->gen == handle.gen && slot->tag == tag)) {
 			++slot->gen;
@@ -110,12 +111,32 @@ bio_loop(void) {
 
 				bio_coro_t* coro = BIO_CONTAINER_OF(coro_link, bio_coro_t, link);
 				coro->state = BIO_CORO_RUNNING;
+				coro->num_blocking_signals = 0;
 				mco_resume(coro->impl);
 				if (mco_status(coro->impl) != MCO_DEAD) {
-					coro->state = BIO_CORO_READY;
-					BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
+					bool waiting = coro->num_blocking_signals > 0;
+					coro->state = waiting ? BIO_CORO_WAITING : BIO_CORO_READY;
+					if (!waiting) {
+						BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
+					}
 				} else {
 					// TODO: Wait until all pending iops finished or cancel them
+
+					// Destroy all signals
+					for (
+						bio_signal_link_t* itr = coro->pending_signals.next;
+						itr != &coro->pending_signals;
+					) {
+						bio_signal_link_t* next = itr->next;
+
+						bio_signal_t* signal = BIO_CONTAINER_OF(itr, bio_signal_t, link);
+						bio_close_handle(signal->handle, &BIO_SIGNAL_HANDLE);
+						bio_free(signal);
+
+						itr = next;
+					}
+
+					// Destroy the coroutine
 					mco_destroy(coro->impl);
 					bio_close_handle(coro->handle, &BIO_CORO_HANDLE);
 					bio_free(coro);
@@ -146,7 +167,6 @@ bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
 		.state = BIO_CORO_READY,
 	};
 	BIO_LIST_INIT(&coro->pending_signals);
-	BIO_LIST_INIT(&coro->raised_signals);
 
 	mco_desc desc = mco_desc_init(bio_coro_entry_wrapper, 0);
 	desc.user_data = coro;
@@ -173,4 +193,92 @@ bio_coro_state(bio_coro_ref_t ref) {
 void
 bio_yield(void) {
 	mco_yield(mco_running());
+}
+
+bio_coro_ref_t
+bio_current_coro(void) {
+	mco_coro* impl = mco_running();
+	if (BIO_LIKELY(impl)) {
+		bio_coro_t* coro = impl->user_data;
+		return (bio_coro_ref_t){ .handle = coro->handle };
+	} else {
+		return (bio_coro_ref_t){ .handle = BIO_INVALID_HANDLE };
+	}
+}
+
+bio_signal_ref_t
+bio_make_signal(void) {
+	mco_coro* coro_impl = mco_running();
+	if (BIO_LIKELY(coro_impl != NULL)) {
+		bio_coro_t* coro = coro_impl->user_data;
+
+		bio_signal_t* signal = bio_malloc(sizeof(bio_signal_t));
+		*signal = (bio_signal_t){
+			.owner = coro,
+			.wait_counter = coro->wait_counter - 1,
+		};
+		signal->handle = bio_make_handle(signal, &BIO_SIGNAL_HANDLE);
+		BIO_LIST_APPEND(&coro->pending_signals, &signal->link);
+
+		return (bio_signal_ref_t){ .handle = signal->handle };
+	} else {
+		return (bio_signal_ref_t){ .handle = BIO_INVALID_HANDLE };
+	}
+}
+
+void
+bio_raise_signal(bio_signal_ref_t ref) {
+	bio_signal_t* signal = bio_resolve_handle(ref.handle, &BIO_SIGNAL_HANDLE);
+	if (BIO_LIKELY(signal != NULL)) {
+		bio_coro_t* owner = signal->owner;
+
+		if (
+			owner->state == BIO_CORO_WAITING
+			&& signal->wait_counter == owner->wait_counter
+		) {
+			if (--owner->num_blocking_signals == 0) {  // Schedule to run once
+				BIO_LIST_APPEND(bio_ctx.next_ready_coros, &owner->link);
+				owner->state = BIO_CORO_READY;
+			}
+		}
+
+		BIO_LIST_REMOVE(&signal->link);
+		bio_close_handle(signal->handle, &BIO_SIGNAL_HANDLE);
+		bio_free(signal);
+	}
+}
+
+bool
+bio_check_signal(bio_signal_ref_t ref) {
+	bio_signal_t* signal = bio_resolve_handle(ref.handle, &BIO_SIGNAL_HANDLE);
+	return signal == NULL;
+}
+
+void
+bio_wait_for_signals(
+	bio_signal_ref_t* signals,
+	int num_signals,
+	bool wait_all
+) {
+	mco_coro* impl = mco_running();
+	if (BIO_LIKELY(impl != NULL)) {
+		bio_coro_t* coro = impl->user_data;
+
+		// Ensure that only the relevant signals are checked
+		int wait_counter = ++coro->wait_counter;
+		int num_blocking_signals = 0;
+		for (int i = 0; i < num_signals; ++i) {
+			bio_signal_t* signal = bio_resolve_handle(signals[i].handle, &BIO_SIGNAL_HANDLE);
+
+			if (BIO_LIKELY(signal != NULL && signal->owner == coro)) {
+				signal->wait_counter = wait_counter;
+				++num_blocking_signals;
+			}
+		}
+
+		if (BIO_LIKELY(num_blocking_signals > 0)) {
+			coro->num_blocking_signals = wait_all ? num_blocking_signals : 1;
+			mco_yield(impl);
+		}
+	}
 }

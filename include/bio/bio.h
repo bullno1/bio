@@ -75,6 +75,9 @@ bio_spawn(bio_entrypoint_t entrypoint, void* userdata);
 bio_coro_state_t
 bio_coro_state(bio_coro_ref_t coro);
 
+bio_coro_ref_t
+bio_current_coro(void);
+
 void
 bio_yield(void);
 
@@ -91,7 +94,7 @@ bio_set_error(
 );
 
 bio_signal_ref_t
-bio_signal(void);
+bio_make_signal(void);
 
 void
 bio_raise_signal(bio_signal_ref_t signal);
@@ -114,5 +117,14 @@ bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag);
 
 void
 bio_close_handle(bio_handle_t handle, const bio_tag_t* tag);
+
+static inline int
+bio_handle_compare(bio_handle_t lhs, bio_handle_t rhs) {
+	if (lhs.index != rhs.index) {
+		return lhs.index - rhs.index;
+	} else {
+		return lhs.gen - rhs.gen;
+	}
+}
 
 #endif

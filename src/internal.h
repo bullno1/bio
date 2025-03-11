@@ -63,8 +63,9 @@ typedef struct {
 	bio_signal_link_t link;
 
 	bio_coro_t* owner;
+	bio_handle_t handle;
+
 	int wait_counter;
-	bool raised;
 } bio_signal_t;
 
 struct bio_coro_s {
@@ -78,10 +79,7 @@ struct bio_coro_s {
 	bio_coro_state_t state;
 
 	bio_signal_link_t pending_signals;
-	bio_signal_link_t raised_signals;
 
-	bio_signal_ref_t* waited_signals;
-	int num_waited_signals;
 	int num_blocking_signals;
 	int wait_counter;
 };
@@ -98,7 +96,6 @@ typedef struct {
 	// Coro
 	bio_coro_link_t ready_coros_a;
 	bio_coro_link_t ready_coros_b;
-	bio_coro_link_t waiting_coros;
 	bio_coro_link_t* current_ready_coros;
 	bio_coro_link_t* next_ready_coros;
 	int32_t num_coros;
