@@ -52,47 +52,94 @@ TEST(coro, yield) {
 }
 
 typedef struct {
-	bio_coro_ref_t coro_a;
-	bio_signal_ref_t signal;
+	bio_coro_ref_t main_coro;
+	bio_signal_ref_t signals[2];
 	int counter;
 } signal_ctx_t;
 
 static void
-signal_b_entry(void* userdata);
+signal_all_a_entry(void* userdata) {
+	signal_ctx_t* ctx = userdata;
+	bio_coro_ref_t main_coro = ctx->main_coro;
+
+	CHECK(bio_coro_state(main_coro) == BIO_CORO_WAITING, "Invalid coro state");
+	CHECK(ctx->counter++ == 0, "Invalid scheduling");
+	CHECK(bio_coro_state(main_coro) == BIO_CORO_WAITING, "Invalid coro state");
+
+	bio_raise_signal(ctx->signals[0]);
+	CHECK(bio_coro_state(main_coro) == BIO_CORO_WAITING, "Invalid coro state");
+	bio_yield();  // Schedule b
+	CHECK(bio_coro_state(main_coro) == BIO_CORO_READY, "Invalid coro state");
+	bio_yield();  // Schedule main
+	CHECK(bio_coro_state(main_coro) == BIO_CORO_DEAD, "Invalid coro state");
+}
 
 static void
-signal_a_entry(void* userdata) {
+signal_one_a_entry(void* userdata) {
+	signal_ctx_t* ctx = userdata;
+	bio_coro_ref_t main_coro = ctx->main_coro;
+
+	CHECK(bio_coro_state(main_coro) == BIO_CORO_WAITING, "Invalid coro state");
+	CHECK(ctx->counter++ == 0, "Invalid scheduling");
+	CHECK(bio_coro_state(main_coro) == BIO_CORO_WAITING, "Invalid coro state");
+
+	bio_raise_signal(ctx->signals[0]);
+	CHECK(bio_coro_state(main_coro) == BIO_CORO_READY, "Invalid coro state");
+	bio_yield();
+	CHECK(bio_coro_state(main_coro) == BIO_CORO_DEAD, "Invalid coro state");
+}
+
+static void
+signal_b_entry(void* userdata) {
+	signal_ctx_t* ctx = userdata;
+	bio_raise_signal(ctx->signals[1]);
+}
+
+static void
+signal_wait_all(void* userdata) {
 	signal_ctx_t ctx = {
-		.coro_a = bio_current_coro(),
-		.signal = bio_make_signal(),
+		.main_coro = bio_current_coro(),
+		.signals = {
+			bio_make_signal(),
+			bio_make_signal(),
+		},
 		.counter = 0,
 	};
 	bio_make_signal();  // This should not leak
 
+	bio_spawn(signal_all_a_entry, &ctx);
 	bio_spawn(signal_b_entry, &ctx);
-	bio_wait_for_signals(&ctx.signal, 1, true);
+	bio_wait_for_signals(ctx.signals, 2, true);
 
 	CHECK(ctx.counter++ == 1, "Invalid scheduling");
 }
 
 static void
-signal_b_entry(void* userdata) {
-	// Make copy since the other coro could terminate
-	signal_ctx_t* ctx = userdata;
-	bio_coro_ref_t coro_a = ctx->coro_a;
+signal_wait_one(void* userdata) {
+	signal_ctx_t ctx = {
+		.main_coro = bio_current_coro(),
+		.signals = {
+			bio_make_signal(),
+			bio_make_signal(),
+		},
+		.counter = 0,
+	};
+	bio_make_signal();  // This should not leak
 
-	CHECK(bio_coro_state(coro_a) == BIO_CORO_WAITING, "Invalid coro state");
-	bio_yield();  // Immediately come back to us
-	CHECK(ctx->counter++ == 0, "Invalid scheduling");
-	CHECK(bio_coro_state(coro_a) == BIO_CORO_WAITING, "Invalid coro state");
+	bio_spawn(signal_one_a_entry, &ctx);
+	bio_wait_for_signals(ctx.signals, 2, false);
 
-	bio_raise_signal(ctx->signal);
-	bio_yield();  // Immediately come back to us
-	CHECK(bio_coro_state(coro_a) == BIO_CORO_DEAD, "Invalid coro state");
+	CHECK(ctx.counter++ == 1, "Invalid scheduling");
 }
 
-TEST(coro, signal) {
-	bio_spawn(signal_a_entry, NULL);
+TEST(coro, wait_all_signal) {
+	bio_spawn(signal_wait_all, NULL);
+
+	bio_loop();
+}
+
+TEST(coro, wait_one_signal) {
+	bio_spawn(signal_wait_one, NULL);
 
 	bio_loop();
 }
