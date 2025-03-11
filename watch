@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+./build
+
+inotifywait -r -e CLOSE_WRITE -m src tests samples | \
+    while read path action file
+	do
+		echo "Rebuilding"
+		./build || true
+		echo "Done"
+    done

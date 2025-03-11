@@ -1,0 +1,6 @@
+[submodule "deps/minicoro"]
+	path = deps/minicoro
+	url = https://github.com/edubart/minicoro
+[submodule "deps/blibs"]
+	path = deps/blibs
+	url = https://github.com/bullno1/libs.git
