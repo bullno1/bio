@@ -4,3 +4,6 @@
 [submodule "deps/blibs"]
 	path = deps/blibs
 	url = https://github.com/bullno1/libs.git
+[submodule "deps/liburing"]
+	path = deps/liburing
+	url = https://github.com/axboe/liburing.git

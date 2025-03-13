@@ -41,9 +41,8 @@ typedef struct {
 
 typedef struct {
 	const bio_tag_t* tag;
+	const char* (*strerror)(int code);
 	int code;
-
-	char message[512];
 } bio_error_t;
 
 extern const bio_tag_t BIO_OS_ERROR;
@@ -80,18 +79,6 @@ bio_current_coro(void);
 
 void
 bio_yield(void);
-
-#if defined(__GNUC__) || defined(__clang__)
-__attribute__((format(printf, 4, 5)))
-#endif
-void
-bio_set_error(
-	bio_error_t* error,
-	const bio_tag_t* tag,
-	int code,
-	const char* fmt,
-	...
-);
 
 bio_signal_ref_t
 bio_make_signal(void);

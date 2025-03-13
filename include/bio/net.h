@@ -2,7 +2,6 @@
 #define BIO_NET_H
 
 #include "bio.h"
-#include <stddef.h>
 
 typedef struct {
 	bio_handle_t handle;
@@ -36,6 +35,7 @@ typedef struct {
 bool
 bio_net_listen(
 	bio_addr_t* addr,
+	bio_socket_type_t socket_type,
 	bio_socket_t* socket,
 	bio_error_t* error
 );
