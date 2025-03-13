@@ -155,7 +155,12 @@ delayed_destruction_parent(void* userdata) {
 	int arg = 42;
 	bio_spawn(delayed_destruction_child, &arg);
 
-	// Yield to give the child a chance to start
+	// Yield to give the child a chance to start.
+	// The framework cannot help with this.
+	// When this function returns the stack is in an undefined state.
+	// In release mode, this would not be a problem however, in debug, esp with
+	// sanitizer, the old stack seems to be poisoned with garbage.
+	// A wrapper around this function would not be able to preserve its stack.
 	bio_yield();
 }
 
