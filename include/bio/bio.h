@@ -115,7 +115,7 @@ bio_make_handle(void* obj, const bio_tag_t* tag);
 void*
 bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag);
 
-void
+void*
 bio_close_handle(bio_handle_t handle, const bio_tag_t* tag);
 
 static inline int

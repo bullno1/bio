@@ -161,6 +161,8 @@ delayed_destruction_parent(void* userdata) {
 	// In release mode, this would not be a problem however, in debug, esp with
 	// sanitizer, the old stack seems to be poisoned with garbage.
 	// A wrapper around this function would not be able to preserve its stack.
+	// TODO: Add a log/warning/hard crash when a parent exits while some children
+	// has not started to enforce this behaviour.
 	bio_yield();
 }
 

@@ -3,7 +3,6 @@
 
 #define BIO_INITIAL_HANDLE_CAPACITY 4
 
-static bio_handle_t BIO_INVALID_HANDLE = { .index = -1 };
 bio_ctx_t bio_ctx = { 0 };
 
 const bio_tag_t BIO_OS_ERROR = BIO_TAG_INIT("bio.error.os");
@@ -82,7 +81,7 @@ bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag) {
 	return NULL;
 }
 
-void
+void*
 bio_close_handle(bio_handle_t handle, const bio_tag_t* tag) {
 	if (BIO_LIKELY(0 <= handle.index && handle.index < bio_ctx.handle_capacity)) {
 		bio_handle_slot_t* slot = &bio_ctx.handle_slots[handle.index];
@@ -91,8 +90,12 @@ bio_close_handle(bio_handle_t handle, const bio_tag_t* tag) {
 			slot->next_handle_slot = bio_ctx.next_handle_slot;
 			bio_ctx.next_handle_slot = handle.index;
 			--bio_ctx.num_handles;
+
+			return slot->obj;
 		}
 	}
+
+	return NULL;
 }
 
 void
@@ -228,7 +231,7 @@ bio_make_signal(void) {
 
 void
 bio_raise_signal(bio_signal_ref_t ref) {
-	bio_signal_t* signal = bio_resolve_handle(ref.handle, &BIO_SIGNAL_HANDLE);
+	bio_signal_t* signal = bio_close_handle(ref.handle, &BIO_SIGNAL_HANDLE);
 	if (BIO_LIKELY(signal != NULL)) {
 		bio_coro_t* owner = signal->owner;
 
@@ -243,7 +246,6 @@ bio_raise_signal(bio_signal_ref_t ref) {
 		}
 
 		BIO_LIST_REMOVE(&signal->link);
-		bio_close_handle(signal->handle, &BIO_SIGNAL_HANDLE);
 		bio_free(signal);
 	}
 }

@@ -1,5 +1,6 @@
 set(SOURCES
 	"bio.c"
+	"mailbox.c"
 	"minicoro.c"
 )
 add_library(bio STATIC ${SOURCES})

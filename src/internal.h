@@ -44,6 +44,8 @@
 #define BIO_CONTAINER_OF(ptr, type, member) \
 	((type *)((char *)(1 ? (ptr) : &((type *)0)->member) - offsetof(type, member)))
 
+#define BIO_INVALID_HANDLE ((bio_handle_t){ .index = -1 })
+
 typedef struct {
 	const bio_tag_t* tag;
 	void* obj;
