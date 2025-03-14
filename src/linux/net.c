@@ -237,8 +237,10 @@ bio_net_close(bio_socket_t socket, bio_error_t* error) {
 		int result = bio_submit_io_req(sqe, NULL);
 		if (result < 0) {
 			bio_set_errno(error, -result);
+			bio_io_close(fd);
 			return false;
 		} else {
+			bio_io_close(fd);
 			return true;
 		}
 	} else {
