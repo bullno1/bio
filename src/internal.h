@@ -65,6 +65,7 @@ typedef struct mco_coro mco_coro;
 
 BIO_DEFINE_LIST_LINK(bio_signal_link);
 BIO_DEFINE_LIST_LINK(bio_coro_link);
+BIO_DEFINE_LIST_LINK(bio_logger_link);
 
 typedef struct bio_coro_impl_s bio_coro_impl_t;
 
@@ -109,6 +110,9 @@ typedef struct {
 	bio_coro_link_t* next_ready_coros;
 	int32_t num_coros;
 
+	// Logging
+	bio_logger_link_t loggers;
+
 	// Platform specific
 #ifdef __linux__
 	struct io_uring ioring;
@@ -133,6 +137,12 @@ static inline void
 bio_free(void* ptr) {
 	bio_realloc(ptr, 0);
 }
+
+void
+bio_logging_init(void);
+
+void
+bio_logging_cleanup(void);
 
 void
 bio_platform_init(void);

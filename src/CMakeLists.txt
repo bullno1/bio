@@ -2,6 +2,7 @@ set(COMMON_SOURCES
 	"bio.c"
 	"mailbox.c"
 	"net.c"
+	"log.c"
 	"minicoro.c"
 )
 set(LINUX_SOURCES

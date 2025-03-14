@@ -8,7 +8,3 @@ set(SOURCES
 )
 add_executable(tests ${SOURCES})
 target_link_libraries(tests PRIVATE bio blibs)
-
-if (LINUX)
-	#target_link_options(tests PRIVATE -static)
-endif ()

@@ -43,12 +43,15 @@ bio_init(bio_options_t options) {
 	bio_ctx.current_ready_coros = &bio_ctx.ready_coros_a;
 	bio_ctx.next_ready_coros = &bio_ctx.ready_coros_b;
 
+	bio_logging_init();
 	bio_platform_init();
 }
 
 void
 bio_terminate(void) {
 	bio_platform_cleanup();
+	bio_logging_cleanup();
+
 	bio_free(bio_ctx.handle_slots);
 }
 

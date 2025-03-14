@@ -6,6 +6,22 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
+#define BIO_LOG(LEVEL, ...) \
+	bio_log(LEVEL, __FILE__, __LINE__, __VA_ARGS__)
+
+#define BIO_TRACE(...) BIO_LOG(BIO_LOG_LEVEL_TRACE, __VA_ARGS__)
+#define BIO_DEBUG(...) BIO_LOG(BIO_LOG_LEVEL_DEBUG, __VA_ARGS__)
+#define BIO_INFO(...)  BIO_LOG(BIO_LOG_LEVEL_INFO , __VA_ARGS__)
+#define BIO_WARN(...)  BIO_LOG(BIO_LOG_LEVEL_WARN , __VA_ARGS__)
+#define BIO_ERROR(...) BIO_LOG(BIO_LOG_LEVEL_ERROR, __VA_ARGS__)
+#define BIO_FATAL(...) BIO_LOG(BIO_LOG_LEVEL_FATAL, __VA_ARGS__)
+
+#define BIO_ERROR_FMT "%s (%s[%d])"
+#define BIO_ERROR_FMT_ARGS(error) \
+	(bio_has_error((error)) ? bio_strerror((error)) : "No error"), \
+	(bio_has_error((error)) ? (error)->tag->name : "bio.error.core"), \
+	(error)->code
+
 #define BIO_TAG_INIT(NAME) \
 	{ \
 		.name = NAME, \
@@ -27,6 +43,10 @@ typedef struct {
 typedef struct {
 	bio_handle_t handle;
 } bio_signal_t;
+
+typedef struct {
+	bio_handle_t handle;
+} bio_logger_t;
 
 typedef struct {
 	const char* name;
@@ -58,6 +78,29 @@ typedef enum {
 	BIO_CORO_WAITING,
 	BIO_CORO_DEAD,
 } bio_coro_state_t;
+
+typedef enum {
+    BIO_LOG_LEVEL_TRACE,
+    BIO_LOG_LEVEL_DEBUG,
+    BIO_LOG_LEVEL_INFO,
+    BIO_LOG_LEVEL_WARN,
+    BIO_LOG_LEVEL_ERROR,
+    BIO_LOG_LEVEL_FATAL,
+} bio_log_level_t;
+
+typedef struct {
+	bio_coro_t coro;
+	bio_log_level_t level;
+	int line;
+	const char* file;
+} bio_log_ctx_t;
+
+typedef void (*bio_log_fn_t)(
+	void* userdata,
+	const bio_log_ctx_t* ctx,
+	const char* fmt,
+	va_list args
+);
 
 void
 bio_init(bio_options_t options);
@@ -104,6 +147,33 @@ bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag);
 
 void*
 bio_close_handle(bio_handle_t handle, const bio_tag_t* tag);
+
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((format(printf, 4, 5)))
+#endif
+void
+bio_log(
+	bio_log_level_t level,
+	const char* file,
+	int line,
+	const char* fmt,
+	...
+);
+
+bio_logger_t
+bio_add_logger(bio_log_level_t min_level, bio_log_fn_t log_fn, void* userdata);
+
+void
+bio_remove_logger(bio_logger_t logger);
+
+void
+bio_set_min_log_level(bio_logger_t logger, bio_log_level_t level);
+
+// TODO: remove after file I/O is implemented
+#include <stdio.h>
+
+bio_logger_t
+bio_add_file_logger(FILE* file, bio_log_level_t level, bool with_colors);
 
 static inline int
 bio_handle_compare(bio_handle_t lhs, bio_handle_t rhs) {
