@@ -59,18 +59,18 @@ typedef struct mco_coro mco_coro;
 BIO_DEFINE_LIST_LINK(bio_signal_link);
 BIO_DEFINE_LIST_LINK(bio_coro_link);
 
-typedef struct bio_coro_s bio_coro_t;
+typedef struct bio_coro_impl_s bio_coro_impl_t;
 
 typedef struct {
 	bio_signal_link_t link;
 
-	bio_coro_t* owner;
+	bio_coro_impl_t* owner;
 	bio_handle_t handle;
 
 	int wait_counter;
-} bio_signal_t;
+} bio_signal_impl_t;
 
-struct bio_coro_s {
+struct bio_coro_impl_s {
 	bio_coro_link_t link;
 
 	mco_coro* impl;

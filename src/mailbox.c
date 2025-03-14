@@ -1,15 +1,15 @@
+#include "internal.h"
 #include <bio/mailbox.h>
 #include <string.h>
-#include "internal.h"
 
-const bio_tag_t BIO_MAILBOX_HANDLE = BIO_TAG_INIT("bio.handle.mailbox");
+static const bio_tag_t BIO_MAILBOX_HANDLE = BIO_TAG_INIT("bio.handle.mailbox");
 
 typedef struct {
 	uint32_t capacity;
 	uint32_t read;
 	uint32_t write;
 
-	bio_signal_ref_t signal;
+	bio_signal_t signal;
 
 	_Alignas(max_align_t) char data[];
 } bio_mailbox_t;
@@ -83,7 +83,7 @@ bio__mailbox_recv(bio_handle_t handle, void* data, size_t item_size) {
 		// Mailbox is empty
 		if (mailbox->read == mailbox->write) {
 			if (BIO_LIKELY(bio_handle_compare(mailbox->signal.handle, BIO_INVALID_HANDLE) == 0)) {
-				bio_signal_ref_t signal = mailbox->signal = bio_make_signal();
+				bio_signal_t signal = mailbox->signal = bio_make_signal();
 				bio_wait_for_signals(&signal, 1, true);
 			} else {
 				return false;

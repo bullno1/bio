@@ -112,7 +112,7 @@ bio_loop(void) {
 				bio_coro_link_t* coro_link = bio_ctx.current_ready_coros->next;
 				BIO_LIST_REMOVE(coro_link);
 
-				bio_coro_t* coro = BIO_CONTAINER_OF(coro_link, bio_coro_t, link);
+				bio_coro_impl_t* coro = BIO_CONTAINER_OF(coro_link, bio_coro_impl_t, link);
 				coro->state = BIO_CORO_RUNNING;
 				coro->num_blocking_signals = 0;
 				mco_resume(coro->impl);
@@ -132,7 +132,7 @@ bio_loop(void) {
 					) {
 						bio_signal_link_t* next = itr->next;
 
-						bio_signal_t* signal = BIO_CONTAINER_OF(itr, bio_signal_t, link);
+						bio_signal_impl_t* signal = BIO_CONTAINER_OF(itr, bio_signal_impl_t, link);
 						bio_close_handle(signal->handle, &BIO_SIGNAL_HANDLE);
 						bio_free(signal);
 
@@ -157,14 +157,14 @@ bio_loop(void) {
 
 static void
 bio_coro_entry_wrapper(mco_coro* co) {
-	bio_coro_t* args = co->user_data;
+	bio_coro_impl_t* args = co->user_data;
 	args->entrypoint(args->userdata);
 }
 
-bio_coro_ref_t
+bio_coro_t
 bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
-	bio_coro_t* coro = bio_malloc(sizeof(bio_coro_t));
-	*coro = (bio_coro_t){
+	bio_coro_impl_t* coro = bio_malloc(sizeof(bio_coro_impl_t));
+	*coro = (bio_coro_impl_t){
 		.entrypoint = entrypoint,
 		.userdata = userdata,
 		.state = BIO_CORO_READY,
@@ -180,12 +180,12 @@ bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
 	BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
 	++bio_ctx.num_coros;
 
-	return (bio_coro_ref_t){ .handle = coro->handle };
+	return (bio_coro_t){ .handle = coro->handle };
 }
 
 bio_coro_state_t
-bio_coro_state(bio_coro_ref_t ref) {
-	bio_coro_t* coro = bio_resolve_handle(ref.handle, &BIO_CORO_HANDLE);
+bio_coro_state(bio_coro_t ref) {
+	bio_coro_impl_t* coro = bio_resolve_handle(ref.handle, &BIO_CORO_HANDLE);
 	if (BIO_LIKELY(coro != NULL)) {
 		return coro->state;
 	} else {
@@ -198,42 +198,42 @@ bio_yield(void) {
 	mco_yield(mco_running());
 }
 
-bio_coro_ref_t
+bio_coro_t
 bio_current_coro(void) {
 	mco_coro* impl = mco_running();
 	if (BIO_LIKELY(impl)) {
-		bio_coro_t* coro = impl->user_data;
-		return (bio_coro_ref_t){ .handle = coro->handle };
+		bio_coro_impl_t* coro = impl->user_data;
+		return (bio_coro_t){ .handle = coro->handle };
 	} else {
-		return (bio_coro_ref_t){ .handle = BIO_INVALID_HANDLE };
+		return (bio_coro_t){ .handle = BIO_INVALID_HANDLE };
 	}
 }
 
-bio_signal_ref_t
+bio_signal_t
 bio_make_signal(void) {
 	mco_coro* coro_impl = mco_running();
 	if (BIO_LIKELY(coro_impl != NULL)) {
-		bio_coro_t* coro = coro_impl->user_data;
+		bio_coro_impl_t* coro = coro_impl->user_data;
 
-		bio_signal_t* signal = bio_malloc(sizeof(bio_signal_t));
-		*signal = (bio_signal_t){
+		bio_signal_impl_t* signal = bio_malloc(sizeof(bio_signal_impl_t));
+		*signal = (bio_signal_impl_t){
 			.owner = coro,
 			.wait_counter = coro->wait_counter - 1,
 		};
 		signal->handle = bio_make_handle(signal, &BIO_SIGNAL_HANDLE);
 		BIO_LIST_APPEND(&coro->pending_signals, &signal->link);
 
-		return (bio_signal_ref_t){ .handle = signal->handle };
+		return (bio_signal_t){ .handle = signal->handle };
 	} else {
-		return (bio_signal_ref_t){ .handle = BIO_INVALID_HANDLE };
+		return (bio_signal_t){ .handle = BIO_INVALID_HANDLE };
 	}
 }
 
 void
-bio_raise_signal(bio_signal_ref_t ref) {
-	bio_signal_t* signal = bio_close_handle(ref.handle, &BIO_SIGNAL_HANDLE);
+bio_raise_signal(bio_signal_t ref) {
+	bio_signal_impl_t* signal = bio_close_handle(ref.handle, &BIO_SIGNAL_HANDLE);
 	if (BIO_LIKELY(signal != NULL)) {
-		bio_coro_t* owner = signal->owner;
+		bio_coro_impl_t* owner = signal->owner;
 
 		if (
 			owner->state == BIO_CORO_WAITING
@@ -251,26 +251,26 @@ bio_raise_signal(bio_signal_ref_t ref) {
 }
 
 bool
-bio_check_signal(bio_signal_ref_t ref) {
+bio_check_signal(bio_signal_t ref) {
 	bio_signal_t* signal = bio_resolve_handle(ref.handle, &BIO_SIGNAL_HANDLE);
 	return signal == NULL;
 }
 
 void
 bio_wait_for_signals(
-	bio_signal_ref_t* signals,
+	bio_signal_t* signals,
 	int num_signals,
 	bool wait_all
 ) {
 	mco_coro* impl = mco_running();
 	if (BIO_LIKELY(impl != NULL)) {
-		bio_coro_t* coro = impl->user_data;
+		bio_coro_impl_t* coro = impl->user_data;
 
 		// Ensure that only the relevant signals are checked
 		int wait_counter = ++coro->wait_counter;
 		int num_blocking_signals = 0;
 		for (int i = 0; i < num_signals; ++i) {
-			bio_signal_t* signal = bio_resolve_handle(signals[i].handle, &BIO_SIGNAL_HANDLE);
+			bio_signal_impl_t* signal = bio_resolve_handle(signals[i].handle, &BIO_SIGNAL_HANDLE);
 
 			if (BIO_LIKELY(signal != NULL && signal->owner == coro)) {
 				signal->wait_counter = wait_counter;

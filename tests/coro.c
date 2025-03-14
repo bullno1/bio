@@ -7,8 +7,8 @@ static suite_t coro = {
 };
 
 typedef struct {
-	bio_coro_ref_t coro_a;
-	bio_coro_ref_t coro_b;
+	bio_coro_t coro_a;
+	bio_coro_t coro_b;
 	int counter;
 } yield_ctx_t;
 
@@ -52,15 +52,15 @@ TEST(coro, yield) {
 }
 
 typedef struct {
-	bio_coro_ref_t main_coro;
-	bio_signal_ref_t signals[2];
+	bio_coro_t main_coro;
+	bio_signal_t signals[2];
 	int counter;
 } signal_ctx_t;
 
 static void
 signal_all_a_entry(void* userdata) {
 	signal_ctx_t* ctx = userdata;
-	bio_coro_ref_t main_coro = ctx->main_coro;
+	bio_coro_t main_coro = ctx->main_coro;
 
 	CHECK(bio_coro_state(main_coro) == BIO_CORO_WAITING, "Invalid coro state");
 	CHECK(ctx->counter++ == 0, "Invalid scheduling");
@@ -77,7 +77,7 @@ signal_all_a_entry(void* userdata) {
 static void
 signal_one_a_entry(void* userdata) {
 	signal_ctx_t* ctx = userdata;
-	bio_coro_ref_t main_coro = ctx->main_coro;
+	bio_coro_t main_coro = ctx->main_coro;
 
 	CHECK(bio_coro_state(main_coro) == BIO_CORO_WAITING, "Invalid coro state");
 	CHECK(ctx->counter++ == 0, "Invalid scheduling");

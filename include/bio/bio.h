@@ -20,13 +20,13 @@ typedef struct {
 	int32_t gen;
 } bio_handle_t;
 
-typedef struct bio_coro_ref_s {
+typedef struct {
 	bio_handle_t handle;
-} bio_coro_ref_t;
+} bio_coro_t;
 
-typedef struct bio_signal_ref_s {
+typedef struct {
 	bio_handle_t handle;
-} bio_signal_ref_t;
+} bio_signal_t;
 
 typedef struct {
 	const char* name;
@@ -68,30 +68,30 @@ bio_loop(void);
 void
 bio_terminate(void);
 
-bio_coro_ref_t
+bio_coro_t
 bio_spawn(bio_entrypoint_t entrypoint, void* userdata);
 
 bio_coro_state_t
-bio_coro_state(bio_coro_ref_t coro);
+bio_coro_state(bio_coro_t coro);
 
-bio_coro_ref_t
+bio_coro_t
 bio_current_coro(void);
 
 void
 bio_yield(void);
 
-bio_signal_ref_t
+bio_signal_t
 bio_make_signal(void);
 
 void
-bio_raise_signal(bio_signal_ref_t signal);
+bio_raise_signal(bio_signal_t signal);
 
 bool
-bio_check_signal(bio_signal_ref_t signal);
+bio_check_signal(bio_signal_t signal);
 
 void
 bio_wait_for_signals(
-	bio_signal_ref_t* signals,
+	bio_signal_t* signals,
 	int num_signals,
 	bool wait_all
 );
