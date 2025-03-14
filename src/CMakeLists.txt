@@ -1,9 +1,14 @@
-set(SOURCES
+set(COMMON_SOURCES
 	"bio.c"
 	"mailbox.c"
+	"net.c"
 	"minicoro.c"
 )
-add_library(bio STATIC ${SOURCES})
+set(LINUX_SOURCES
+	"linux/common.c"
+	"linux/net.c"
+)
+add_library(bio STATIC ${COMMON_SOURCES} ${LINUX_SOURCES})
 target_include_directories(bio PUBLIC "../include")
 target_link_libraries(bio PRIVATE minicoro)
 

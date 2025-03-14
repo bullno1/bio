@@ -114,4 +114,18 @@ bio_handle_compare(bio_handle_t lhs, bio_handle_t rhs) {
 	}
 }
 
+static inline bool
+bio_has_error(bio_error_t* error) {
+	return error != NULL && error->tag != NULL;
+}
+
+static inline const char*
+bio_strerror(bio_error_t* error) {
+	if (error != NULL && error->tag != NULL) {
+		return error->strerror(error->code);
+	} else {
+		return NULL;
+	}
+}
+
 #endif

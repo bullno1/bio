@@ -21,22 +21,45 @@ typedef enum {
 typedef struct {
 	bio_addr_type_t type;
 	union {
-		char ipv4[8];
+		char ipv4[4];
 		char ipv6[16];
 		struct {
 			size_t len;
-			char content[256];
+			char name[256];
 		} named;
 	} addr;
-
-	uint16_t port;
 } bio_addr_t;
+
+typedef uint16_t bio_port_t;
+
+static const bio_port_t BIO_PORT_ANY = 0;
+
+static const bio_addr_t BIO_ADDR_IPV4_ANY = {
+	.type = BIO_ADDR_IPV4,
+	.addr.ipv4 = { 0 },
+};
+
+static const bio_addr_t BIO_ADDR_IPV4_LOOPBACK = {
+	.type = BIO_ADDR_IPV4,
+	.addr.ipv4 = { 127, 0, 0, 1 },
+};
+
+static const bio_addr_t BIO_ADDR_IPV6_ANY = {
+	.type = BIO_ADDR_IPV6,
+	.addr.ipv6 = { 0 },
+};
+
+static const bio_addr_t BIO_ADDR_IPV6_LOOPBACK = {
+	.type = BIO_ADDR_IPV6,
+	.addr.ipv6 = { [15] = 1 },
+};
 
 bool
 bio_net_listen(
-	bio_addr_t* addr,
 	bio_socket_type_t socket_type,
-	bio_socket_t* socket,
+	const bio_addr_t* addr,
+	bio_port_t port,
+	bio_socket_t* sock,
 	bio_error_t* error
 );
 
@@ -49,7 +72,9 @@ bio_net_accept(
 
 bool
 bio_net_connect(
-	bio_addr_t* addr,
+	bio_socket_type_t socket_type,
+	const bio_addr_t* addr,
+	bio_port_t port,
 	bio_socket_t* socket,
 	bio_error_t* error
 );
@@ -90,5 +115,8 @@ bio_net_recvfrom(
 	size_t size,
 	bio_error_t* error
 );
+
+int
+bio_net_address_compare(const bio_addr_t* lhs, const bio_addr_t* rhs);
 
 #endif

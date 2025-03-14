@@ -5,11 +5,10 @@
 
 bio_ctx_t bio_ctx = { 0 };
 
-const bio_tag_t BIO_OS_ERROR = BIO_TAG_INIT("bio.error.os");
-const bio_tag_t BIO_CORE_ERROR = BIO_TAG_INIT("bio.error.core");
+const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.platform");
 
-const bio_tag_t BIO_CORO_HANDLE = BIO_TAG_INIT("bio.handle.coro");
-const bio_tag_t BIO_SIGNAL_HANDLE = BIO_TAG_INIT("bio.handle.signal");
+static const bio_tag_t BIO_CORO_HANDLE = BIO_TAG_INIT("bio.handle.coro");
+static const bio_tag_t BIO_SIGNAL_HANDLE = BIO_TAG_INIT("bio.handle.signal");
 
 static inline void
 bio_grow_handle_table(int32_t old_capacity, int32_t new_capacity) {
@@ -43,10 +42,13 @@ bio_init(bio_options_t options) {
 	BIO_LIST_INIT(&bio_ctx.ready_coros_b);
 	bio_ctx.current_ready_coros = &bio_ctx.ready_coros_a;
 	bio_ctx.next_ready_coros = &bio_ctx.ready_coros_b;
+
+	bio_platform_init();
 }
 
 void
 bio_terminate(void) {
+	bio_platform_cleanup();
 	bio_free(bio_ctx.handle_slots);
 }
 
@@ -101,57 +103,55 @@ bio_close_handle(bio_handle_t handle, const bio_tag_t* tag) {
 void
 bio_loop(void) {
 	while (true) {
-		// Do I/O
+		// Pop and run coros off the current list until it is empty
+		while (!BIO_LIST_IS_EMPTY(bio_ctx.current_ready_coros)) {
+			bio_coro_link_t* coro_link = bio_ctx.current_ready_coros->next;
+			BIO_LIST_REMOVE(coro_link);
 
-		// Schedule coros
-		{
-			if (bio_ctx.num_coros == 0) { break; }
-
-			// Pop and run coros off the current list until it is empty
-			while (!BIO_LIST_IS_EMPTY(bio_ctx.current_ready_coros)) {
-				bio_coro_link_t* coro_link = bio_ctx.current_ready_coros->next;
-				BIO_LIST_REMOVE(coro_link);
-
-				bio_coro_impl_t* coro = BIO_CONTAINER_OF(coro_link, bio_coro_impl_t, link);
-				coro->state = BIO_CORO_RUNNING;
-				coro->num_blocking_signals = 0;
-				mco_resume(coro->impl);
-				if (mco_status(coro->impl) != MCO_DEAD) {
-					bool waiting = coro->num_blocking_signals > 0;
-					coro->state = waiting ? BIO_CORO_WAITING : BIO_CORO_READY;
-					if (!waiting) {
-						BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
-					}
-				} else {
-					// TODO: Wait until all pending iops finished or cancel them
-
-					// Destroy all signals
-					for (
-						bio_signal_link_t* itr = coro->pending_signals.next;
-						itr != &coro->pending_signals;
-					) {
-						bio_signal_link_t* next = itr->next;
-
-						bio_signal_impl_t* signal = BIO_CONTAINER_OF(itr, bio_signal_impl_t, link);
-						bio_close_handle(signal->handle, &BIO_SIGNAL_HANDLE);
-						bio_free(signal);
-
-						itr = next;
-					}
-
-					// Destroy the coroutine
-					mco_destroy(coro->impl);
-					bio_close_handle(coro->handle, &BIO_CORO_HANDLE);
-					bio_free(coro);
-					--bio_ctx.num_coros;
+			bio_coro_impl_t* coro = BIO_CONTAINER_OF(coro_link, bio_coro_impl_t, link);
+			coro->state = BIO_CORO_RUNNING;
+			coro->num_blocking_signals = 0;
+			mco_resume(coro->impl);
+			if (mco_status(coro->impl) != MCO_DEAD) {
+				bool waiting = coro->num_blocking_signals > 0;
+				coro->state = waiting ? BIO_CORO_WAITING : BIO_CORO_READY;
+				if (!waiting) {
+					BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
 				}
-			}
+			} else {
+				// TODO: Wait until all pending iops finished or cancel them
 
-			// Swap the coro lists
-			bio_coro_link_t* tmp = bio_ctx.next_ready_coros;
-			bio_ctx.next_ready_coros = bio_ctx.current_ready_coros;
-			bio_ctx.current_ready_coros = tmp;
+				// Destroy all signals
+				for (
+					bio_signal_link_t* itr = coro->pending_signals.next;
+					itr != &coro->pending_signals;
+				) {
+					bio_signal_link_t* next = itr->next;
+
+					bio_signal_impl_t* signal = BIO_CONTAINER_OF(itr, bio_signal_impl_t, link);
+					bio_close_handle(signal->handle, &BIO_SIGNAL_HANDLE);
+					bio_free(signal);
+
+					itr = next;
+				}
+
+				// Destroy the coroutine
+				mco_destroy(coro->impl);
+				bio_close_handle(coro->handle, &BIO_CORO_HANDLE);
+				bio_free(coro);
+				--bio_ctx.num_coros;
+			}
 		}
+
+		if (bio_ctx.num_coros == 0) { break; }
+
+		// Perform I/O
+		bio_platform_update(BIO_LIST_IS_EMPTY(bio_ctx.next_ready_coros));
+
+		// Swap the coro lists
+		bio_coro_link_t* tmp = bio_ctx.next_ready_coros;
+		bio_ctx.next_ready_coros = bio_ctx.current_ready_coros;
+		bio_ctx.current_ready_coros = tmp;
 	}
 }
 

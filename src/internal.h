@@ -1,6 +1,13 @@
 #ifndef BIO_INTERNAL_H
 #define BIO_INTERNAL_H
 
+#ifdef __linux__
+#	define _GNU_SOURCE
+#	include <liburing.h>
+#else
+#	error "Unsupported platform"
+#endif
+
 #include <bio/bio.h>
 
 #ifdef __GNUC__
@@ -101,12 +108,16 @@ typedef struct {
 	bio_coro_link_t* current_ready_coros;
 	bio_coro_link_t* next_ready_coros;
 	int32_t num_coros;
+
+	// Platform specific
+#ifdef __linux__
+	struct io_uring ioring;
+#endif
 } bio_ctx_t;
 
 extern bio_ctx_t bio_ctx;
 
-extern const bio_tag_t BIO_CORO_HANDLE;
-extern const bio_tag_t BIO_SIGNALHANDLE;
+extern const bio_tag_t BIO_PLATFORM_ERROR;
 
 static inline void*
 bio_realloc(void* ptr, size_t size) {
@@ -122,5 +133,14 @@ static inline void
 bio_free(void* ptr) {
 	bio_realloc(ptr, 0);
 }
+
+void
+bio_platform_init(void);
+
+void
+bio_platform_cleanup(void);
+
+void
+bio_platform_update(bool wait);
 
 #endif

@@ -35,6 +35,19 @@ typedef struct {
 		} \
 	} while (0)
 
+#define CHECK_NO_ERROR(error) \
+	do { \
+		if (bio_has_error(&(error))) { \
+			fprintf( \
+				stderr, "%s:%d: %s (%s[%d])\n", \
+				__FILE__, __LINE__, \
+				bio_strerror(&(error)), \
+				(error).tag->name, (error).code \
+			); \
+			abort(); \
+		} \
+	} while (0)
+
 void
 init_bio(void);
 

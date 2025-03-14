@@ -17,8 +17,12 @@ set(LIBURING_SOURCES
 	"liburing/src/setup.c"
 	"liburing/src/syscall.c"
 	"liburing/src/version.c"
+	$<$<CONFIG:Debug>:liburing/src/sanitize.c>
 )
 add_library(liburing STATIC EXCLUDE_FROM_ALL "${LIBURING_SOURCES}")
-target_include_directories(liburing PUBLIC "liburing/src/include")
-target_compile_definitions(liburing PRIVATE "_GNU_SOURCE")
+target_include_directories(liburing SYSTEM PUBLIC "liburing/src/include")
+target_compile_definitions(liburing PRIVATE
+	"_GNU_SOURCE"
+	$<$<CONFIG:Debug>:CONFIG_USE_SANITIZER>
+)
 set_target_properties(liburing PROPERTIES PREFIX "")

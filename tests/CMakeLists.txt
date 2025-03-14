@@ -4,6 +4,11 @@ set(SOURCES
 	"handle.c"
 	"coro.c"
 	"mailbox.c"
+	"net.c"
 )
 add_executable(tests ${SOURCES})
 target_link_libraries(tests PRIVATE bio blibs)
+
+if (LINUX)
+	#target_link_options(tests PRIVATE -static)
+endif ()
