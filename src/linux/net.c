@@ -56,11 +56,12 @@ bio_net_listen(
 		case BIO_ADDR_NAMED:
 			named_addr.sun_family = family = AF_UNIX;
 			if (BIO_LIKELY(0 < addr->addr.named.len && addr->addr.named.len < sizeof(named_addr.sun_path))) {
-				memset(&named_addr, 0, sizeof(named_addr));
+				memset(&named_addr.sun_path, 0, sizeof(named_addr.sun_path));
 				memcpy(named_addr.sun_path, addr->addr.named.name, addr->addr.named.len);
 				if (named_addr.sun_path[0] == '@') {
 					named_addr.sun_path[0] = '\0';
 				}
+				bind_addr = (struct sockaddr*)&named_addr;
 				addr_len = sizeof(named_addr);
 			} else {
 				bio_set_errno(error, EINVAL);
