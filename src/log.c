@@ -15,7 +15,26 @@ typedef struct {
 	FILE* file;
 	char* buf;
 	int buf_len;
+	bool with_colors;
 } bio_file_logger_data_t;
+
+static const char* const BIO_LOG_LEVEL_LABEL[] = {
+    "TRACE",
+    "DEBUG",
+    "INFO ",
+    "WARN ",
+    "ERROR",
+    "FATAL",
+    0
+};
+
+// Appropriated from https://github.com/rxi/log.c (MIT licensed)
+static const char* BIO_LOG_LEVEL_COLOR[] = {
+    "[94m", "[36m", "[32m", "[33m", "[31m", "[35m", NULL
+};
+
+#define BIO_LOG_TERM_CODE  0x1B
+#define BIO_LOG_TERM_RESET "[0m"
 
 void
 bio_logging_init(void) {
@@ -132,13 +151,29 @@ bio_log_to_file(
 		vsnprintf(data->buf, (size_t)data->buf_len, fmt, args);
 	}
 
-	fprintf(
-		data->file,
-		"[%s:%d](%d:%d): %.*s\n",
-		ctx->file, ctx->line,
-		ctx->coro.handle.index, ctx->coro.handle.gen,
-		num_chars, data->buf
-	);
+	if (data->with_colors) {
+		fprintf(
+			data->file,
+			"[%c%s%s%c%s][%s:%d]<%d:%d>: %.*s\n",
+
+			BIO_LOG_TERM_CODE, BIO_LOG_LEVEL_COLOR[ctx->level],
+			BIO_LOG_LEVEL_LABEL[ctx->level],
+			BIO_LOG_TERM_CODE, BIO_LOG_TERM_RESET,
+
+			ctx->file, ctx->line,
+			ctx->coro.handle.index, ctx->coro.handle.gen,
+			num_chars, data->buf
+		);
+	} else {
+		fprintf(
+			data->file,
+			"[%s][%s:%d]<%d:%d>: %.*s\n",
+			BIO_LOG_LEVEL_LABEL[ctx->level],
+			ctx->file, ctx->line,
+			ctx->coro.handle.index, ctx->coro.handle.gen,
+			num_chars, data->buf
+		);
+	}
 }
 
 bio_logger_t
@@ -146,6 +181,7 @@ bio_add_file_logger(FILE* file, bio_log_level_t level, bool with_colors) {
 	bio_file_logger_data_t* data = bio_malloc(sizeof(bio_logger_impl_t));
 	*data = (bio_file_logger_data_t){
 		.file = file,
+		.with_colors = with_colors,
 	};
 	return bio_add_logger(level, bio_log_to_file, data);
 }
