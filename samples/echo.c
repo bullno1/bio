@@ -4,6 +4,7 @@
 #include <string.h>
 #include <bio/bio.h>
 #include <bio/net.h>
+#include <bio/log/file.h>
 
 static void*
 stdlib_realloc(void* ptr, size_t size, void* ctx) {
@@ -59,6 +60,8 @@ echo_handler(void* userdata) {
 
 static void
 echo_server(void* userdata) {
+	bio_logger_t logger = bio_add_file_logger(BIO_STDERR, BIO_LOG_LEVEL_TRACE, true);
+
 	uint16_t port = *(uint16_t*)userdata;
 
 	bio_socket_t server_socket;
@@ -71,6 +74,7 @@ echo_server(void* userdata) {
 		&error
 	)) {
 		BIO_FATAL(BIO_ERROR_FMT, BIO_ERROR_FMT_ARGS(&error));
+		bio_remove_logger(logger);
 		return;
 	}
 	BIO_INFO("Started server");
@@ -94,6 +98,8 @@ echo_server(void* userdata) {
 	if (!bio_net_close(server_socket, &error)) {
 		BIO_WARN(BIO_ERROR_FMT, BIO_ERROR_FMT_ARGS(&error));
 	}
+
+	bio_remove_logger(logger);
 }
 
 int
@@ -115,8 +121,6 @@ main(int argc, const char* argv[]) {
 	bio_init((bio_options_t){
 		.realloc = stdlib_realloc,
 	});
-
-	bio_add_file_logger(stdout, BIO_LOG_LEVEL_TRACE, true);
 
 	bio_spawn(echo_server, &port);
 

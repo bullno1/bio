@@ -7,9 +7,9 @@ typedef struct {
 	bio_handle_t handle;
 } bio_file_t;
 
-extern const bio_file_t BIO_STDIN;
-extern const bio_file_t BIO_STDOUT;
-extern const bio_file_t BIO_STDERR;
+extern bio_file_t BIO_STDIN;
+extern bio_file_t BIO_STDOUT;
+extern bio_file_t BIO_STDERR;
 
 bool
 bio_fopen(
@@ -35,7 +35,24 @@ bio_fread(
 	bio_error_t* error
 );
 
-void
-bio_fclose(bio_file_t file);
+bool
+bio_fseek(
+	bio_file_t file,
+	int64_t offset,
+	int origin,
+	bio_error_t* error
+);
+
+int64_t
+bio_ftell(
+	bio_file_t file,
+	bio_error_t* error
+);
+
+bool
+bio_fflush(bio_file_t file, bio_error_t* error);
+
+bool
+bio_fclose(bio_file_t file, bio_error_t* error);
 
 #endif

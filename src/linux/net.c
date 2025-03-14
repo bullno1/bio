@@ -260,13 +260,7 @@ bio_net_send(
 	if (BIO_LIKELY(impl != NULL)) {
 		struct io_uring_sqe* sqe = bio_acquire_io_req();
 		io_uring_prep_send(sqe, impl->fd, buf, size, 0);
-		int result = bio_submit_io_req(sqe, NULL);
-		if (BIO_LIKELY(result >= 0)) {
-			return (size_t)result;
-		} else {
-			bio_set_errno(error, -result);
-			return 0;
-		}
+		return bio_result_to_size(bio_submit_io_req(sqe, NULL), error);
 	} else {
 		bio_set_errno(error, EINVAL);
 		return 0;
@@ -284,13 +278,7 @@ bio_net_recv(
 	if (BIO_LIKELY(impl != NULL)) {
 		struct io_uring_sqe* sqe = bio_acquire_io_req();
 		io_uring_prep_recv(sqe, impl->fd, buf, size, 0);
-		int result = bio_submit_io_req(sqe, NULL);
-		if (BIO_LIKELY(result >= 0)) {
-			return (size_t)result;
-		} else {
-			bio_set_errno(error, -result);
-			return 0;
-		}
+		return bio_result_to_size(bio_submit_io_req(sqe, NULL), error);
 	} else {
 		bio_set_errno(error, EINVAL);
 		return 0;

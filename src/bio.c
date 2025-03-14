@@ -43,14 +43,16 @@ bio_init(bio_options_t options) {
 	bio_ctx.current_ready_coros = &bio_ctx.ready_coros_a;
 	bio_ctx.next_ready_coros = &bio_ctx.ready_coros_b;
 
-	bio_logging_init();
 	bio_platform_init();
+	bio_fs_init();
+	bio_logging_init();
 }
 
 void
 bio_terminate(void) {
-	bio_platform_cleanup();
 	bio_logging_cleanup();
+	bio_fs_cleanup();
+	bio_platform_cleanup();
 
 	bio_free(bio_ctx.handle_slots);
 }
@@ -232,8 +234,10 @@ bio_make_signal(void) {
 	}
 }
 
-void
+bool
 bio_raise_signal(bio_signal_t ref) {
+	bool owner_waken_up = false;
+
 	bio_signal_impl_t* signal = bio_close_handle(ref.handle, &BIO_SIGNAL_HANDLE);
 	if (BIO_LIKELY(signal != NULL)) {
 		bio_coro_impl_t* owner = signal->owner;
@@ -245,12 +249,15 @@ bio_raise_signal(bio_signal_t ref) {
 			if (--owner->num_blocking_signals == 0) {  // Schedule to run once
 				BIO_LIST_APPEND(bio_ctx.next_ready_coros, &owner->link);
 				owner->state = BIO_CORO_READY;
+				owner_waken_up = true;
 			}
 		}
 
 		BIO_LIST_REMOVE(&signal->link);
 		bio_free(signal);
 	}
+
+	return owner_waken_up;
 }
 
 bool

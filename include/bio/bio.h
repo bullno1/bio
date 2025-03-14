@@ -126,7 +126,7 @@ bio_yield(void);
 bio_signal_t
 bio_make_signal(void);
 
-void
+bool
 bio_raise_signal(bio_signal_t signal);
 
 bool
@@ -168,12 +168,6 @@ bio_remove_logger(bio_logger_t logger);
 
 void
 bio_set_min_log_level(bio_logger_t logger, bio_log_level_t level);
-
-// TODO: remove after file I/O is implemented
-#include <stdio.h>
-
-bio_logger_t
-bio_add_file_logger(FILE* file, bio_log_level_t level, bool with_colors);
 
 static inline int
 bio_handle_compare(bio_handle_t lhs, bio_handle_t rhs) {

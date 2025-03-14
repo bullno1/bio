@@ -153,4 +153,10 @@ bio_platform_cleanup(void);
 void
 bio_platform_update(bool wait);
 
+void
+bio_fs_init(void);
+
+void
+bio_fs_cleanup(void);
+
 #endif

@@ -3,11 +3,13 @@ set(COMMON_SOURCES
 	"mailbox.c"
 	"net.c"
 	"log.c"
+	"log/file.c"
 	"minicoro.c"
 )
 set(LINUX_SOURCES
 	"linux/common.c"
 	"linux/net.c"
+	"linux/file.c"
 )
 add_library(bio STATIC ${COMMON_SOURCES} ${LINUX_SOURCES})
 target_include_directories(bio PUBLIC "../include")

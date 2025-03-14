@@ -11,31 +11,6 @@ typedef struct {
 	void* userdata;
 } bio_logger_impl_t;
 
-typedef struct {
-	FILE* file;
-	char* buf;
-	int buf_len;
-	bool with_colors;
-} bio_file_logger_data_t;
-
-static const char* const BIO_LOG_LEVEL_LABEL[] = {
-    "TRACE",
-    "DEBUG",
-    "INFO ",
-    "WARN ",
-    "ERROR",
-    "FATAL",
-    0
-};
-
-// Appropriated from https://github.com/rxi/log.c (MIT licensed)
-static const char* BIO_LOG_LEVEL_COLOR[] = {
-    "[94m", "[36m", "[32m", "[33m", "[31m", "[35m", NULL
-};
-
-#define BIO_LOG_TERM_CODE  0x1B
-#define BIO_LOG_TERM_RESET "[0m"
-
 void
 bio_logging_init(void) {
 	BIO_LIST_INIT(&bio_ctx.loggers);
@@ -124,64 +99,4 @@ bio_log(
 		itr = next;
 	}
 	va_end(args);
-}
-
-void
-bio_log_to_file(
-	void* userdata,
-	const bio_log_ctx_t* ctx,
-	const char* fmt,
-	va_list args
-) {
-	bio_file_logger_data_t* data = userdata;
-	if (ctx == NULL) {
-		bio_free(data->buf);
-		bio_free(data);
-		return;
-	}
-
-	va_list args_copy;
-	va_copy(args_copy, args);
-	int num_chars = vsnprintf(data->buf, (size_t)data->buf_len, fmt, args_copy);
-	va_end(args_copy);
-	if (num_chars >= (int)data->buf_len) {
-		data->buf = bio_realloc(data->buf, num_chars + 1);
-		data->buf_len = num_chars + 1;
-
-		vsnprintf(data->buf, (size_t)data->buf_len, fmt, args);
-	}
-
-	if (data->with_colors) {
-		fprintf(
-			data->file,
-			"[%c%s%s%c%s][%s:%d]<%d:%d>: %.*s\n",
-
-			BIO_LOG_TERM_CODE, BIO_LOG_LEVEL_COLOR[ctx->level],
-			BIO_LOG_LEVEL_LABEL[ctx->level],
-			BIO_LOG_TERM_CODE, BIO_LOG_TERM_RESET,
-
-			ctx->file, ctx->line,
-			ctx->coro.handle.index, ctx->coro.handle.gen,
-			num_chars, data->buf
-		);
-	} else {
-		fprintf(
-			data->file,
-			"[%s][%s:%d]<%d:%d>: %.*s\n",
-			BIO_LOG_LEVEL_LABEL[ctx->level],
-			ctx->file, ctx->line,
-			ctx->coro.handle.index, ctx->coro.handle.gen,
-			num_chars, data->buf
-		);
-	}
-}
-
-bio_logger_t
-bio_add_file_logger(FILE* file, bio_log_level_t level, bool with_colors) {
-	bio_file_logger_data_t* data = bio_malloc(sizeof(bio_logger_impl_t));
-	*data = (bio_file_logger_data_t){
-		.file = file,
-		.with_colors = with_colors,
-	};
-	return bio_add_logger(level, bio_log_to_file, data);
 }

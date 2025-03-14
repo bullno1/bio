@@ -48,6 +48,8 @@ bio__mailbox_close(bio_handle_t handle) {
 		if (bio_handle_compare(mailbox->signal.handle, BIO_INVALID_HANDLE) != 0) {
 			bio_raise_signal(mailbox->signal);
 		}
+
+		bio_free(mailbox);
 	}
 }
 

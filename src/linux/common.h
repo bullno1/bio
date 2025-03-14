@@ -15,4 +15,24 @@ bio_set_errno(bio_error_t* error, int code);
 int
 bio_io_close(int fd);
 
+static inline size_t
+bio_result_to_size(int result, bio_error_t* error) {
+	if (result >= 0) {
+		return (size_t)result;
+	} else {
+		bio_set_errno(error, -result);
+		return 0;
+	}
+}
+
+static inline bool
+bio_result_to_bool(int result, bio_error_t* error) {
+	if (result >= 0) {
+		return true;
+	} else {
+		bio_set_errno(error, -result);
+		return false;
+	}
+}
+
 #endif
