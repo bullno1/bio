@@ -128,4 +128,9 @@ bio_strerror(bio_error_t* error) {
 	}
 }
 
+static inline void
+bio_clear_error(bio_error_t* error) {
+	if (error != NULL) { error->tag = NULL; }
+}
+
 #endif

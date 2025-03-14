@@ -38,14 +38,19 @@ typedef struct {
 #define CHECK_NO_ERROR(error) \
 	do { \
 		if (bio_has_error(&(error))) { \
-			fprintf( \
-				stderr, "%s:%d: %s (%s[%d])\n", \
-				__FILE__, __LINE__, \
-				bio_strerror(&(error)), \
-				(error).tag->name, (error).code \
-			); \
+			LOG_BIO_ERROR((error)); \
 			abort(); \
 		} \
+	} while (0)
+
+#define LOG_BIO_ERROR(error) \
+	do { \
+		fprintf( \
+			stderr, "%s:%d: %s (%s[%d])\n", \
+			__FILE__, __LINE__, \
+			bio_strerror(&(error)), \
+			(error).tag->name, (error).code \
+		); \
 	} while (0)
 
 void
