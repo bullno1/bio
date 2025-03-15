@@ -16,7 +16,7 @@
 #define BIO_ERROR(...) BIO_LOG(BIO_LOG_LEVEL_ERROR, __VA_ARGS__)
 #define BIO_FATAL(...) BIO_LOG(BIO_LOG_LEVEL_FATAL, __VA_ARGS__)
 
-#define BIO_ERROR_FMT "%s (%s[%d]) [%s:%d]"
+#define BIO_ERROR_FMT "%s (%s[%d]) (from %s:%d)"
 #define BIO_ERROR_FMT_ARGS(error) \
 	(bio_has_error((error)) ? bio_strerror((error)) : "No error"), \
 	(bio_has_error((error)) ? (error)->tag->name : "bio.error.core"), \
@@ -57,12 +57,23 @@ typedef struct {
 } bio_tag_t;
 
 typedef struct {
-	unsigned int io_uring_queue_size;
+	struct {
+		unsigned int queue_size;
+	} io_uring;
 } bio_linux_options_t;
 
 typedef struct {
-	void* memctx;
-	void* (*realloc)(void* ptr, size_t size, void* memctx);
+	void* ctx;
+	void* (*realloc)(void* ptr, size_t size, void* ctx);
+} bio_allocator_t;
+
+typedef struct {
+	bio_allocator_t allocator;
+
+	struct {
+		int num_threads;
+		int queue_size;
+	} thread_pool;
 
 	bio_linux_options_t linux;
 } bio_options_t;
@@ -157,6 +168,16 @@ bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag);
 
 void*
 bio_close_handle(bio_handle_t handle, const bio_tag_t* tag);
+
+void
+bio_run_async(bio_entrypoint_t task, void* userdata, bio_signal_t signal);
+
+static inline void
+bio_run_async_and_wait(bio_entrypoint_t task, void* userdata) {
+	bio_signal_t signal = bio_make_signal();
+	bio_run_async(task, userdata, signal);
+	bio_wait_for_signals(&signal, 1, true);
+}
 
 #if defined(__GNUC__) || defined(__clang__)
 __attribute__((format(printf, 4, 5)))

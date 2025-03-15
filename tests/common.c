@@ -15,7 +15,7 @@ stdlib_realloc(void* ptr, size_t size, void* ctx) {
 void
 init_bio(void) {
 	bio_init(&(bio_options_t){
-		.realloc = stdlib_realloc,
+		.allocator.realloc = stdlib_realloc,
 	});
 }
 

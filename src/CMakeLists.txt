@@ -4,6 +4,8 @@ set(COMMON_SOURCES
 	"net.c"
 	"log.c"
 	"log/file.c"
+	"thread.c"
+	"hthread.c"
 	"minicoro.c"
 )
 set(LINUX_SOURCES

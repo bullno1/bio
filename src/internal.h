@@ -93,6 +93,8 @@ struct bio_coro_impl_s {
 	int wait_counter;
 };
 
+typedef struct bio_worker_thread_s bio_worker_thread_t;
+
 typedef struct {
 	bio_options_t options;
 
@@ -112,9 +114,18 @@ typedef struct {
 	// Logging
 	bio_logger_link_t loggers;
 
+	// Thread pool
+	bio_worker_thread_t* thread_pool;
+
 	// Platform specific
 	bio_platform_t platform;
 } bio_ctx_t;
+
+typedef enum {
+	BIO_PLATFORM_UPDATE_NO_WAIT,
+	BIO_PLATFORM_UPDATE_WAIT_INDEFINITELY,
+	BIO_PLATFORM_UPDATE_WAIT_NOTIFIABLE,
+} bio_platform_update_type_t;
 
 extern bio_ctx_t bio_ctx;
 
@@ -122,7 +133,7 @@ extern const bio_tag_t BIO_PLATFORM_ERROR;
 
 static inline void*
 bio_realloc(void* ptr, size_t size) {
-	return bio_ctx.options.realloc(ptr, size, bio_ctx.options.memctx);
+	return bio_ctx.options.allocator.realloc(ptr, size, bio_ctx.options.allocator.ctx);
 }
 
 static inline void*
@@ -162,12 +173,24 @@ void
 bio_platform_cleanup(void);
 
 void
-bio_platform_update(bool wait);
+bio_platform_update(bio_platform_update_type_t type);
+
+void
+bio_platform_notify(void);
 
 void
 bio_fs_init(void);
 
 void
 bio_fs_cleanup(void);
+
+void
+bio_thread_init(void);
+
+void
+bio_thread_cleanup(void);
+
+int
+bio_thread_update(void);
 
 #endif

@@ -119,7 +119,7 @@ main(int argc, const char* argv[]) {
 	uint16_t port = (uint16_t)port_number;
 
 	bio_init(&(bio_options_t){
-		.realloc = stdlib_realloc,
+		.allocator.realloc = stdlib_realloc,
 	});
 
 	bio_spawn(echo_server, &port);

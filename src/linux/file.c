@@ -41,6 +41,18 @@ bio_fs_cleanup(void) {
 	bio_free(bio_close_handle(BIO_STDERR.handle, &BIO_FILE_HANDLE));
 }
 
+typedef struct {
+	off64_t result;
+	int fd;
+	int whence;
+} bio_fs_test_lseek_args_t;
+
+static void
+bio_fs_test_lseek(void* userdata) {
+	bio_fs_test_lseek_args_t* args = userdata;
+	args->result = lseek(args->fd, 0, args->whence);
+}
+
 bool
 bio_fopen(
 	bio_file_t* file_ptr,
@@ -74,9 +86,12 @@ bio_fopen(
 	io_uring_prep_open(sqe, filename, flags, S_IRUSR | S_IWUSR);
 	int fd = bio_submit_io_req(sqe, NULL);
 	if (fd >= 0) {
-		// TODO: move this to thread pool?
-		off64_t result = lseek64(fd, 0, (flags & O_APPEND) > 0 ? SEEK_END : SEEK_CUR);
-		*file_ptr = bio_file_from_fd(fd, result, result >= 0);
+		bio_fs_test_lseek_args_t args = {
+			.fd = fd,
+			.whence = (flags & O_APPEND) > 0 ? SEEK_END : SEEK_CUR,
+		};
+		bio_run_async_and_wait(bio_fs_test_lseek, &args);
+		*file_ptr = bio_file_from_fd(fd, args.result, args.result >= 0);
 		return true;
 	} else {
 		bio_set_errno(error, -fd);

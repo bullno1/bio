@@ -44,6 +44,7 @@ bio_init(const bio_options_t* options) {
 	bio_ctx.next_ready_coros = &bio_ctx.ready_coros_b;
 
 	bio_platform_init();
+	bio_thread_init();
 	bio_fs_init();
 	bio_logging_init();
 }
@@ -52,6 +53,7 @@ void
 bio_terminate(void) {
 	bio_logging_cleanup();
 	bio_fs_cleanup();
+	bio_thread_cleanup();
 	bio_platform_cleanup();
 
 	bio_free(bio_ctx.handle_slots);
@@ -150,8 +152,28 @@ bio_loop(void) {
 
 		if (bio_ctx.num_coros == 0) { break; }
 
+		// Poll async jobs
+		int num_running_async_jobs = bio_thread_update();
+
 		// Perform I/O
-		bio_platform_update(BIO_LIST_IS_EMPTY(bio_ctx.next_ready_coros));
+		bio_platform_update_type_t update_type;
+		bool should_wait_for_io = BIO_LIST_IS_EMPTY(bio_ctx.next_ready_coros);
+		if (should_wait_for_io) {
+			if (num_running_async_jobs > 0) {
+				// Allow async jobs to interrupt I/O wait
+				update_type = BIO_PLATFORM_UPDATE_WAIT_NOTIFIABLE;
+			} else {
+				// No running async job to interrupt
+				update_type = BIO_PLATFORM_UPDATE_WAIT_INDEFINITELY;
+			}
+		} else {
+			// With pending coros, we should only process existing I/O ops
+			update_type = BIO_PLATFORM_UPDATE_NO_WAIT;
+		}
+		bio_platform_update(update_type);
+
+		// It is possible that more threads have finished since the I/O wait
+		if (should_wait_for_io) { bio_thread_update(); }
 
 		// Swap the coro lists
 		bio_coro_link_t* tmp = bio_ctx.next_ready_coros;
