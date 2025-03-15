@@ -17,6 +17,7 @@ set(LIBURING_SOURCES
 	"liburing/src/setup.c"
 	"liburing/src/syscall.c"
 	"liburing/src/version.c"
+	"liburing/src/include/liburing/io_uring_version.h"  # Generated
 	$<$<CONFIG:Debug>:liburing/src/sanitize.c>
 )
 add_library(liburing STATIC EXCLUDE_FROM_ALL "${LIBURING_SOURCES}")
@@ -26,3 +27,10 @@ target_compile_definitions(liburing PRIVATE
 	$<$<CONFIG:Debug>:CONFIG_USE_SANITIZER>
 )
 set_target_properties(liburing PROPERTIES PREFIX "")
+add_custom_command(
+	OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/liburing/src/include/liburing/io_uring_version.h
+	COMMAND ./configure
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/liburing
+	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/liburing/configure
+	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/liburing/liburing.spec
+)
