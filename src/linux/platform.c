@@ -11,11 +11,10 @@ typedef struct {
 
 void
 bio_platform_init(void) {
-	// TODO: configurable
-	// * Queue size
-	// * Polling
-	// * No drop
-	int result = io_uring_queue_init(2048, &bio_ctx.platform.ioring, 0);
+	unsigned int queue_size = bio_ctx.options.linux.io_uring_queue_size;
+	if (queue_size == 0) { queue_size = 64; }
+
+	int result = io_uring_queue_init(bio_next_pow2(queue_size), &bio_ctx.platform.ioring, 0);
 	if (result < 0) {
 		fprintf(stderr, "Could not create io_uring: %s\n", strerror(errno));
 		abort();

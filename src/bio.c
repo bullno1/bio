@@ -29,8 +29,8 @@ bio_grow_handle_table(int32_t old_capacity, int32_t new_capacity) {
 }
 
 void
-bio_init(bio_options_t options) {
-	bio_ctx.options = options;
+bio_init(const bio_options_t* options) {
+	bio_ctx.options = *options;
 
 	// Handle
 	bio_ctx.num_handles = 0;

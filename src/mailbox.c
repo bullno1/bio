@@ -14,20 +14,6 @@ typedef struct {
 	_Alignas(max_align_t) char data[];
 } bio_mailbox_t;
 
-static inline uint32_t
-bio_next_pow2(uint32_t v) {
-    uint32_t next = v;
-    next--;
-    next |= next >> 1;
-    next |= next >> 2;
-    next |= next >> 4;
-    next |= next >> 8;
-    next |= next >> 16;
-    next++;
-
-    return next;
-}
-
 void
 bio__mailbox_open(bio_handle_t* handle, size_t item_size, uint32_t capacity) {
 	capacity = bio_next_pow2(capacity);

@@ -57,8 +57,14 @@ typedef struct {
 } bio_tag_t;
 
 typedef struct {
+	unsigned int io_uring_queue_size;
+} bio_linux_options_t;
+
+typedef struct {
 	void* memctx;
 	void* (*realloc)(void* ptr, size_t size, void* memctx);
+
+	bio_linux_options_t linux;
 } bio_options_t;
 
 typedef struct {
@@ -107,7 +113,7 @@ typedef void (*bio_log_fn_t)(
 );
 
 void
-bio_init(bio_options_t options);
+bio_init(const bio_options_t* options);
 
 void
 bio_loop(void);

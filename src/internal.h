@@ -135,6 +135,20 @@ bio_free(void* ptr) {
 	bio_realloc(ptr, 0);
 }
 
+static inline uint32_t
+bio_next_pow2(uint32_t v) {
+    uint32_t next = v;
+    next--;
+    next |= next >> 1;
+    next |= next >> 2;
+    next |= next >> 4;
+    next |= next >> 8;
+    next |= next >> 16;
+    next++;
+
+    return next;
+}
+
 void
 bio_logging_init(void);
 
