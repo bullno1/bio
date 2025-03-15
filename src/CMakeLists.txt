@@ -1,9 +1,11 @@
 set(COMMON_SOURCES
 	"bio.c"
+	"handle.c"
+	"scheduler.c"
 	"mailbox.c"
 	"net.c"
-	"log.c"
-	"log/file.c"
+	"logging.c"
+	"logging/file.c"
 	"thread.c"
 	"hthread.c"
 	"minicoro.c"

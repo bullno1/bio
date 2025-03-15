@@ -96,15 +96,25 @@ struct bio_coro_impl_s {
 typedef struct bio_worker_thread_s bio_worker_thread_t;
 
 typedef struct {
+	bio_time_t due_time_ms;
+	bio_signal_t signal;
+} bio_timer_entry_t;
+
+typedef struct {
 	bio_options_t options;
 
-	// Handle
+	// Handle table
 	bio_handle_slot_t* handle_slots;
 	int32_t handle_capacity;
 	int32_t next_handle_slot;
 	int32_t num_handles;
 
-	// Coro
+	// Timer
+	bio_timer_entry_t* timer_entries;
+	int32_t timer_capacity;
+	int32_t num_timers;
+
+	// Scheduler
 	bio_coro_link_t ready_coros_a;
 	bio_coro_link_t ready_coros_b;
 	bio_coro_link_t* current_ready_coros;
@@ -160,11 +170,53 @@ bio_next_pow2(uint32_t v) {
     return next;
 }
 
+// Handle table
+
+void
+bio_handle_table_init(void);
+
+void
+bio_handle_table_cleanup(void);
+
+// Timer
+
+void
+bio_timer_init(void);
+
+void
+bio_timer_cleanup(void);
+
+bio_time_t
+bio_timer_update(void);
+
+// Scheduler
+
+void
+bio_scheduler_init(void);
+
+void
+bio_scheduler_cleanup(void);
+
+// Thread
+
+void
+bio_thread_init(void);
+
+void
+bio_thread_cleanup(void);
+
+int
+bio_thread_update(void);
+
+// Logging
+
 void
 bio_logging_init(void);
 
 void
 bio_logging_cleanup(void);
+
+// Platform
 
 void
 bio_platform_init(void);
@@ -178,19 +230,15 @@ bio_platform_update(bio_platform_update_type_t type);
 void
 bio_platform_notify(void);
 
+bio_time_t
+bio_platform_get_time_ms(void);
+
+// File
+
 void
 bio_fs_init(void);
 
 void
 bio_fs_cleanup(void);
-
-void
-bio_thread_init(void);
-
-void
-bio_thread_cleanup(void);
-
-int
-bio_thread_update(void);
 
 #endif

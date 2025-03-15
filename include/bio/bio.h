@@ -56,6 +56,8 @@ typedef struct {
 	int line;
 } bio_tag_t;
 
+typedef int64_t bio_time_t;
+
 typedef struct {
 	struct {
 		unsigned int queue_size;
@@ -149,6 +151,12 @@ bio_make_signal(void);
 
 bool
 bio_raise_signal(bio_signal_t signal);
+
+void
+bio_raise_signal_after(bio_signal_t signal, bio_time_t time_ms);
+
+bio_time_t
+bio_get_current_time_ms(void);
 
 bool
 bio_check_signal(bio_signal_t signal);

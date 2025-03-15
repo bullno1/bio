@@ -17,7 +17,12 @@ bio_platform_init(void) {
 	queue_size = bio_next_pow2(queue_size);
 	bio_ctx.options.linux.io_uring.queue_size = queue_size;
 
-	int result = io_uring_queue_init(queue_size, &bio_ctx.platform.ioring, 0);
+	int flags = 0
+		| IORING_SETUP_SUBMIT_ALL
+		| IORING_SETUP_COOP_TASKRUN
+		| IORING_SETUP_SINGLE_ISSUER
+		| IORING_SETUP_DEFER_TASKRUN;
+	int result = io_uring_queue_init(queue_size, &bio_ctx.platform.ioring, flags);
 	if (result < 0) {
 		fprintf(stderr, "Could not create io_uring: %s\n", strerror(errno));
 		abort();

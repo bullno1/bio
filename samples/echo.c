@@ -4,7 +4,7 @@
 #include <string.h>
 #include <bio/bio.h>
 #include <bio/net.h>
-#include <bio/log/file.h>
+#include <bio/logging/file.h>
 
 static void*
 stdlib_realloc(void* ptr, size_t size, void* ctx) {
