@@ -170,8 +170,16 @@ bio_fseek(
 	bio_file_impl_t* impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
 		if (BIO_LIKELY(impl->seekable)) {
-			impl->offset = offset;
-			return true;
+			if (origin == SEEK_SET) {
+				impl->offset = offset;
+				return true;
+			} else if (origin == SEEK_CUR) {
+				impl->offset += offset;
+				return true;
+			} else {
+				bio_set_errno(error, ENOTSUP);
+				return false;
+			}
 		} else {
 			bio_set_errno(error, ENOTSUP);
 			return false;
