@@ -10,7 +10,9 @@ int
 bio_submit_io_req(struct io_uring_sqe* sqe, uint32_t* flags);
 
 void
-bio_set_errno(bio_error_t* error, int code);
+bio_set_errno(bio_error_t* error, int code, const char* file, int line);
+
+#define bio_set_errno(error, code) bio_set_errno(error, code, __FILE__, __LINE__)
 
 int
 bio_io_close(int fd);

@@ -79,11 +79,13 @@ const char* bio_format_errno(int code) {
 }
 
 void
-bio_set_errno(bio_error_t* error, int code) {
+(bio_set_errno)(bio_error_t* error, int code, const char* file, int line) {
 	if (BIO_LIKELY(error != NULL)) {
 		error->tag = &BIO_PLATFORM_ERROR;
 		error->code = code;
 		error->strerror = bio_format_errno;
+		error->file = file;
+		error->line = line;
 	}
 }
 

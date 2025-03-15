@@ -16,11 +16,13 @@
 #define BIO_ERROR(...) BIO_LOG(BIO_LOG_LEVEL_ERROR, __VA_ARGS__)
 #define BIO_FATAL(...) BIO_LOG(BIO_LOG_LEVEL_FATAL, __VA_ARGS__)
 
-#define BIO_ERROR_FMT "%s (%s[%d])"
+#define BIO_ERROR_FMT "%s (%s[%d]) [%s:%d]"
 #define BIO_ERROR_FMT_ARGS(error) \
 	(bio_has_error((error)) ? bio_strerror((error)) : "No error"), \
 	(bio_has_error((error)) ? (error)->tag->name : "bio.error.core"), \
-	(error)->code
+	((error)->code), \
+	((error)->file ? (error)->file : "<no source info>"), \
+	((error)->line)
 
 #define BIO_TAG_INIT(NAME) \
 	{ \
@@ -63,6 +65,8 @@ typedef struct {
 	const bio_tag_t* tag;
 	const char* (*strerror)(int code);
 	int code;
+	const char* file;
+	int line;
 } bio_error_t;
 
 extern const bio_tag_t BIO_OS_ERROR;
