@@ -45,7 +45,7 @@ jobs:
         with:
           mold-version: 2.37.1
       - name: Build
-        run: ./build
+        run: BUILD_TYPE=Debug ./build
       - name: Test
         run: |
           bin/Debug/tests
