@@ -46,10 +46,9 @@ typedef struct {
 #define LOG_BIO_ERROR(error) \
 	do { \
 		fprintf( \
-			stderr, "%s:%d: %s (%s[%d])\n", \
+			stderr, "%s:%d: " BIO_ERROR_FMT "\n", \
 			__FILE__, __LINE__, \
-			bio_strerror(&(error)), \
-			(error).tag->name, (error).code \
+			BIO_ERROR_FMT_ARGS(&error) \
 		); \
 	} while (0)
 

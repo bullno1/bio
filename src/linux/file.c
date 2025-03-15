@@ -96,7 +96,8 @@ bio_fwrite(
 		struct io_uring_sqe* sqe = bio_acquire_io_req();
 		size = size < (size_t)INT32_MAX ? size : (size_t)INT32_MAX;
 		io_uring_prep_write(sqe, impl->fd, buf, size, impl->offset);
-		size_t bytes_written = bio_result_to_size(bio_submit_io_req(sqe, NULL), error);
+		int result = bio_submit_io_req(sqe, NULL);
+		size_t bytes_written = bio_result_to_size(result, error);
 		if (impl->seekable) {
 			impl->offset += bytes_written;
 		}
@@ -119,7 +120,8 @@ bio_fread(
 		struct io_uring_sqe* sqe = bio_acquire_io_req();
 		size = size < (size_t)INT32_MAX ? size : (size_t)INT32_MAX;
 		io_uring_prep_read(sqe, impl->fd, buf, size, impl->offset);
-		size_t bytes_read = bio_result_to_size(bio_submit_io_req(sqe, NULL), error);
+		int result = bio_submit_io_req(sqe, NULL);
+		size_t bytes_read = bio_result_to_size(result, error);
 		if (impl->seekable) {
 			impl->offset += bytes_read;
 		}
@@ -136,7 +138,8 @@ bio_fflush(bio_file_t file, bio_error_t* error) {
 	if (BIO_LIKELY(impl != NULL)) {
 		struct io_uring_sqe* sqe = bio_acquire_io_req();
 		io_uring_prep_fsync(sqe, impl->fd, 0);
-		return bio_result_to_bool(bio_submit_io_req(sqe, NULL), error);
+		int result = bio_submit_io_req(sqe, NULL);
+		return bio_result_to_bool(result, error);
 	} else {
 		bio_set_errno(error, EINVAL);
 		return false;
@@ -149,7 +152,8 @@ bio_fclose(bio_file_t file, bio_error_t* error) {
 	if (BIO_LIKELY(impl != NULL)) {
 		int fd = impl->fd;
 		bio_free(impl);
-		return bio_result_to_bool(bio_io_close(fd), error);
+		int result = bio_io_close(fd);
+		return bio_result_to_bool(result, error);
 	} else {
 		bio_set_errno(error, EINVAL);
 		return false;
