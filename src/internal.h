@@ -126,6 +126,7 @@ typedef struct {
 
 	// Thread pool
 	bio_worker_thread_t* thread_pool;
+	int32_t num_running_async_jobs;
 
 	// Platform specific
 	bio_platform_t platform;
@@ -186,8 +187,11 @@ bio_timer_init(void);
 void
 bio_timer_cleanup(void);
 
-bio_time_t
+void
 bio_timer_update(void);
+
+bio_time_t
+bio_time_until_next_timer(void);
 
 // Scheduler
 
@@ -205,8 +209,11 @@ bio_thread_init(void);
 void
 bio_thread_cleanup(void);
 
-int
+void
 bio_thread_update(void);
+
+int32_t
+bio_num_running_async_jobs(void);
 
 // Logging
 
@@ -225,7 +232,7 @@ void
 bio_platform_cleanup(void);
 
 void
-bio_platform_update(bio_platform_update_type_t type);
+bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable);
 
 void
 bio_platform_notify(void);

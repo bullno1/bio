@@ -35,8 +35,6 @@ bio_loop(void) {
 					BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
 				}
 			} else {
-				// TODO: Wait until all pending iops finished or cancel them
-
 				// Destroy all signals
 				for (
 					bio_signal_link_t* itr = coro->pending_signals.next;
@@ -62,27 +60,23 @@ bio_loop(void) {
 		if (bio_ctx.num_coros == 0) { break; }
 
 		// Poll async jobs
-		int num_running_async_jobs = bio_thread_update();
+		bio_thread_update();
 
-		// Perform I/O
-		bio_platform_update_type_t update_type;
+		// Expire timers
+		bio_timer_update();
+
+		// Perform I/O, wait if there is no ready coros
 		bool should_wait_for_io = BIO_LIST_IS_EMPTY(bio_ctx.next_ready_coros);
-		if (should_wait_for_io) {
-			if (num_running_async_jobs > 0) {
-				// Allow async jobs to interrupt I/O wait
-				update_type = BIO_PLATFORM_UPDATE_WAIT_NOTIFIABLE;
-			} else {
-				// No running async job to interrupt
-				update_type = BIO_PLATFORM_UPDATE_WAIT_INDEFINITELY;
-			}
-		} else {
-			// With pending coros, we should only process existing I/O ops
-			update_type = BIO_PLATFORM_UPDATE_NO_WAIT;
-		}
-		bio_platform_update(update_type);
+		bio_platform_update(
+			should_wait_for_io ? bio_time_until_next_timer() : 0,
+			bio_num_running_async_jobs() > 0
+		);
 
-		// It is possible that more threads have finished since the I/O wait
-		if (should_wait_for_io) { bio_thread_update(); }
+		// Some async tasks or timer might have completed during the long wait
+		if (should_wait_for_io) {
+			bio_thread_update();
+			bio_timer_update();
+		}
 
 		// Swap the coro lists
 		bio_coro_link_t* tmp = bio_ctx.next_ready_coros;

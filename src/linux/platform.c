@@ -27,6 +27,7 @@ bio_platform_init(void) {
 		fprintf(stderr, "Could not create io_uring: %s\n", strerror(errno));
 		abort();
 	}
+	io_uring_ring_dontfork(&bio_ctx.platform.ioring);
 
 	struct io_uring_probe* probe = io_uring_get_probe_ring(&bio_ctx.platform.ioring);
 	bio_ctx.platform.has_op_bind = io_uring_opcode_supported(probe, IORING_OP_BIND);
@@ -42,6 +43,7 @@ bio_platform_init(void) {
 
 void
 bio_platform_cleanup(void) {
+	close(bio_ctx.platform.eventfd);
 	io_uring_queue_exit(&bio_ctx.platform.ioring);
 }
 
@@ -68,28 +70,47 @@ bio_drain_io_completions(void) {
 }
 
 void
-bio_platform_update(bio_platform_update_type_t type) {
-	switch (type) {
-		case BIO_PLATFORM_UPDATE_NO_WAIT:
-			io_uring_submit(&bio_ctx.platform.ioring);
-			bio_drain_io_completions();
-			break;
-		case BIO_PLATFORM_UPDATE_WAIT_INDEFINITELY:
-			io_uring_submit_and_wait(&bio_ctx.platform.ioring, 1);
-			bio_drain_io_completions();
-			break;
-		case BIO_PLATFORM_UPDATE_WAIT_NOTIFIABLE:
-			{
-				// Read from the eventfd so async threads can notify
-				struct io_uring_sqe* sqe = bio_acquire_io_req();
-				uint64_t counter;
-				io_uring_prep_read(sqe, bio_ctx.platform.eventfd, &counter, sizeof(counter), 0);
-				io_uring_sqe_set_data(sqe, NULL);
+bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
+	struct io_uring* ioring = &bio_ctx.platform.ioring;
 
-				io_uring_submit_and_wait(&bio_ctx.platform.ioring, 1);
+	if (wait_timeout_ms == 0) {  // No wait
+		io_uring_submit_and_get_events(ioring);
+		bio_drain_io_completions();
+	} else {
+		uint64_t counter;
+		if (notifiable) {
+			// Read from the eventfd so async threads can notify
+			struct io_uring_sqe* sqe = bio_acquire_io_req();
+			io_uring_prep_read(
+				sqe,
+				bio_ctx.platform.eventfd,
+				&counter, sizeof(counter),
+				0
+			);
+			io_uring_sqe_set_data(sqe, NULL);
+		}
+
+		if (wait_timeout_ms > 0) {  // Wait with timeout
+			struct io_uring_cqe* cqe = NULL;
+
+			struct __kernel_timespec timespec = {
+				.tv_sec = wait_timeout_ms / 1000,
+				.tv_nsec = (wait_timeout_ms % 1000) * 1000000,
+			};
+			int num_submitted = io_uring_submit_and_wait_timeout(ioring, &cqe, 1, &timespec, NULL);
+
+			if (cqe != NULL) {  // We got events
 				bio_drain_io_completions();
 			}
-			break;
+
+			if (num_submitted <= 0) {  // Nothing was submitted due to event or timeout
+				io_uring_submit_and_get_events(ioring);
+				bio_drain_io_completions();
+			}
+		} else {  // Wait indefinitely until there is an event
+			io_uring_submit_and_wait(ioring, 1);
+			bio_drain_io_completions();
+		}
 	}
 }
 
@@ -99,13 +120,20 @@ bio_platform_notify(void) {
 	write(bio_ctx.platform.eventfd, &counter, sizeof(counter));
 }
 
+bio_time_t
+bio_platform_get_time_ms(void) {
+	struct timespec timespec;
+	clock_gettime(CLOCK_MONOTONIC, &timespec);
+	return (timespec.tv_sec * 1000L) + (timespec.tv_nsec / 1000000L);
+}
+
 struct io_uring_sqe*
 bio_acquire_io_req(void) {
 	struct io_uring_sqe* sqe;
 
 	while ((sqe = io_uring_get_sqe(&bio_ctx.platform.ioring)) == NULL) {
+		io_uring_submit_and_get_events(&bio_ctx.platform.ioring);
 		bio_drain_io_completions();
-		io_uring_submit_and_wait(&bio_ctx.platform.ioring, 1);
 	}
 
 	return sqe;

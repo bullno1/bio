@@ -6,6 +6,7 @@ set(SOURCES
 	"mailbox.c"
 	"net.c"
 	"file.c"
+	"timer.c"
 )
 add_executable(tests ${SOURCES})
 target_link_libraries(tests PRIVATE bio blibs)

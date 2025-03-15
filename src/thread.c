@@ -6,8 +6,6 @@ struct bio_worker_thread_s {
 	thrd_t thread;
 	hed_spsc_queue_t request_queue;
 	hed_spsc_queue_t response_queue;
-
-	int num_jobs;
 };
 
 typedef enum {
@@ -80,7 +78,6 @@ bio_thread_init(void) {
 			0
 		);
 		thrd_create(&worker->thread, bio_async_worker, worker);
-		worker->num_jobs = 0;
 	}
 	bio_ctx.thread_pool = workers;
 }
@@ -121,9 +118,8 @@ bio_thread_cleanup(void) {
 	bio_free(bio_ctx.thread_pool);
 }
 
-int
+void
 bio_thread_update(void) {
-	int num_running_jobs = 0;
 	int num_threads = bio_ctx.options.thread_pool.num_threads;
 	bio_worker_thread_t* workers = bio_ctx.thread_pool;
 	for (int i = 0; i < num_threads; ++i) {
@@ -133,16 +129,12 @@ bio_thread_update(void) {
 		while ((msg = hed_spsc_queue_consume(&worker->response_queue, 0)) != NULL) {
 			if (msg->type == BIO_WORKER_MSG_RUN) {
 				bio_raise_signal(msg->run.signal);
-				--worker->num_jobs;
+				--bio_ctx.num_running_async_jobs;
 			}
 
 			bio_free(msg);
 		}
-
-		num_running_jobs += worker->num_jobs;
 	}
-
-	return num_running_jobs;
 }
 
 void
@@ -166,7 +158,7 @@ bio_run_async(bio_entrypoint_t task, void* userdata, bio_signal_t signal) {
 			bio_worker_thread_t* worker = &workers[i];
 			if (hed_spsc_queue_produce(&worker->request_queue, msg, 0)) {
 				message_sent = true;
-				++worker->num_jobs;
+				++bio_ctx.num_running_async_jobs;
 				break;
 			}
 		}
@@ -174,4 +166,9 @@ bio_run_async(bio_entrypoint_t task, void* userdata, bio_signal_t signal) {
 		// Let other threads run
 		if (!message_sent) { bio_yield(); }
 	} while (!message_sent);
+}
+
+int32_t
+bio_num_running_async_jobs(void) {
+	return bio_ctx.num_running_async_jobs;
 }

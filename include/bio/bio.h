@@ -156,7 +156,7 @@ void
 bio_raise_signal_after(bio_signal_t signal, bio_time_t time_ms);
 
 bio_time_t
-bio_get_current_time_ms(void);
+bio_current_time_ms(void);
 
 bool
 bio_check_signal(bio_signal_t signal);

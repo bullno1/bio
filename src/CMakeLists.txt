@@ -1,6 +1,7 @@
 set(COMMON_SOURCES
 	"bio.c"
 	"handle.c"
+	"timer.c"
 	"scheduler.c"
 	"mailbox.c"
 	"net.c"
