@@ -2,8 +2,7 @@
 #define BIO_INTERNAL_H
 
 #ifdef __linux__
-#	define _GNU_SOURCE
-#	include <liburing.h>
+#	include "linux/platform.h"
 #else
 #	error "Unsupported platform"
 #endif
@@ -114,9 +113,7 @@ typedef struct {
 	bio_logger_link_t loggers;
 
 	// Platform specific
-#ifdef __linux__
-	struct io_uring ioring;
-#endif
+	bio_platform_t platform;
 } bio_ctx_t;
 
 extern bio_ctx_t bio_ctx;

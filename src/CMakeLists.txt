@@ -7,7 +7,7 @@ set(COMMON_SOURCES
 	"minicoro.c"
 )
 set(LINUX_SOURCES
-	"linux/common.c"
+	"linux/platform.c"
 	"linux/net.c"
 	"linux/file.c"
 )

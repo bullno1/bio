@@ -122,13 +122,22 @@ bio_make_socket(
 	}
 
 	if (translation_result.should_bind) {
-		sqe = bio_acquire_io_req();
-		io_uring_prep_bind(sqe, fd, translation_result.addr, translation_result.addr_len);
-		result = bio_submit_io_req(sqe, NULL);
-		if (result < 0) {
-			bio_set_errno(error, -result);
-			bio_io_close(fd);
-			return -1;
+		if (bio_ctx.platform.has_op_bind) {
+			sqe = bio_acquire_io_req();
+			io_uring_prep_bind(sqe, fd, translation_result.addr, translation_result.addr_len);
+			result = bio_submit_io_req(sqe, NULL);
+			if (result < 0) {
+				bio_set_errno(error, -result);
+				bio_io_close(fd);
+				return -1;
+			}
+		} else {
+			result = bind(fd, translation_result.addr, translation_result.addr_len);
+			if (result < 0) {
+				bio_set_errno(error, errno);
+				bio_io_close(fd);
+				return -1;
+			}
 		}
 	}
 
@@ -156,13 +165,24 @@ bio_net_listen(
 	if (fd < 0) { return false; }
 
 	// TODO: make configurable
-	struct io_uring_sqe* sqe = bio_acquire_io_req();
-	io_uring_prep_listen(sqe, fd, 5);
-	int result = bio_submit_io_req(sqe, NULL);
-	if (result < 0) {
-		bio_set_errno(error, -result);
-		bio_io_close(fd);
-		return false;
+	int backlog = 5;
+
+	if (bio_ctx.platform.has_op_listen) {
+		struct io_uring_sqe* sqe = bio_acquire_io_req();
+		io_uring_prep_listen(sqe, fd, backlog);
+		int result = bio_submit_io_req(sqe, NULL);
+		if (result < 0) {
+			bio_set_errno(error, -result);
+			bio_io_close(fd);
+			return false;
+		}
+	} else {
+		int result = listen(fd, backlog);
+		if (result < 0) {
+			bio_set_errno(error, errno);
+			bio_io_close(fd);
+			return false;
+		}
 	}
 
 	*sock = bio_socket_from_fd(fd);

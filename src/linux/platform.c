@@ -1,5 +1,7 @@
 #include "common.h"
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct {
 	bio_signal_t signal;
@@ -13,12 +15,21 @@ bio_platform_init(void) {
 	// * Queue size
 	// * Polling
 	// * No drop
-	io_uring_queue_init(2048, &bio_ctx.ioring, 0);
+	int result = io_uring_queue_init(2048, &bio_ctx.platform.ioring, 0);
+	if (result < 0) {
+		fprintf(stderr, "Could not create io_uring: %s\n", strerror(errno));
+		abort();
+	}
+
+	struct io_uring_probe* probe = io_uring_get_probe_ring(&bio_ctx.platform.ioring);
+	bio_ctx.platform.has_op_bind = io_uring_opcode_supported(probe, IORING_OP_BIND);
+	bio_ctx.platform.has_op_listen = io_uring_opcode_supported(probe, IORING_OP_LISTEN);
+	free(probe);
 }
 
 void
 bio_platform_cleanup(void) {
-	io_uring_queue_exit(&bio_ctx.ioring);
+	io_uring_queue_exit(&bio_ctx.platform.ioring);
 }
 
 static void
@@ -27,7 +38,7 @@ bio_drain_io_completions(void) {
 	unsigned head;
 	unsigned i = 0;
 
-	io_uring_for_each_cqe(&bio_ctx.ioring, head, cqe) {
+	io_uring_for_each_cqe(&bio_ctx.platform.ioring, head, cqe) {
 		bio_io_req_t* request = io_uring_cqe_get_data(cqe);
 		if (BIO_LIKELY(request != NULL)) {
 			request->res = cqe->res;
@@ -40,12 +51,12 @@ bio_drain_io_completions(void) {
 		++i;
 	}
 
-	io_uring_cq_advance(&bio_ctx.ioring, i);
+	io_uring_cq_advance(&bio_ctx.platform.ioring, i);
 }
 
 void
 bio_platform_update(bool wait) {
-	io_uring_submit_and_wait(&bio_ctx.ioring, wait ? 1 : 0);
+	io_uring_submit_and_wait(&bio_ctx.platform.ioring, wait ? 1 : 0);
 	bio_drain_io_completions();
 }
 
@@ -53,9 +64,9 @@ struct io_uring_sqe*
 bio_acquire_io_req(void) {
 	struct io_uring_sqe* sqe;
 
-	while ((sqe = io_uring_get_sqe(&bio_ctx.ioring)) == NULL) {
+	while ((sqe = io_uring_get_sqe(&bio_ctx.platform.ioring)) == NULL) {
 		bio_drain_io_completions();
-		io_uring_submit_and_wait(&bio_ctx.ioring, 1);
+		io_uring_submit_and_wait(&bio_ctx.platform.ioring, 1);
 	}
 
 	return sqe;
