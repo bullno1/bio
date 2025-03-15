@@ -113,6 +113,7 @@ typedef struct {
 	bio_timer_entry_t* timer_entries;
 	int32_t timer_capacity;
 	int32_t num_timers;
+	bio_time_t current_time_ms;
 
 	// Scheduler
 	bio_coro_link_t ready_coros_a;
@@ -238,7 +239,7 @@ void
 bio_platform_notify(void);
 
 bio_time_t
-bio_platform_get_time_ms(void);
+bio_platform_current_time_ms(void);
 
 // File
 

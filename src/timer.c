@@ -7,6 +7,7 @@ bio_timer_init(void) {
 	bio_ctx.timer_entries = bio_malloc(BIO_INITIAL_TIMER_CAPACITY * sizeof(bio_timer_entry_t));
 	bio_ctx.num_timers = 0;
 	bio_ctx.timer_capacity = BIO_INITIAL_TIMER_CAPACITY;
+	bio_ctx.current_time_ms = bio_platform_current_time_ms();
 }
 
 void
@@ -39,7 +40,7 @@ bio_raise_signal_after(bio_signal_t signal, bio_time_t time_ms) {
 		}
 
 		// Heap insert the new timer
-		bio_time_t current_time = bio_platform_get_time_ms();
+		bio_time_t current_time = bio_ctx.current_time_ms;
 		int32_t current = bio_ctx.num_timers;
 		bio_ctx.timer_entries[current].due_time_ms = current_time + time_ms;
 		bio_ctx.timer_entries[current].signal = signal;
@@ -60,7 +61,7 @@ bio_raise_signal_after(bio_signal_t signal, bio_time_t time_ms) {
 
 void
 bio_timer_update(void) {
-	bio_time_t current_time = bio_platform_get_time_ms();
+	bio_time_t current_time = bio_ctx.current_time_ms = bio_platform_current_time_ms();
 
 	bio_timer_entry_t* entries = bio_ctx.timer_entries;
 	while (
@@ -100,7 +101,7 @@ bio_timer_update(void) {
 bio_time_t
 bio_time_until_next_timer(void) {
 	if (bio_ctx.num_timers > 0) {
-		bio_time_t current_time = bio_platform_get_time_ms();
+		bio_time_t current_time = bio_platform_current_time_ms();
 		bio_time_t due_time = bio_ctx.timer_entries[0].due_time_ms;
 
 		if (due_time < current_time) {

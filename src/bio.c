@@ -30,5 +30,5 @@ bio_terminate(void) {
 
 bio_time_t
 bio_current_time_ms(void) {
-	return bio_platform_get_time_ms();
+	return bio_platform_current_time_ms();
 }

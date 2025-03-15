@@ -32,6 +32,7 @@ bio_async_worker(void* userdata) {
 	while (running) {
 		bio_worker_msg_t* msg = hed_spsc_queue_consume(&self->request_queue, -1);
 
+		// TODO: This fails
 		switch (msg->type) {
 			case BIO_WORKER_MSG_NOOP:
 				break;

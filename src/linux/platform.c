@@ -121,7 +121,7 @@ bio_platform_notify(void) {
 }
 
 bio_time_t
-bio_platform_get_time_ms(void) {
+bio_platform_current_time_ms(void) {
 	struct timespec timespec;
 	clock_gettime(CLOCK_MONOTONIC, &timespec);
 	return (timespec.tv_sec * 1000L) + (timespec.tv_nsec / 1000000L);
