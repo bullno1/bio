@@ -30,6 +30,7 @@ typedef enum {
 
 typedef struct {
 	bio_worker_msg_type_t type;
+	bool need_notification;
 
 	struct {
 		bio_entrypoint_t fn;
@@ -140,7 +141,10 @@ bio_async_worker(void* userdata) {
 		// If the scheduler is waiting for I/O, wake it up
 		// The condition hopefully introduces a dependency and ensure that
 		// notification is only sent after the queue message is published.
-		if (bio_spscq_produce(&self->response_queue, msg, true)) {
+		if (
+			bio_spscq_produce(&self->response_queue, msg, true)
+			&& msg->need_notification
+		) {
 			bio_platform_notify();
 		}
 	}
@@ -235,6 +239,7 @@ bio_run_async(bio_entrypoint_t task, void* userdata, bio_signal_t signal) {
 	bio_worker_msg_t* msg = bio_malloc(sizeof(bio_worker_msg_t));
 	*msg = (bio_worker_msg_t){
 		.type = BIO_WORKER_MSG_RUN,
+		.need_notification = true,
 		.run = {
 			.fn = task,
 			.userdata = userdata,

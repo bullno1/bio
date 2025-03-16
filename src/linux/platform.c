@@ -3,12 +3,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/eventfd.h>
+#include <linux/futex.h>
+#include <sys/syscall.h>
 
 typedef struct {
 	bio_signal_t signal;
 	int32_t res;
 	uint32_t flags;
 } bio_io_req_t;
+
+static inline int
+futex(
+	uint32_t* uaddr, int futex_op, uint32_t val,
+	const struct timespec *timeout, uint32_t *uaddr2, uint32_t val3
+) {
+	return syscall(SYS_futex, uaddr, futex_op, val, timeout, uaddr2, val3);
+}
 
 void
 bio_platform_init(void) {
@@ -32,9 +42,16 @@ bio_platform_init(void) {
 	struct io_uring_probe* probe = io_uring_get_probe_ring(&bio_ctx.platform.ioring);
 	bio_ctx.platform.has_op_bind = io_uring_opcode_supported(probe, IORING_OP_BIND);
 	bio_ctx.platform.has_op_listen = io_uring_opcode_supported(probe, IORING_OP_LISTEN);
-	free(probe);
+	bio_ctx.platform.has_op_futex_wait = io_uring_opcode_supported(probe, IORING_OP_FUTEX_WAIT);
+	io_uring_free_probe(probe);
 
-	bio_ctx.platform.eventfd = eventfd(0, EFD_CLOEXEC);
+	if (bio_ctx.platform.has_op_futex_wait) {
+		bio_ctx.platform.notification_counter = 0;
+		bio_ctx.platform.ack_counter = 0;
+	} else {
+		bio_ctx.platform.eventfd = eventfd(0, EFD_CLOEXEC);
+	}
+
 	if (bio_ctx.platform.eventfd < 0) {
 		fprintf(stderr, "Could not create eventfd: %s\n", strerror(errno));
 		abort();
@@ -43,7 +60,10 @@ bio_platform_init(void) {
 
 void
 bio_platform_cleanup(void) {
-	close(bio_ctx.platform.eventfd);
+	if (!bio_ctx.platform.has_op_futex_wait) {
+		close(bio_ctx.platform.eventfd);
+	}
+
 	io_uring_queue_exit(&bio_ctx.platform.ioring);
 }
 
@@ -69,55 +89,103 @@ bio_drain_io_completions(void) {
 	io_uring_cq_advance(&bio_ctx.platform.ioring, i);
 }
 
-void
-bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
+static void
+bio_platform_update_wait(bio_time_t wait_timeout_ms, bool notifiable) {
 	struct io_uring* ioring = &bio_ctx.platform.ioring;
 
-	if (wait_timeout_ms == 0) {  // No wait
-		io_uring_submit_and_get_events(ioring);
-		bio_drain_io_completions();
-	} else {
-		uint64_t counter;
-		if (notifiable) {
-			// Read from the eventfd so async threads can notify
-			struct io_uring_sqe* sqe = bio_acquire_io_req();
-			io_uring_prep_read(
-				sqe,
-				bio_ctx.platform.eventfd,
-				&counter, sizeof(counter),
-				0
-			);
-			io_uring_sqe_set_data(sqe, NULL);
+	if (wait_timeout_ms > 0) {  // Wait with timeout
+		struct io_uring_cqe* cqe = NULL;
+
+		struct __kernel_timespec timespec = {
+			.tv_sec = wait_timeout_ms / 1000,
+			.tv_nsec = (wait_timeout_ms % 1000) * 1000000,
+		};
+		int num_submitted = io_uring_submit_and_wait_timeout(ioring, &cqe, 1, &timespec, NULL);
+
+		if (cqe != NULL) {  // We got events
+			bio_drain_io_completions();
 		}
 
-		if (wait_timeout_ms > 0) {  // Wait with timeout
-			struct io_uring_cqe* cqe = NULL;
-
-			struct __kernel_timespec timespec = {
-				.tv_sec = wait_timeout_ms / 1000,
-				.tv_nsec = (wait_timeout_ms % 1000) * 1000000,
-			};
-			int num_submitted = io_uring_submit_and_wait_timeout(ioring, &cqe, 1, &timespec, NULL);
-
-			if (cqe != NULL) {  // We got events
-				bio_drain_io_completions();
-			}
-
-			if (num_submitted <= 0) {  // Nothing was submitted due to event or timeout
-				io_uring_submit_and_get_events(ioring);
-				bio_drain_io_completions();
-			}
-		} else {  // Wait indefinitely until there is an event
-			io_uring_submit_and_wait(ioring, 1);
+		if (num_submitted <= 0) {  // Nothing was submitted due to event or timeout
+			io_uring_submit_and_get_events(ioring);
 			bio_drain_io_completions();
+		}
+	} else {  // Wait indefinitely until there is an event
+		io_uring_submit_and_wait(ioring, 1);
+		bio_drain_io_completions();
+	}
+}
+
+static void
+bio_platform_update_no_wait(void) {
+	struct io_uring* ioring = &bio_ctx.platform.ioring;
+	io_uring_submit_and_get_events(ioring);
+	bio_drain_io_completions();
+}
+
+void
+bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
+	if (wait_timeout_ms == 0) {  // No wait
+		bio_platform_update_no_wait();
+	} else {
+		if (bio_ctx.platform.has_op_futex_wait) { // Using futex for notification
+			unsigned int notification_counter = atomic_load(&bio_ctx.platform.notification_counter);
+			if (bio_ctx.platform.ack_counter != notification_counter) {
+				// Cancel any wait if we got notification
+				bio_platform_update_no_wait();
+				bio_ctx.platform.ack_counter = notification_counter;
+			} else {
+				if (notifiable) {
+					struct io_uring_sqe* sqe = bio_acquire_io_req();
+					io_uring_prep_futex_wait(
+						sqe,
+						(uint32_t*)&bio_ctx.platform.notification_counter,
+						bio_ctx.platform.ack_counter,
+						FUTEX_BITSET_MATCH_ANY,
+						FUTEX2_SIZE_U32 | FUTEX2_PRIVATE,
+						0
+					);
+					io_uring_sqe_set_data(sqe, NULL);
+				}
+
+				bio_platform_update_wait(wait_timeout_ms, notifiable);
+				bio_ctx.platform.ack_counter = atomic_load(&bio_ctx.platform.notification_counter);
+			}
+		} else { // Using eventfd for notification
+			// Read from the eventfd so async threads can notify by writing to it
+			uint64_t counter;
+			if (notifiable) {
+				struct io_uring_sqe* sqe = bio_acquire_io_req();
+				io_uring_prep_read(
+					sqe,
+					bio_ctx.platform.eventfd,
+					&counter, sizeof(counter),
+					0
+				);
+				io_uring_sqe_set_data(sqe, NULL);
+			}
+
+			bio_platform_update_wait(wait_timeout_ms, notifiable);
 		}
 	}
 }
 
 void
 bio_platform_notify(void) {
-	uint64_t counter = 1;
-	write(bio_ctx.platform.eventfd, &counter, sizeof(counter));
+	if (bio_ctx.platform.has_op_futex_wait) {
+		atomic_fetch_add(&bio_ctx.platform.notification_counter, 1);
+		futex(
+			(uint32_t*)&bio_ctx.platform.notification_counter,
+			FUTEX_WAKE_BITSET | (FUTEX2_SIZE_U32 | FUTEX2_PRIVATE),
+			1,
+			NULL,
+			NULL,
+			FUTEX_BITSET_MATCH_ANY
+		);
+	} else {
+		uint64_t counter = 1;
+		write(bio_ctx.platform.eventfd, &counter, sizeof(counter));
+	}
 }
 
 bio_time_t

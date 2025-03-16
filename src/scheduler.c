@@ -108,7 +108,9 @@ bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
 	coro->handle = bio_make_handle(coro, &BIO_CORO_HANDLE);
 
 	bio_array_push(bio_ctx.next_ready_coros, coro);
-	++bio_ctx.num_coros;
+	if (++bio_ctx.num_coros == 1) {
+		bio_timer_update();
+	}
 
 	return (bio_coro_t){ .handle = coro->handle };
 }
