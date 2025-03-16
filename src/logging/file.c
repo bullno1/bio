@@ -19,6 +19,8 @@ typedef BIO_MAILBOX(bio_file_log_msg_t) log_mailbox_t;
 typedef struct {
 	bio_file_t file;
 	bool with_colors;
+	char* prefix;
+	int prefix_len;
 
 	// Serialize log writes through a queue
 	log_mailbox_t log_mailbox;
@@ -115,6 +117,7 @@ bio_log_to_file(
 			bio_yield();
 		}
 
+		bio_free(data->prefix);
 		bio_free(data);
 		return;
 	}
@@ -122,6 +125,16 @@ bio_log_to_file(
 	bio_fmt_buf_t msg_buf = { 0 };
 	bio_fmt_buf_t log_buf = { 0 };
 	bio_vfmt(&msg_buf, fmt, args);
+
+	const char* filename = ctx->file;
+	int len = strlen(filename);
+	if (
+		data->prefix
+		&& len >= data->prefix_len
+		&& memcmp(filename, data->prefix, data->prefix_len) == 0
+	) {
+		filename += data->prefix_len;
+	}
 
 	if (data->with_colors) {
 		bio_fmt(
@@ -132,7 +145,7 @@ bio_log_to_file(
 			BIO_LOG_LEVEL_LABEL[ctx->level],
 			BIO_LOG_TERM_CODE, BIO_LOG_TERM_RESET,
 
-			ctx->file, ctx->line,
+			filename, ctx->line,
 			ctx->coro.handle.index, ctx->coro.handle.gen,
 			msg_buf.len, msg_buf.ptr
 		);
@@ -141,7 +154,7 @@ bio_log_to_file(
 			&log_buf,
 			"[%s][%s:%d]<%d:%d>: %.*s\n",
 			BIO_LOG_LEVEL_LABEL[ctx->level],
-			ctx->file, ctx->line,
+			filename, ctx->line,
 			ctx->coro.handle.index, ctx->coro.handle.gen,
 			msg_buf.len, msg_buf.ptr
 		);
@@ -157,11 +170,37 @@ bio_log_to_file(
 }
 
 bio_logger_t
-bio_add_file_logger(bio_file_t file, bio_log_level_t level, bool with_colors) {
+bio_add_file_logger(const bio_file_logger_options_t* options) {
 	bio_file_logger_data_t* data = bio_malloc(sizeof(bio_file_logger_data_t));
+
+	char* prefix = NULL;
+	int depth = options->current_depth_in_project + 1;
+	int prefix_len = 0;
+	if (options->current_filename != NULL) {
+		int len = strlen(options->current_filename);
+		int i = len - 1;
+		for (; i >= 0; --i) {
+			char ch = options->current_filename[i];
+			if (ch == '/' || ch == '\\') {
+				--depth;
+			}
+
+			if (depth == 0) { break; }
+		}
+
+		if (depth == 0 && i >= 0) {
+			prefix = bio_malloc(i + 1);
+			memcpy(prefix, options->current_filename, i);
+			prefix[i] = '\0';
+			prefix_len = i;
+		}
+	}
+
 	*data = (bio_file_logger_data_t){
-		.file = file,
-		.with_colors = with_colors,
+		.file = options->file,
+		.with_colors = options->with_colors,
+		.prefix = prefix,
+		.prefix_len = prefix_len,
 	};
 
 	// TODO: make configurable
@@ -169,10 +208,10 @@ bio_add_file_logger(bio_file_t file, bio_log_level_t level, bool with_colors) {
 
 	bio_log_file_writer_data_t* writer_data = bio_malloc(sizeof(bio_log_file_writer_data_t));
 	*writer_data = (bio_log_file_writer_data_t){
-		.file = file,
+		.file = options->file,
 		.log_mailbox = data->log_mailbox,
 	};
 	bio_spawn(bio_log_file_writer, writer_data);
 
-	return bio_add_logger(level, bio_log_to_file, data);
+	return bio_add_logger(options->min_level, bio_log_to_file, data);
 }

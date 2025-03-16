@@ -60,7 +60,14 @@ echo_handler(void* userdata) {
 
 static void
 echo_server(void* userdata) {
-	bio_logger_t logger = bio_add_file_logger(BIO_STDERR, BIO_LOG_LEVEL_TRACE, true);
+	bio_logger_t logger = bio_add_file_logger(&(bio_file_logger_options_t){
+		.file = BIO_STDERR,
+		.min_level = BIO_LOG_LEVEL_TRACE,
+		.with_colors = true,
+
+		.current_filename = __FILE__,
+		.current_depth_in_project = 1,
+	});
 
 	uint16_t port = *(uint16_t*)userdata;
 
