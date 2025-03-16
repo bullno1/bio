@@ -6,25 +6,24 @@ static const bio_tag_t BIO_SIGNAL_HANDLE = BIO_TAG_INIT("bio.handle.signal");
 
 void
 bio_scheduler_init(void) {
-	BIO_LIST_INIT(&bio_ctx.ready_coros_a);
-	BIO_LIST_INIT(&bio_ctx.ready_coros_b);
-	bio_ctx.current_ready_coros = &bio_ctx.ready_coros_a;
-	bio_ctx.next_ready_coros = &bio_ctx.ready_coros_b;
+	bio_ctx.num_coros = 0;
 }
 
 void
 bio_scheduler_cleanup(void) {
+	bio_array_free(bio_ctx.next_ready_coros);
+	bio_array_free(bio_ctx.current_ready_coros);
+	bio_ctx.next_ready_coros = NULL;
+	bio_ctx.current_ready_coros = NULL;
 }
 
 void
 bio_loop(void) {
 	while (true) {
 		// Pop and run coros off the current list until it is empty
-		while (!BIO_LIST_IS_EMPTY(bio_ctx.current_ready_coros)) {
-			bio_coro_link_t* coro_link = bio_ctx.current_ready_coros->next;
-			BIO_LIST_REMOVE(coro_link);
-
-			bio_coro_impl_t* coro = BIO_CONTAINER_OF(coro_link, bio_coro_impl_t, link);
+		int num_coros = (int)bio_array_len(bio_ctx.current_ready_coros);
+		for (int i = 0; i < num_coros; ++i) {
+			bio_coro_impl_t* coro = bio_ctx.current_ready_coros[i];
 			coro->state = BIO_CORO_RUNNING;
 			coro->num_blocking_signals = 0;
 			mco_resume(coro->impl);
@@ -32,7 +31,7 @@ bio_loop(void) {
 				bool waiting = coro->num_blocking_signals > 0;
 				coro->state = waiting ? BIO_CORO_WAITING : BIO_CORO_READY;
 				if (!waiting) {
-					BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
+					bio_array_push(bio_ctx.next_ready_coros, coro);
 				}
 			} else {
 				// Destroy all signals
@@ -56,6 +55,7 @@ bio_loop(void) {
 				--bio_ctx.num_coros;
 			}
 		}
+		bio_array_clear(bio_ctx.current_ready_coros);
 
 		if (bio_ctx.num_coros == 0) { break; }
 
@@ -66,7 +66,7 @@ bio_loop(void) {
 		bio_timer_update();
 
 		// Perform I/O, wait if there is no ready coros
-		bool should_wait_for_io = BIO_LIST_IS_EMPTY(bio_ctx.next_ready_coros);
+		bool should_wait_for_io = bio_array_len(bio_ctx.next_ready_coros) == 0;
 		bio_platform_update(
 			should_wait_for_io ? bio_time_until_next_timer() : 0,
 			bio_num_running_async_jobs() > 0
@@ -79,7 +79,7 @@ bio_loop(void) {
 		}
 
 		// Swap the coro lists
-		bio_coro_link_t* tmp = bio_ctx.next_ready_coros;
+		BIO_ARRAY(bio_coro_impl_t*) tmp = bio_ctx.next_ready_coros;
 		bio_ctx.next_ready_coros = bio_ctx.current_ready_coros;
 		bio_ctx.current_ready_coros = tmp;
 	}
@@ -107,7 +107,7 @@ bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
 
 	coro->handle = bio_make_handle(coro, &BIO_CORO_HANDLE);
 
-	BIO_LIST_APPEND(bio_ctx.next_ready_coros, &coro->link);
+	bio_array_push(bio_ctx.next_ready_coros, coro);
 	++bio_ctx.num_coros;
 
 	return (bio_coro_t){ .handle = coro->handle };
@@ -172,7 +172,7 @@ bio_raise_signal(bio_signal_t ref) {
 			&& signal->wait_counter == owner->wait_counter
 		) {
 			if (--owner->num_blocking_signals == 0) {  // Schedule to run once
-				BIO_LIST_APPEND(bio_ctx.next_ready_coros, &owner->link);
+				bio_array_push(bio_ctx.next_ready_coros, owner);
 				owner->state = BIO_CORO_READY;
 				owner_waken_up = true;
 			}

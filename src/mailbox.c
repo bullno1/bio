@@ -11,7 +11,7 @@ typedef struct {
 
 	bio_signal_t signal;
 
-	_Alignas(max_align_t) char data[];
+	_Alignas(BIO_ALIGN_TYPE) char data[];
 } bio_mailbox_t;
 
 void

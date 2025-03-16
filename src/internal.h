@@ -8,6 +8,7 @@
 #endif
 
 #include <bio/bio.h>
+#include "array.h"
 
 #ifdef __GNUC__
 #	define BIO_LIKELY(X) __builtin_expect(!!(X), 1)
@@ -50,6 +51,12 @@
 #define BIO_CONTAINER_OF(ptr, type, member) \
 	((type *)((char *)(1 ? (ptr) : &((type *)0)->member) - offsetof(type, member)))
 
+#ifdef _MSC_VER
+#	define BIO_ALIGN_TYPE long double
+#else
+#	define BIO_ALIGN_TYPE max_align_t
+#endif
+
 #define BIO_INVALID_HANDLE ((bio_handle_t){ .index = -1 })
 
 typedef struct {
@@ -63,7 +70,6 @@ typedef struct {
 typedef struct mco_coro mco_coro;
 
 BIO_DEFINE_LIST_LINK(bio_signal_link);
-BIO_DEFINE_LIST_LINK(bio_coro_link);
 BIO_DEFINE_LIST_LINK(bio_logger_link);
 
 typedef struct bio_coro_impl_s bio_coro_impl_t;
@@ -78,8 +84,6 @@ typedef struct {
 } bio_signal_impl_t;
 
 struct bio_coro_impl_s {
-	bio_coro_link_t link;
-
 	mco_coro* impl;
 	bio_entrypoint_t entrypoint;
 	void* userdata;
@@ -116,10 +120,8 @@ typedef struct {
 	bio_time_t current_time_ms;
 
 	// Scheduler
-	bio_coro_link_t ready_coros_a;
-	bio_coro_link_t ready_coros_b;
-	bio_coro_link_t* current_ready_coros;
-	bio_coro_link_t* next_ready_coros;
+	BIO_ARRAY(bio_coro_impl_t*) current_ready_coros;
+	BIO_ARRAY(bio_coro_impl_t*) next_ready_coros;
 	int32_t num_coros;
 
 	// Logging
