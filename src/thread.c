@@ -1,11 +1,25 @@
 #include "internal.h"
-#include "hthread.h"
-#include <stdio.h>
+#include <threads.h>
+
+typedef struct {
+	mtx_t mtx;
+	cnd_t cnd;
+} bio_thread_signal_t;
+
+typedef struct {
+	bio_thread_signal_t can_produce;
+	bio_thread_signal_t can_consume;
+	atomic_uint count;
+	atomic_uint head;
+	atomic_uint tail;
+	void** values;
+	unsigned int size;
+} bio_spscq_t;
 
 struct bio_worker_thread_s {
 	thrd_t thread;
-	hed_spsc_queue_t request_queue;
-	hed_spsc_queue_t response_queue;
+	bio_spscq_t request_queue;
+	bio_spscq_t response_queue;
 };
 
 typedef enum {
@@ -24,15 +38,94 @@ typedef struct {
 	} run;
 } bio_worker_msg_t;
 
+
+static void
+bio_thread_signal_init(bio_thread_signal_t* signal) {
+	mtx_init(&signal->mtx, mtx_plain);
+	cnd_init(&signal->cnd);
+}
+
+static void
+bio_thread_signal_cleanup(bio_thread_signal_t* signal) {
+	cnd_destroy(&signal->cnd);
+	mtx_destroy(&signal->mtx);
+}
+
+static void
+bio_thread_signal_raise(bio_thread_signal_t* signal) {
+	mtx_lock(&signal->mtx);
+	cnd_signal(&signal->cnd);
+	mtx_unlock(&signal->mtx);
+}
+
+static void
+bio_spscq_init(bio_spscq_t* queue, unsigned int size) {
+	bio_thread_signal_init(&queue->can_produce);
+	bio_thread_signal_init(&queue->can_consume);
+	queue->values = bio_malloc(sizeof(void*) * size);
+	atomic_store(&queue->head, 0);
+	atomic_store(&queue->tail, 0);
+	atomic_store(&queue->count, 0);
+	queue->size = size;
+}
+
+static void
+bio_spscq_cleanup(bio_spscq_t* queue) {
+	bio_free(queue->values);
+	bio_thread_signal_cleanup(&queue->can_consume);
+	bio_thread_signal_cleanup(&queue->can_produce);
+}
+
+static bool
+bio_spscq_produce(bio_spscq_t* queue, void* item, bool wait) {
+	if (atomic_load(&queue->count) == queue->size) {
+		if (!wait) { return false; }
+
+		mtx_lock(&queue->can_produce.mtx);
+		while (queue->count == queue->size) {
+			cnd_wait(&queue->can_produce.cnd, &queue->can_produce.mtx);
+		}
+		mtx_unlock(&queue->can_produce.mtx);
+	}
+
+	unsigned int tail = atomic_fetch_add(&queue->tail, 1);
+	queue->values[tail & (queue->size - 1)] = item;
+	if (atomic_fetch_add(&queue->count, 1) == 0) {
+		bio_thread_signal_raise(&queue->can_consume);
+	}
+
+	return true;
+}
+
+static void*
+bio_spscq_consume(bio_spscq_t* queue, bool wait) {
+	if (atomic_load(&queue->count) == 0) {
+		if (!wait) { return NULL; }
+
+		mtx_lock(&queue->can_consume.mtx);
+		while (queue->count == 0) {
+			cnd_wait(&queue->can_consume.cnd, &queue->can_consume.mtx);
+		}
+		mtx_unlock(&queue->can_consume.mtx);
+	}
+
+	unsigned int head = atomic_fetch_add(&queue->head, 1);
+	void* item = queue->values[head & (queue->size - 1)];
+	if (atomic_fetch_add(&queue->count, -1) == queue->size) {
+		bio_thread_signal_raise(&queue->can_produce);
+	}
+
+	return item;
+}
+
 static int
 bio_async_worker(void* userdata) {
 	bio_worker_thread_t* self = userdata;
 
 	bool running = true;
 	while (running) {
-		bio_worker_msg_t* msg = hed_spsc_queue_consume(&self->request_queue, -1);
+		bio_worker_msg_t* msg = bio_spscq_consume(&self->request_queue, true);
 
-		// TODO: This fails
 		switch (msg->type) {
 			case BIO_WORKER_MSG_NOOP:
 				break;
@@ -45,8 +138,11 @@ bio_async_worker(void* userdata) {
 		}
 
 		// If the scheduler is waiting for I/O, wake it up
-		bio_platform_notify();
-		hed_spsc_queue_produce(&self->response_queue, msg, -1);
+		// The condition hopefully introduces a dependency and ensure that
+		// notification is only sent after the queue message is published.
+		if (bio_spscq_produce(&self->response_queue, msg, true)) {
+			bio_platform_notify();
+		}
 	}
 
 	return 0;
@@ -59,6 +155,7 @@ bio_thread_init(void) {
 
 	int queue_size = bio_ctx.options.thread_pool.queue_size;
 	if (queue_size <= 0) { queue_size = 2; }
+	queue_size = bio_next_pow2(queue_size);
 
 	bio_ctx.options.thread_pool.num_threads = num_threads;
 	bio_ctx.options.thread_pool.queue_size = queue_size;
@@ -66,18 +163,8 @@ bio_thread_init(void) {
 	bio_worker_thread_t* workers = bio_malloc(num_threads * sizeof(bio_worker_thread_t));
 	for (int i = 0; i < num_threads; ++i) {
 		bio_worker_thread_t* worker = &workers[i];
-		hed_spsc_queue_init(
-			&worker->request_queue,
-			queue_size,
-			bio_malloc(queue_size * sizeof(void*)),
-			0
-		);
-		hed_spsc_queue_init(
-			&worker->response_queue,
-			queue_size,
-			bio_malloc(queue_size * sizeof(void*)),
-			0
-		);
+		bio_spscq_init(&worker->request_queue, queue_size);
+		bio_spscq_init(&worker->response_queue, queue_size * 2);
 		thrd_create(&worker->thread, bio_async_worker, worker);
 	}
 	bio_ctx.thread_pool = workers;
@@ -94,29 +181,42 @@ bio_thread_cleanup(void) {
 
 		// Try to send the termination message
 		bio_worker_msg_t* msg;
-		while (!hed_spsc_queue_produce(&worker->request_queue, &terminate, 0)) {
+		while (!bio_spscq_produce(&worker->request_queue, &terminate, false)) {
 			// Either the response queue is full or the worker is busy so we
 			// wait for its first response
-			msg = hed_spsc_queue_consume(&worker->response_queue, -1);
+			msg = bio_spscq_consume(&worker->response_queue, true);
 			while (msg != NULL) {
 				if (msg != &terminate) { bio_free(msg); }
 
 				// Drain as much as possible before retrying
-				msg = hed_spsc_queue_consume(&worker->response_queue, 0);
+				msg = bio_spscq_consume(&worker->response_queue, false);
 			}
 		}
 
 		// Drain and free messages from response queue
-		while ((msg = hed_spsc_queue_consume(&worker->response_queue, 0)) != NULL) {
+		while ((msg = bio_spscq_consume(&worker->response_queue, false)) != NULL) {
 			if (msg != &terminate) { bio_free(msg); }
 		}
 
 		thrd_join(worker->thread, NULL);
-		bio_free(worker->request_queue.values);
-		bio_free(worker->response_queue.values);
+		bio_spscq_cleanup(&worker->response_queue);
+		bio_spscq_cleanup(&worker->request_queue);
 	}
 
 	bio_free(bio_ctx.thread_pool);
+}
+
+static void
+bio_thread_drain_responses(bio_worker_thread_t* worker) {
+	bio_worker_msg_t* msg;
+	while ((msg = bio_spscq_consume(&worker->response_queue, false)) != NULL) {
+		if (msg->type == BIO_WORKER_MSG_RUN) {
+			bio_raise_signal(msg->run.signal);
+			--bio_ctx.num_running_async_jobs;
+		}
+
+		bio_free(msg);
+	}
 }
 
 void
@@ -124,17 +224,7 @@ bio_thread_update(void) {
 	int num_threads = bio_ctx.options.thread_pool.num_threads;
 	bio_worker_thread_t* workers = bio_ctx.thread_pool;
 	for (int i = 0; i < num_threads; ++i) {
-		bio_worker_thread_t* worker = &workers[i];
-
-		bio_worker_msg_t* msg;
-		while ((msg = hed_spsc_queue_consume(&worker->response_queue, 0)) != NULL) {
-			if (msg->type == BIO_WORKER_MSG_RUN) {
-				bio_raise_signal(msg->run.signal);
-				--bio_ctx.num_running_async_jobs;
-			}
-
-			bio_free(msg);
-		}
+		bio_thread_drain_responses(&workers[i]);
 	}
 }
 
@@ -157,7 +247,9 @@ bio_run_async(bio_entrypoint_t task, void* userdata, bio_signal_t signal) {
 		// Try to send to one worker
 		for (int i = 0; i < num_threads; ++i) {
 			bio_worker_thread_t* worker = &workers[i];
-			if (hed_spsc_queue_produce(&worker->request_queue, msg, 0)) {
+			// Drain before submit to prevent queue from filling up
+			bio_thread_drain_responses(worker);
+			if (bio_spscq_produce(&worker->request_queue, msg, false)) {
 				message_sent = true;
 				++bio_ctx.num_running_async_jobs;
 				break;

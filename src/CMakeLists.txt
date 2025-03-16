@@ -8,7 +8,6 @@ set(COMMON_SOURCES
 	"logging.c"
 	"logging/file.c"
 	"thread.c"
-	"hthread.c"
 	"minicoro.c"
 )
 set(LINUX_SOURCES
