@@ -127,7 +127,7 @@ bio_log_to_file(
 	bio_vfmt(&msg_buf, fmt, args);
 
 	const char* filename = ctx->file;
-	int len = strlen(filename);
+	int len = (int)strlen(filename);
 	if (
 		data->prefix
 		&& len >= data->prefix_len
@@ -177,7 +177,7 @@ bio_add_file_logger(const bio_file_logger_options_t* options) {
 	int depth = options->current_depth_in_project + 1;
 	int prefix_len = 0;
 	if (options->current_filename != NULL) {
-		int len = strlen(options->current_filename);
+		int len = (int)strlen(options->current_filename);
 		int i = len - 1;
 		for (; i >= 0; --i) {
 			char ch = options->current_filename[i];

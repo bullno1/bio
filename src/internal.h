@@ -1,8 +1,10 @@
 #ifndef BIO_INTERNAL_H
 #define BIO_INTERNAL_H
 
-#ifdef __linux__
+#if defined(__linux__)
 #	include "linux/platform.h"
+#elif defined(_WIN32)
+#	include "windows/platform.h"
 #else
 #	error "Unsupported platform"
 #endif

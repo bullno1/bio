@@ -25,4 +25,6 @@ bio_net_address_compare(const bio_addr_t* lhs, const bio_addr_t* rhs) {
 	} else {
 		return (int)lhs->type - (int)rhs->type;
 	}
+
+	return false;
 }

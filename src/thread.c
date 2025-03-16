@@ -1,5 +1,6 @@
 #include "internal.h"
 #include <threads.h>
+#include <stdatomic.h>
 
 typedef struct {
 	mtx_t mtx;
@@ -9,7 +10,7 @@ typedef struct {
 typedef struct {
 	bio_thread_signal_t can_produce;
 	bio_thread_signal_t can_consume;
-	atomic_uint count;
+	atomic_int count;
 	atomic_uint head;
 	atomic_uint tail;
 	void** values;
@@ -79,11 +80,11 @@ bio_spscq_cleanup(bio_spscq_t* queue) {
 
 static bool
 bio_spscq_produce(bio_spscq_t* queue, void* item, bool wait) {
-	if (atomic_load(&queue->count) == queue->size) {
+	if (atomic_load(&queue->count) == (int)queue->size) {
 		if (!wait) { return false; }
 
 		mtx_lock(&queue->can_produce.mtx);
-		while (queue->count == queue->size) {
+		while (queue->count == (int)queue->size) {
 			cnd_wait(&queue->can_produce.cnd, &queue->can_produce.mtx);
 		}
 		mtx_unlock(&queue->can_produce.mtx);
@@ -112,7 +113,7 @@ bio_spscq_consume(bio_spscq_t* queue, bool wait) {
 
 	unsigned int head = atomic_fetch_add(&queue->head, 1);
 	void* item = queue->values[head & (queue->size - 1)];
-	if (atomic_fetch_add(&queue->count, -1) == queue->size) {
+	if (atomic_fetch_add(&queue->count, -1) == (int)queue->size) {
 		bio_thread_signal_raise(&queue->can_produce);
 	}
 

@@ -25,8 +25,12 @@ set(CMAKE_C_EXTENSIONS OFF)
 option(BUILD_MINICORO "Should bio also build minicoro" ON)
 
 if (MSVC)
-	# 4200: Flexible array member is a standard feature since C99
-	add_compile_options(/W4 /WX /wd4200)
+	add_compile_options(
+		/experimental:c11atomics  # Welcome to 2023
+		/W3 /WX  # More warning
+		/wd4200  # Flexible array member is a standard feature since C99
+		/wd4324  # Padding and alignment is normal
+	)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
 	# Because CMake can't set proper flags even with CMAKE_INTERPROCEDURAL_OPTIMIZATION_Release

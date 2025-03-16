@@ -16,7 +16,17 @@ set(LINUX_SOURCES
 	"linux/net.c"
 	"linux/file.c"
 )
-add_library(bio STATIC ${COMMON_SOURCES} ${LINUX_SOURCES})
+set(WINDOWS_SOURCES
+	"windows/platform.c"
+)
+
+if (LINUX)
+	set(SOURCES ${COMMON_SOURCES} ${LINUX_SOURCES})
+elseif (WIN32)
+	set(SOURCES ${COMMON_SOURCES} ${WINDOWS_SOURCES})
+endif ()
+
+add_library(bio STATIC ${SOURCES})
 target_include_directories(bio PUBLIC "../include")
 target_link_libraries(bio PRIVATE minicoro)
 
