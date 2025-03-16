@@ -168,6 +168,8 @@ bio_thread_init(void) {
 		thrd_create(&worker->thread, bio_async_worker, worker);
 	}
 	bio_ctx.thread_pool = workers;
+
+	bio_ctx.num_running_async_jobs = 0;
 }
 
 void

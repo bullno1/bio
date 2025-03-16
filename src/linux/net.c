@@ -114,7 +114,7 @@ bio_make_socket(
 
 	int fd;
 	sqe = bio_acquire_io_req();
-	io_uring_prep_socket(sqe, translation_result.addr->sa_family, type | SOCK_NONBLOCK, 0, 0);
+	io_uring_prep_socket(sqe, translation_result.addr->sa_family, type | SOCK_NONBLOCK | SOCK_CLOEXEC, 0, 0);
 	fd = result = bio_submit_io_req(sqe, NULL);
 	if (fd < 0) {
 		bio_set_errno(error, -result);

@@ -83,7 +83,7 @@ bio_fopen(
 	}
 
 	struct io_uring_sqe* sqe = bio_acquire_io_req();
-	io_uring_prep_open(sqe, filename, flags, S_IRUSR | S_IWUSR);
+	io_uring_prep_open(sqe, filename, flags | O_CLOEXEC, S_IRUSR | S_IWUSR);
 	int fd = bio_submit_io_req(sqe, NULL);
 	if (fd >= 0) {
 		bio_fs_test_lseek_args_t args = {
