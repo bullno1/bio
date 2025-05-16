@@ -15,7 +15,13 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/$<CONFIG>)
 
 # Add deps first
 
-add_subdirectory(deps)
+option(BUILD_DEPS "Should bio also build its dependencies" ON)
+option(BUILD_TESTS "Should bio also build its tests" ON)
+option(BUILD_SAMPLES "Should bio also build its samples" ON)
+
+if (BUILD_DEPS)
+	add_subdirectory(deps)
+endif()
 
 # Then everything else to avoid leaking into deps
 
@@ -48,5 +54,11 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH "\${ORIGIN}")
 
 add_subdirectory(src)
-add_subdirectory(samples)
-add_subdirectory(tests)
+
+if (BUILD_SAMPLES)
+	add_subdirectory(samples)
+endif()
+
+if (BUILD_TESTS)
+	add_subdirectory(tests)
+endif()
