@@ -8,6 +8,7 @@ set(COMMON_SOURCES
 	"logging.c"
 	"logging/file.c"
 	"thread.c"
+	"service.c"
 	"array.c"
 	"minicoro.c"
 )

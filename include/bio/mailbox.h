@@ -35,6 +35,9 @@
 #define bio_close_mailbox(mailbox) \
 	bio__mailbox_close((mailbox).bio__handle)
 
+#define bio_is_mailbox_open(mailbox) \
+	bio__mailbox_is_open((mailbox).bio__handle)
+
 #define bio_send_message(mailbox, message) \
 	( \
 		BIO__TYPECHECK_EXP(message, *mailbox.bio__message), \
@@ -58,6 +61,9 @@ bio__mailbox_open(bio_handle_t* handle, size_t item_size, uint32_t capacity);
 
 void
 bio__mailbox_close(bio_handle_t handle);
+
+bool
+bio__mailbox_is_open(bio_handle_t handle);
 
 bool
 bio__mailbox_send(bio_handle_t handle, const void* data, size_t message_size);

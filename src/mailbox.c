@@ -39,6 +39,11 @@ bio__mailbox_close(bio_handle_t handle) {
 	}
 }
 
+bool
+bio__mailbox_is_open(bio_handle_t handle) {
+	return bio_resolve_handle(handle, &BIO_MAILBOX_HANDLE) != NULL;
+}
+
 static inline uint32_t
 bio_queue_index(uint32_t vindex, uint32_t capacity) {
 	return vindex & (capacity - 1);
