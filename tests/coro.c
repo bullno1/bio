@@ -167,6 +167,7 @@ monitor_parent(void* userdata) {
 	// has not started to enforce this behaviour.
 	bio_signal_t child_terminated = bio_make_signal();
 	bio_monitor(child, child_terminated);
+	CHECK(bio_coro_state(child) != BIO_CORO_DEAD, "Invalid child state");
 	bio_wait_for_signals(&child_terminated, 1, true);
 	CHECK(arg == 69, "Child is still running");
 	CHECK(bio_coro_state(child) == BIO_CORO_DEAD, "Invalid child state");
@@ -202,6 +203,32 @@ unmonitor_parent(void* userdata) {
 
 TEST(coro, unmonitor) {
 	bio_spawn(unmonitor_parent, NULL);
+
+	bio_loop();
+}
+
+static void
+monitor_dead_coro_child(void* userdata) {
+}
+
+static void
+monitor_dead_coro_parent(void* userdata) {
+	bio_coro_t child = bio_spawn(monitor_dead_coro_child, NULL);
+	CHECK(bio_coro_state(child) != BIO_CORO_DEAD, "Invalid child state");
+
+	// Busy wait until child stop
+	while (bio_coro_state(child) != BIO_CORO_DEAD) {
+		bio_yield();
+	}
+
+	bio_signal_t child_terminated = bio_make_signal();
+	CHECK(!bio_check_signal(child_terminated), "Signal was raised");
+	bio_monitor(child, child_terminated);
+	CHECK(bio_check_signal(child_terminated), "Signal was not raised immediately");
+}
+
+TEST(coro, monitor_dead_coro) {
+	bio_spawn(monitor_dead_coro_parent, NULL);
 
 	bio_loop();
 }
