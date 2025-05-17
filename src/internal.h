@@ -57,8 +57,6 @@
 #	define BIO_ALIGN_TYPE max_align_t
 #endif
 
-#define BIO_INVALID_HANDLE ((bio_handle_t){ .index = -1 })
-
 typedef struct {
 	const bio_tag_t* tag;
 	void* obj;

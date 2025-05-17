@@ -31,6 +31,9 @@
 		.line = __LINE__, \
 	}
 
+#define BIO_INVALID_HANDLE ((bio_handle_t){ .index = -1 })
+#define BIO_INVALID_HANDLE_INIT { .handle = BIO_INVALID_HANDLE }
+
 typedef void (*bio_entrypoint_t)(void* userdata);
 
 typedef struct {

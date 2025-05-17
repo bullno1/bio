@@ -37,8 +37,8 @@ bio_translate_address(
 			if (bio_net_address_compare(addr, &BIO_ADDR_IPV4_ANY) != 0 || port != BIO_PORT_ANY) {
 				result->storage.ipv4.sin_port = htons(port);
 
-				_Static_assert(sizeof(result->storage.ipv4.sin_addr) == sizeof(addr->addr.ipv4), "Address size mismatch");
-				memcpy(&result->storage.ipv4.sin_addr, addr->addr.ipv4, sizeof(addr->addr.ipv4));
+				_Static_assert(sizeof(result->storage.ipv4.sin_addr) == sizeof(addr->ipv4), "Address size mismatch");
+				memcpy(&result->storage.ipv4.sin_addr, addr->ipv4, sizeof(addr->ipv4));
 
 				result->should_bind = true;
 			}
@@ -51,8 +51,8 @@ bio_translate_address(
 			if (bio_net_address_compare(addr, &BIO_ADDR_IPV6_ANY) != 0 || port != BIO_PORT_ANY) {
 				result->storage.ipv6.sin6_port = htons(port);
 
-				_Static_assert(sizeof(result->storage.ipv6.sin6_addr) == sizeof(addr->addr.ipv6), "Address size mismatch");
-				memcpy(&result->storage.ipv6.sin6_addr, addr->addr.ipv6, sizeof(addr->addr.ipv6));
+				_Static_assert(sizeof(result->storage.ipv6.sin6_addr) == sizeof(addr->ipv6), "Address size mismatch");
+				memcpy(&result->storage.ipv6.sin6_addr, addr->ipv6, sizeof(addr->ipv6));
 
 				result->should_bind = true;
 			}
@@ -62,15 +62,15 @@ bio_translate_address(
 			return true;
 		case BIO_ADDR_NAMED:
 			result->storage.unix.sun_family = AF_UNIX;
-			if (addr->addr.named.len > 0) {
-				if (BIO_LIKELY(addr->addr.named.len < sizeof(result->storage.unix.sun_path))) {
-					memcpy(result->storage.unix.sun_path, addr->addr.named.name, addr->addr.named.len);
+			if (addr->named.len > 0) {
+				if (BIO_LIKELY(addr->named.len < sizeof(result->storage.unix.sun_path))) {
+					memcpy(result->storage.unix.sun_path, addr->named.name, addr->named.len);
 					// Abstract socket
 					if (result->storage.unix.sun_path[0] == '@') {
 						result->storage.unix.sun_path[0] = '\0';
 					}
 					result->addr = (struct sockaddr*)&result->storage.unix;
-					result->addr_len = offsetof(struct sockaddr_un, sun_path) + addr->addr.named.len;
+					result->addr_len = offsetof(struct sockaddr_un, sun_path) + addr->named.len;
 					result->should_bind = true;
 					return true;
 				} else {
@@ -298,7 +298,7 @@ bio_net_recv(
 	bio_socket_impl_t* impl = bio_resolve_handle(socket.handle, &BIO_SOCKET_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
 		struct io_uring_sqe* sqe = bio_acquire_io_req();
-		io_uring_prep_recv(sqe, impl->fd, buf, size, 0);
+		io_uring_prep_recv(sqe, impl->fd, buf, size, IORING_RECVSEND_POLL_FIRST);
 		int result = bio_submit_io_req(sqe, NULL);
 		return bio_result_to_size(result, error);
 	} else {

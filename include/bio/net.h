@@ -27,7 +27,7 @@ typedef struct {
 			size_t len;
 			char name[256];
 		} named;
-	} addr;
+	};
 } bio_addr_t;
 
 typedef uint16_t bio_port_t;
@@ -36,22 +36,22 @@ static const bio_port_t BIO_PORT_ANY = 0;
 
 static const bio_addr_t BIO_ADDR_IPV4_ANY = {
 	.type = BIO_ADDR_IPV4,
-	.addr.ipv4 = { 0 },
+	.ipv4 = { 0 },
 };
 
 static const bio_addr_t BIO_ADDR_IPV4_LOOPBACK = {
 	.type = BIO_ADDR_IPV4,
-	.addr.ipv4 = { 127, 0, 0, 1 },
+	.ipv4 = { 127, 0, 0, 1 },
 };
 
 static const bio_addr_t BIO_ADDR_IPV6_ANY = {
 	.type = BIO_ADDR_IPV6,
-	.addr.ipv6 = { 0 },
+	.ipv6 = { 0 },
 };
 
 static const bio_addr_t BIO_ADDR_IPV6_LOOPBACK = {
 	.type = BIO_ADDR_IPV6,
-	.addr.ipv6 = { [15] = 1 },
+	.ipv6 = { [15] = 1 },
 };
 
 bool
