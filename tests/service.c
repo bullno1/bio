@@ -38,10 +38,7 @@ service_entry(void* userdata) {
 	BIO_MAILBOX(service_msg_t) mailbox;
 	bio_get_service_info(userdata, &mailbox, &start_arg);
 
-	bool should_run = true;
-	while (should_run) {
-		service_msg_t msg;
-		if (!bio_recv_message(mailbox, &msg)) { break; }
+	bio_foreach_message(msg, mailbox) {
 		if (bio_is_call_cancelled(msg)) { continue; }
 
 		switch (msg.type) {
@@ -61,10 +58,11 @@ service_entry(void* userdata) {
 			case DROP:
 				break;
 			case DIE:
-				should_run = false;
+				goto end;
 				break;
 		}
 	}
+end:;
 }
 
 static void

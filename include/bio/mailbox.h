@@ -56,6 +56,12 @@
 #define bio_can_send_message(mailbox) \
 	bio__mailbox_can_send((mailbox).bio__handle)
 
+#define bio_foreach_message(msg, mailbox) \
+	for ( \
+		BIO__TYPEOF(*(mailbox).bio__message) msg; \
+		bio_recv_message(mailbox, &msg); \
+	)
+
 void
 bio__mailbox_open(bio_handle_t* handle, size_t item_size, uint32_t capacity);
 
