@@ -145,29 +145,63 @@ TEST(coro, wait_one_signal) {
 }
 
 static void
-delayed_destruction_child(void* userdata) {
+monitor_child(void* userdata) {
 	int arg = *(int*)userdata;
 	CHECK(arg == 42, "Corrupted arg");
+	bio_yield();  // Parent must wait
+	*(int*)userdata = 69;
 }
 
 static void
-delayed_destruction_parent(void* userdata) {
+monitor_parent(void* userdata) {
 	int arg = 42;
-	bio_spawn(delayed_destruction_child, &arg);
+	bio_coro_t child = bio_spawn(monitor_child, &arg);
 
-	// Yield to give the child a chance to start.
-	// The framework cannot help with this.
+	// Monitor to wait until the child stopped.
 	// When this function returns the stack is in an undefined state.
 	// In release mode, this would not be a problem however, in debug, esp with
 	// sanitizer, the old stack seems to be poisoned with garbage.
+	// The framework cannot help with this.
 	// A wrapper around this function would not be able to preserve its stack.
 	// TODO: Add a log/warning/hard crash when a parent exits while some children
 	// has not started to enforce this behaviour.
+	bio_signal_t child_terminated = bio_make_signal();
+	bio_monitor(child, child_terminated);
+	bio_wait_for_signals(&child_terminated, 1, true);
+	CHECK(arg == 69, "Child is still running");
+	CHECK(bio_coro_state(child) == BIO_CORO_DEAD, "Invalid child state");
+}
+
+TEST(coro, monitor) {
+	bio_spawn(monitor_parent, NULL);
+
+	bio_loop();
+}
+
+static void
+unmonitor_child(void* userdata) {
 	bio_yield();
 }
 
-TEST(coro, delayed_destruction) {
-	bio_spawn(delayed_destruction_parent, NULL);
+static void
+unmonitor_parent(void* userdata) {
+	bio_coro_t child = bio_spawn(unmonitor_child, NULL);
+
+	bio_signal_t child_terminated = bio_make_signal();
+	bio_monitor_t monitor = bio_monitor(child, child_terminated);
+	CHECK(bio_coro_state(child) != BIO_CORO_DEAD, "Invalid child state");
+	bio_unmonitor(monitor);
+
+	// Busy wait until child stop
+	while (bio_coro_state(child) != BIO_CORO_DEAD) {
+		bio_yield();
+	}
+	// Signal must not be raised since we unmonitored the child
+	CHECK(!bio_check_signal(child_terminated), "Signal was raised");
+}
+
+TEST(coro, unmonitor) {
+	bio_spawn(unmonitor_parent, NULL);
 
 	bio_loop();
 }

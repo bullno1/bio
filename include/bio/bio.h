@@ -51,6 +51,10 @@ typedef struct {
 
 typedef struct {
 	bio_handle_t handle;
+} bio_monitor_t;
+
+typedef struct {
+	bio_handle_t handle;
 } bio_logger_t;
 
 typedef struct {
@@ -157,6 +161,12 @@ bio_raise_signal(bio_signal_t signal);
 
 void
 bio_raise_signal_after(bio_signal_t signal, bio_time_t time_ms);
+
+bio_monitor_t
+bio_monitor(bio_coro_t coro, bio_signal_t signal);
+
+void
+bio_unmonitor(bio_monitor_t monitor);
 
 bio_time_t
 bio_current_time_ms(void);

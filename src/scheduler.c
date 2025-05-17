@@ -3,6 +3,7 @@
 
 static const bio_tag_t BIO_CORO_HANDLE = BIO_TAG_INIT("bio.handle.coro");
 static const bio_tag_t BIO_SIGNAL_HANDLE = BIO_TAG_INIT("bio.handle.signal");
+static const bio_tag_t BIO_MONITOR_HANDLE = BIO_TAG_INIT("bio.handle.monitor");
 
 void
 bio_scheduler_init(void) {
@@ -44,6 +45,21 @@ bio_loop(void) {
 					bio_signal_impl_t* signal = BIO_CONTAINER_OF(itr, bio_signal_impl_t, link);
 					bio_close_handle(signal->handle, &BIO_SIGNAL_HANDLE);
 					bio_free(signal);
+
+					itr = next;
+				}
+
+				// Trigger all monitors
+				for (
+					bio_monitor_link_t* itr = coro->monitors.next;
+					itr != &coro->monitors;
+				) {
+					bio_monitor_link_t* next = itr->next;
+
+					bio_monitor_impl_t* monitor = BIO_CONTAINER_OF(itr, bio_monitor_impl_t, link);
+					bio_raise_signal(monitor->signal);
+					bio_close_handle(monitor->handle, &BIO_MONITOR_HANDLE);
+					bio_free(monitor);
 
 					itr = next;
 				}
@@ -100,6 +116,7 @@ bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
 		.state = BIO_CORO_READY,
 	};
 	BIO_LIST_INIT(&coro->pending_signals);
+	BIO_LIST_INIT(&coro->monitors);
 
 	mco_desc desc = mco_desc_init(bio_coro_entry_wrapper, 0);
 	desc.user_data = coro;
@@ -219,5 +236,29 @@ bio_wait_for_signals(
 			coro->num_blocking_signals = wait_all ? num_blocking_signals : 1;
 			mco_yield(impl);
 		}
+	}
+}
+
+bio_monitor_t
+bio_monitor(bio_coro_t coro, bio_signal_t signal) {
+	bio_coro_impl_t* coro_impl = bio_resolve_handle(coro.handle, &BIO_CORO_HANDLE);
+	if (BIO_LIKELY(coro_impl != NULL)) {
+		bio_monitor_impl_t* monitor = bio_malloc(sizeof(bio_monitor_impl_t));
+		*monitor = (bio_monitor_impl_t){ .signal = signal };
+		monitor->handle = bio_make_handle(monitor, &BIO_MONITOR_HANDLE);
+		BIO_LIST_APPEND(&coro_impl->monitors, &monitor->link);
+		return (bio_monitor_t){ .handle = monitor->handle };
+	} else {
+		bio_raise_signal(signal);
+		return (bio_monitor_t){ .handle = BIO_INVALID_HANDLE };
+	}
+}
+
+void
+bio_unmonitor(bio_monitor_t ref) {
+	bio_monitor_impl_t* monitor = bio_close_handle(ref.handle, &BIO_MONITOR_HANDLE);
+	if (BIO_LIKELY(monitor != NULL)) {
+		BIO_LIST_REMOVE(&monitor->link);
+		bio_free(monitor);
 	}
 }

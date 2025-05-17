@@ -69,6 +69,7 @@ typedef struct mco_coro mco_coro;
 
 BIO_DEFINE_LIST_LINK(bio_signal_link);
 BIO_DEFINE_LIST_LINK(bio_logger_link);
+BIO_DEFINE_LIST_LINK(bio_monitor_link);
 
 typedef struct bio_coro_impl_s bio_coro_impl_t;
 
@@ -90,10 +91,17 @@ struct bio_coro_impl_s {
 	bio_coro_state_t state;
 
 	bio_signal_link_t pending_signals;
+	bio_monitor_link_t monitors;
 
 	int num_blocking_signals;
 	int wait_counter;
 };
+
+typedef struct {
+	bio_monitor_link_t link;
+	bio_handle_t handle;
+	bio_signal_t signal;
+} bio_monitor_impl_t;
 
 typedef struct bio_worker_thread_s bio_worker_thread_t;
 
