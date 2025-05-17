@@ -298,7 +298,7 @@ bio_net_recv(
 	bio_socket_impl_t* impl = bio_resolve_handle(socket.handle, &BIO_SOCKET_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
 		struct io_uring_sqe* sqe = bio_acquire_io_req();
-		io_uring_prep_recv(sqe, impl->fd, buf, size, IORING_RECVSEND_POLL_FIRST);
+		io_uring_prep_recv(sqe, impl->fd, buf, size, 0);
 		int result = bio_submit_io_req(sqe, NULL);
 		return bio_result_to_size(result, error);
 	} else {

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BUILD_TYPE=${BUILD_TYPE:-RelWithDebInfo}
+BUILD_TYPE=${BUILD_TYPE:-Debug}
 
 BUILD_DIR="${BUILD_TYPE}"
 

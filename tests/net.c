@@ -50,7 +50,7 @@ static void
 net_test_listen_named(void* userdata) {
 	bio_addr_t address = {
 		.type = BIO_ADDR_NAMED,
-		.addr.named = {
+		.named = {
 			.len = sizeof(SOCKET_PATH) - 1,
 			.name = SOCKET_PATH,
 		},
@@ -100,7 +100,7 @@ net_test_echo_client(void* userdata) {
 
 	bio_addr_t address = {
 		.type = BIO_ADDR_NAMED,
-		.addr.named = {
+		.named = {
 			.len = sizeof(ECHO_SOCKET_PATH) - 1,
 			.name = ECHO_SOCKET_PATH,
 		},
@@ -172,7 +172,7 @@ net_test_echo_server(void* userdata) {
 
 	bio_addr_t address = {
 		.type = BIO_ADDR_NAMED,
-		.addr.named = {
+		.named = {
 			.len = sizeof(ECHO_SOCKET_PATH) - 1,
 			.name = ECHO_SOCKET_PATH,
 		},

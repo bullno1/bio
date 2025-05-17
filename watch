@@ -1,10 +1,13 @@
 #!/bin/sh -e
 
-./build
+./build || true
 
 inotifywait -r -e CLOSE_WRITE -m include src tests samples | \
     while read path action file
 	do
 		printf '%*s\n' "$(tput cols)" '' | tr ' ' -
-		./build || true
+		if ./build
+		then
+			bin/Debug/tests || true
+		fi
     done
