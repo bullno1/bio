@@ -5,8 +5,8 @@
 
 static suite_t timer = {
 	.name = "timer",
-	.init = init_bio,
-	.cleanup = cleanup_bio,
+	.init_per_test = init_bio,
+	.cleanup_per_test = cleanup_bio,
 };
 
 typedef struct {

@@ -2,8 +2,8 @@
 
 static suite_t handle = {
 	.name = "handle",
-	.init = init_bio,
-	.cleanup = cleanup_bio,
+	.init_per_test = init_bio,
+	.cleanup_per_test = cleanup_bio,
 };
 
 TEST(handle, make_and_close) {
