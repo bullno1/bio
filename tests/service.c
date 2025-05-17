@@ -183,3 +183,30 @@ BTEST(service, target_already_dead) {
 	bio_spawn(target_already_dead, NULL);
 	bio_loop();
 }
+
+static void
+kill_service(void* userdata) {
+	typedef BIO_SERVICE(service_msg_t) service_t;
+	service_t service = *(service_t*)userdata;
+	bio_stop_service(service);
+}
+
+static void
+target_stopped_during_call(void* userdata) {
+	BIO_SERVICE(service_msg_t) service;
+	int start_arg = 42;
+	bio_start_service(&service, service_entry, start_arg, 4);
+
+	service_msg_t die = {
+		.type = DROP,
+	};
+	bio_signal_t cancel_signal = { 0 };
+	bio_spawn(kill_service, &service);
+	bio_call_status_t status = bio_call_service(service, die, cancel_signal);
+	BTEST_EXPECT(status == BIO_CALL_TARGET_DEAD);
+}
+
+BTEST(service, target_stopped_during_call) {
+	bio_spawn(target_stopped_during_call, NULL);
+	bio_loop();
+}
