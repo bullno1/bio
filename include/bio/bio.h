@@ -31,9 +31,6 @@
 		.line = __LINE__, \
 	}
 
-#define BIO_INVALID_HANDLE ((bio_handle_t){ .index = -1 })
-#define BIO_INVALID_HANDLE_INIT { .handle = BIO_INVALID_HANDLE }
-
 typedef void (*bio_entrypoint_t)(void* userdata);
 
 typedef struct {
@@ -186,6 +183,12 @@ bio_make_handle(void* obj, const bio_tag_t* tag);
 
 void*
 bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag);
+
+/**
+ * This should only be used for debugging
+ */
+const bio_tag_t*
+bio_handle_info(bio_handle_t handle);
 
 void*
 bio_close_handle(bio_handle_t handle, const bio_tag_t* tag);

@@ -1,4 +1,6 @@
 #include "common.h"
+#include <bio/file.h>
+#include <string.h>
 
 static suite_t handle = {
 	.name = "handle",
@@ -57,4 +59,14 @@ TEST(handle, make_and_close) {
 	CHECK(bio_resolve_handle(handle_d, &tag2) == ptr_d, "Invalid resolution");
 	CHECK(bio_resolve_handle(handle_e, &tag1) == ptr_e, "Invalid resolution");
 	CHECK(bio_resolve_handle(handle_f, &tag2) == ptr_f, "Invalid resolution");
+}
+
+TEST(handle, zero_is_invalid) {
+	bio_handle_t invalid = { 0 };
+	CHECK(bio_handle_info(invalid) == NULL, "Zero handle must be invalid");
+}
+
+TEST(handle, info) {
+	const bio_tag_t* file_tag = bio_handle_info(BIO_STDIN.handle);
+	CHECK(strcmp(file_tag->name, "bio.handle.file") == 0, "Invalid tag");
 }
