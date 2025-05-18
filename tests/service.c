@@ -1,6 +1,5 @@
 #include "common.h"
 #include <bio/service.h>
-#include <string.h>
 
 typedef enum {
 	INFO,
@@ -64,8 +63,7 @@ service_entry(void* userdata) {
 end:;
 }
 
-static void
-call(void* userdata) {
+BIO_TEST(service, call) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -100,19 +98,13 @@ call(void* userdata) {
 	BTEST_EXPECT(bio_coro_state(service.bio__coro) == BIO_CORO_DEAD);
 }
 
-BTEST(service, call) {
-	bio_spawn(call, NULL);
-	bio_loop();
-}
-
 static void
 canceller(void* userdata) {
 	bio_signal_t signal = *(bio_signal_t*)userdata;
 	bio_raise_signal(signal);
 }
 
-static void
-cancel(void* userdata) {
+BIO_TEST(service, cancel) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -148,13 +140,7 @@ cancel(void* userdata) {
 	BTEST_EXPECT(saved_start_arg == 0);  // service must not write to var
 }
 
-BTEST(service, cancel) {
-	bio_spawn(cancel, NULL);
-	bio_loop();
-}
-
-static void
-target_die_during_call(void* userdata) {
+BIO_TEST(service, target_dies_during_call) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -169,13 +155,7 @@ target_die_during_call(void* userdata) {
 	bio_stop_service(service);
 }
 
-BTEST(service, target_die_during_call) {
-	bio_spawn(target_die_during_call, NULL);
-	bio_loop();
-}
-
-static void
-target_already_dead(void* userdata) {
+BIO_TEST(service, target_already_dead) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -193,11 +173,6 @@ target_already_dead(void* userdata) {
 	BTEST_EXPECT(status == BIO_CALL_TARGET_DEAD);
 }
 
-BTEST(service, target_already_dead) {
-	bio_spawn(target_already_dead, NULL);
-	bio_loop();
-}
-
 static void
 kill_service(void* userdata) {
 	typedef BIO_SERVICE(service_msg_t) service_t;
@@ -205,8 +180,7 @@ kill_service(void* userdata) {
 	bio_stop_service(service);
 }
 
-static void
-target_stopped_during_call(void* userdata) {
+BIO_TEST(service, target_stops_during_call) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -218,9 +192,4 @@ target_stopped_during_call(void* userdata) {
 	bio_spawn(kill_service, &service);
 	bio_call_status_t status = bio_call_service(service, die, cancel_signal);
 	BTEST_EXPECT(status == BIO_CALL_TARGET_DEAD);
-}
-
-BTEST(service, target_stopped_during_call) {
-	bio_spawn(target_stopped_during_call, NULL);
-	bio_loop();
 }

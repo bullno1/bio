@@ -5,6 +5,7 @@
 #include <btest.h>
 #include <blog.h>
 
+// Compatibility for old test framework
 typedef btest_suite_t suite_t;
 
 #define CHECK(condition, msg) BTEST_ASSERT_EX(condition, "%s", msg)
@@ -22,10 +23,28 @@ typedef btest_suite_t suite_t;
 		} \
 	} while (0)
 
+#define BIO_TEST(SUITE, NAME) \
+	static void SUITE##_##NAME##_##entry(void); \
+	BTEST_REGISTER(SUITE, NAME, SUITE##_##NAME##_##wrapper) \
+	static void SUITE##_##NAME##_##wrapper(void) { \
+		bio_spawn(bio_test_wrapper, &(bio_test_wrapper_arg_t){ \
+			.entry = SUITE##_##NAME##_##entry, \
+		}); \
+		bio_loop(); \
+	} \
+	static void SUITE##_##NAME##_##entry(void)
+
+typedef struct {
+	void (*entry)(void);
+} bio_test_wrapper_arg_t;
+
 void
 init_bio(void);
 
 void
 cleanup_bio(void);
+
+void
+bio_test_wrapper(void* userdata);
 
 #endif

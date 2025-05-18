@@ -95,8 +95,7 @@ signal_b_entry(void* userdata) {
 	bio_raise_signal(ctx->signals[1]);
 }
 
-static void
-signal_wait_all(void* userdata) {
+BIO_TEST(coro, wait_all_signal) {
 	signal_ctx_t ctx = {
 		.main_coro = bio_current_coro(),
 		.signals = {
@@ -114,8 +113,7 @@ signal_wait_all(void* userdata) {
 	CHECK(ctx.counter++ == 1, "Invalid scheduling");
 }
 
-static void
-signal_wait_one(void* userdata) {
+BIO_TEST(coro, wait_one_signal) {
 	signal_ctx_t ctx = {
 		.main_coro = bio_current_coro(),
 		.signals = {
@@ -132,18 +130,6 @@ signal_wait_one(void* userdata) {
 	CHECK(ctx.counter++ == 1, "Invalid scheduling");
 }
 
-TEST(coro, wait_all_signal) {
-	bio_spawn(signal_wait_all, NULL);
-
-	bio_loop();
-}
-
-TEST(coro, wait_one_signal) {
-	bio_spawn(signal_wait_one, NULL);
-
-	bio_loop();
-}
-
 static void
 monitor_child(void* userdata) {
 	int arg = *(int*)userdata;
@@ -152,8 +138,7 @@ monitor_child(void* userdata) {
 	*(int*)userdata = 69;
 }
 
-static void
-monitor_parent(void* userdata) {
+BIO_TEST(coro, monitor) {
 	int arg = 42;
 	bio_coro_t child = bio_spawn(monitor_child, &arg);
 
@@ -173,19 +158,12 @@ monitor_parent(void* userdata) {
 	CHECK(bio_coro_state(child) == BIO_CORO_DEAD, "Invalid child state");
 }
 
-TEST(coro, monitor) {
-	bio_spawn(monitor_parent, NULL);
-
-	bio_loop();
-}
-
 static void
 unmonitor_child(void* userdata) {
 	bio_yield();
 }
 
-static void
-unmonitor_parent(void* userdata) {
+BIO_TEST(coro, unmonitor) {
 	bio_coro_t child = bio_spawn(unmonitor_child, NULL);
 
 	bio_signal_t child_terminated = bio_make_signal();
@@ -201,18 +179,11 @@ unmonitor_parent(void* userdata) {
 	CHECK(!bio_check_signal(child_terminated), "Signal was raised");
 }
 
-TEST(coro, unmonitor) {
-	bio_spawn(unmonitor_parent, NULL);
-
-	bio_loop();
-}
-
 static void
 monitor_dead_coro_child(void* userdata) {
 }
 
-static void
-monitor_dead_coro_parent(void* userdata) {
+BIO_TEST(coro, monitor_dead_coro) {
 	bio_coro_t child = bio_spawn(monitor_dead_coro_child, NULL);
 	CHECK(bio_coro_state(child) != BIO_CORO_DEAD, "Invalid child state");
 
@@ -225,10 +196,4 @@ monitor_dead_coro_parent(void* userdata) {
 	CHECK(!bio_check_signal(child_terminated), "Signal was raised");
 	bio_monitor(child, child_terminated);
 	CHECK(bio_check_signal(child_terminated), "Signal was not raised immediately");
-}
-
-TEST(coro, monitor_dead_coro) {
-	bio_spawn(monitor_dead_coro_parent, NULL);
-
-	bio_loop();
 }

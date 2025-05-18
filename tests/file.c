@@ -8,8 +8,7 @@ static suite_t file = {
 	.cleanup_per_test = cleanup_bio,
 };
 
-static void
-read_write(void* userdata) {
+BIO_TEST(file, read_write) {
 	bio_file_t file;
 	bio_error_t error = { 0 };
 	bio_fopen(&file, "testfile", "w+", &error);
@@ -30,10 +29,4 @@ read_write(void* userdata) {
 
 	bio_fclose(file, &error);
 	CHECK_NO_ERROR(error);
-}
-
-TEST(file, read_write) {
-	bio_spawn(read_write, NULL);
-
-	bio_loop();
 }
