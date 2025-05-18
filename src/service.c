@@ -96,16 +96,12 @@ bio__service_call(
 		bio_yield();  // Wait for target to be free
 	}
 
-	bio_signal_t signals[3] = {
+	bio_signal_t signals[] = {
 		ack_signal,
 		monitor_signal,
 		cancel_signal,
 	};
-	bio_wait_for_signals(
-		signals,
-		cancellable ? 3 : 2,  // Exclude cancel_signal if invalid
-		false
-	);
+	bio_wait_for_signals(signals, sizeof(signals) / sizeof(signals[0]), false);
 
 	bio_call_status_t status;
 	if (bio_check_signal(ack_signal)) {

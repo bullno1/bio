@@ -225,7 +225,8 @@ bio_wait_for_signals(
 		int num_blocking_signals = 0;
 		bool signal_raised = false;
 		for (int i = 0; i < num_signals; ++i) {
-			bio_signal_impl_t* signal = bio_resolve_handle(signals[i].handle, &BIO_SIGNAL_HANDLE);
+			bio_handle_t handle = signals[i].handle;
+			bio_signal_impl_t* signal = bio_resolve_handle(handle, &BIO_SIGNAL_HANDLE);
 
 			if (BIO_LIKELY(signal != NULL)) {
 				if (signal->owner == coro) {
@@ -233,7 +234,8 @@ bio_wait_for_signals(
 					++num_blocking_signals;
 				}
 			} else {
-				signal_raised = true;
+				// Only non-zero signals are considered raised
+				signal_raised |= bio_handle_compare(handle, BIO_INVALID_HANDLE) != 0;
 			}
 		}
 

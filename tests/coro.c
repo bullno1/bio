@@ -131,6 +131,36 @@ BIO_TEST(coro, wait_one_signal) {
 }
 
 static void
+wait_invalid(void* userdata) {
+	signal_ctx_t* ctx = userdata;
+	ctx->signals[1] = bio_make_signal();
+	bio_wait_for_signals(ctx->signals, 2, false);
+}
+
+BIO_TEST(coro, wait_invalid_signal) {
+	signal_ctx_t ctx = {
+		.main_coro = bio_current_coro(),
+		.counter = 0,
+	};
+
+	bio_coro_t waiter = bio_spawn(wait_invalid, &ctx);
+	bio_coro_state_t state;
+	while ((state = bio_coro_state(waiter)) == BIO_CORO_READY) {
+		bio_yield();
+	}
+	// It should be blocked by the second signal as the first one does not count
+	BTEST_EXPECT_EX(state == BIO_CORO_WAITING, "state = %d", state);
+	bio_raise_signal(ctx.signals[1]);
+	for (int i = 0; i < 5; ++i) {
+		if ((state = bio_coro_state(waiter)) == BIO_CORO_DEAD) {
+			break;
+		}
+		bio_yield();
+	}
+	BTEST_EXPECT_EX(state == BIO_CORO_DEAD, "state = %d", state);
+}
+
+static void
 monitor_child(void* userdata) {
 	int arg = *(int*)userdata;
 	CHECK(arg == 42, "Corrupted arg");
