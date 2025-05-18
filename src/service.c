@@ -124,7 +124,13 @@ bio__service_call(
 }
 
 bool
-bio__service_is_call_cancelled(bio_signal_t cancel_signal) {
-	bool cancellable = bio_handle_compare(cancel_signal.handle, BIO_INVALID_HANDLE) != 0;
-	return cancellable && bio_check_signal(cancel_signal);
+bio__service_is_call_cancelled(const bio_service_msg_base_t* msg_base) {
+	bool cancellable = bio_handle_compare(msg_base->bio__cancel_signal.handle, BIO_INVALID_HANDLE) != 0;
+	return cancellable && bio_check_signal(msg_base->bio__cancel_signal);
+}
+
+bool
+bio__service_begin_response(const bio_service_msg_base_t* msg_base) {
+	return bio_handle_compare(msg_base->bio__ack_signal.handle, BIO_INVALID_HANDLE) != 0
+		&& !bio__service_is_call_cancelled(msg_base);
 }

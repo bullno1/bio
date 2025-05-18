@@ -53,11 +53,21 @@ typedef struct {
 		) \
 	)
 
+#define bio_service_state(service) \
+	bio_coro_state((service).bio__coro)
+
+#define bio_notify_service(service, message, retry_condition) \
+	do { \
+		while ((retry_condition) && (bio_service_state(service) != BIO_CORO_DEAD)) { \
+			if (bio_send_message((service).bio__mailbox, message)) { break; } \
+		} \
+	} while (0)
+
 #define bio_is_call_cancelled(msg) \
-	bio__service_is_call_cancelled((msg).bio__service_msg_base.bio__cancel_signal)
+	bio__service_is_call_cancelled(&(msg).bio__service_msg_base)
 
 #define bio_begin_response(msg) \
-	(!(bio_is_call_cancelled(msg)))
+	(bio__service_begin_response(&(msg).bio__service_msg_base))
 
 #define bio_end_response(msg) \
 	bio_raise_signal((msg).bio__service_msg_base.bio__ack_signal)
@@ -72,9 +82,9 @@ typedef struct {
 
 #define bio_respond(msg) \
 	for ( \
-		bool bio__can_respond = bio_begin_response(msg); \
-		bio__can_respond; \
-		bio__can_respond = false, bio_end_response(msg) \
+		bool bio__should_respond = bio_begin_response(msg); \
+		bio__should_respond; \
+		bio__should_respond = false, bio_end_response(msg) \
 	)
 
 void
@@ -105,6 +115,9 @@ bio__service_call(
 );
 
 bool
-bio__service_is_call_cancelled(bio_signal_t cancel_signal);
+bio__service_is_call_cancelled(const bio_service_msg_base_t* msg_base);
+
+bool
+bio__service_begin_response(const bio_service_msg_base_t* msg_base);
 
 #endif

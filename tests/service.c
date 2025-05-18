@@ -101,6 +101,7 @@ BIO_TEST(service, call) {
 static void
 canceller(void* userdata) {
 	bio_signal_t signal = *(bio_signal_t*)userdata;
+	bio_yield();
 	bio_raise_signal(signal);
 }
 
@@ -192,4 +193,26 @@ BIO_TEST(service, target_stops_during_call) {
 	bio_spawn(kill_service, &service);
 	bio_call_status_t status = bio_call_service(service, die, cancel_signal);
 	BTEST_EXPECT(status == BIO_CALL_TARGET_DEAD);
+}
+
+BIO_TEST(service, notify) {
+	BIO_SERVICE(service_msg_t) service;
+	int start_arg = 42;
+	bio_start_service(&service, service_entry, start_arg, 4);
+	int result = 0;
+	service_msg_t msg = {
+		.type = INFO,
+		.info.start_arg = &result,
+	};
+	bio_notify_service(service, msg, true);
+	bio_yield();  // Let the service run
+	bio_yield();
+	BTEST_EXPECT(result == 0); // Service must not write to var
+	bio_stop_service(service);
+
+	// This should not block
+	bio_notify_service(service, msg, true);
+	bio_yield();
+
+	BTEST_EXPECT(bio_service_state(service) == BIO_CORO_DEAD);
 }
