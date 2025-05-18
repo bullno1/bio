@@ -77,7 +77,7 @@ bio__mailbox_recv(bio_handle_t handle, void* data, size_t item_size) {
 		if (mailbox->read == mailbox->write) {
 			if (BIO_LIKELY(bio_handle_compare(mailbox->signal.handle, BIO_INVALID_HANDLE) == 0)) {
 				bio_signal_t signal = mailbox->signal = bio_make_signal();
-				bio_wait_for_signals(&signal, 1, true);
+				bio_wait_for_one_signal(signal);
 			} else {
 				return false;
 			}

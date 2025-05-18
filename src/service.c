@@ -43,7 +43,7 @@ bio__service_start(
 		.args_size = args_size,
 	};
 	*coro_ptr = bio_spawn(bio_service_wrapper, &service_data);
-	bio_wait_for_signals(&ready_signal, 1, true);
+	bio_wait_for_one_signal(ready_signal);
 }
 
 void
@@ -62,7 +62,7 @@ bio__service_stop(bio_coro_t coro, bio_handle_t mailbox) {
 	if (bio_coro_state(coro) != BIO_CORO_DEAD) {
 		bio_signal_t term_signal = bio_make_signal();
 		bio_monitor(coro, term_signal);
-		bio_wait_for_signals(&term_signal, 1, true);
+		bio_wait_for_one_signal(term_signal);
 	}
 }
 

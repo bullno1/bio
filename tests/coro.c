@@ -227,3 +227,36 @@ BIO_TEST(coro, monitor_dead_coro) {
 	bio_monitor(child, child_terminated);
 	CHECK(bio_check_signal(child_terminated), "Signal was not raised immediately");
 }
+
+static const bio_tag_t TAG1 = BIO_TAG_INIT("bio.test.coro.tag1");
+static const bio_tag_t TAG2 = BIO_TAG_INIT("bio.test.coro.tag2");
+
+typedef struct {
+	bio_signal_t wait_signal;
+	bio_signal_t start_signal;
+} data_holder_ctx_t;
+
+static void
+data_holder(void* userdata) {
+	data_holder_ctx_t* ctx = userdata;
+	bio_raise_signal(ctx->start_signal);
+
+	ctx->wait_signal = bio_make_signal();
+	bio_set_coro_data(ctx, &TAG1);
+	bio_wait_for_one_signal(ctx->wait_signal);
+}
+
+BIO_TEST(coro, data) {
+	data_holder_ctx_t ctx = {
+		.start_signal = bio_make_signal(),
+	};
+	bio_coro_t data_holder_coro = bio_spawn(data_holder, &ctx);
+	BTEST_EXPECT(bio_get_coro_data(data_holder_coro, &TAG1) == NULL);
+	bio_wait_for_one_signal(ctx.start_signal);
+
+	BTEST_EXPECT(bio_get_coro_data(data_holder_coro, &TAG1) == &ctx);
+	BTEST_EXPECT(bio_get_coro_data(data_holder_coro, &TAG2) == NULL);
+	bio_raise_signal(ctx.wait_signal);
+	bio_join(data_holder_coro);
+	BTEST_EXPECT(bio_get_coro_data(data_holder_coro, &TAG1) == NULL);
+}

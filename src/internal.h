@@ -88,6 +88,8 @@ struct bio_coro_impl_s {
 	mco_coro* impl;
 	bio_entrypoint_t entrypoint;
 	void* userdata;
+	void* extra_data;
+	const bio_tag_t* extra_data_tag;
 
 	bio_handle_t handle;
 	bio_coro_state_t state;

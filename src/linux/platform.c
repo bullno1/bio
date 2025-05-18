@@ -213,7 +213,7 @@ bio_submit_io_req(struct io_uring_sqe* sqe, uint32_t* flags) {
 		.signal = bio_make_signal(),
 	};
 	io_uring_sqe_set_data(sqe, &req);
-	bio_wait_for_signals(&req.signal, 1, true);
+	bio_wait_for_one_signal(req.signal);
 
 	if (flags != NULL) { *flags = req.flags; }
 	return req.res;

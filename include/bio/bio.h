@@ -165,6 +165,12 @@ bio_monitor(bio_coro_t coro, bio_signal_t signal);
 void
 bio_unmonitor(bio_monitor_t monitor);
 
+void
+bio_set_coro_data(void* data, const bio_tag_t* tag);
+
+void*
+bio_get_coro_data(bio_coro_t, const bio_tag_t* tag);
+
 bio_time_t
 bio_current_time_ms(void);
 
@@ -179,10 +185,15 @@ bio_wait_for_signals(
 );
 
 static inline void
+bio_wait_for_one_signal(bio_signal_t signal) {
+	bio_wait_for_signals(&signal, 1, true);
+}
+
+static inline void
 bio_join(bio_coro_t coro) {
 	bio_signal_t term_signal = bio_make_signal();
 	bio_monitor(coro, term_signal);
-	bio_wait_for_signals(&term_signal, 1, true);
+	bio_wait_for_one_signal(term_signal);
 }
 
 bio_handle_t
@@ -207,7 +218,7 @@ static inline void
 bio_run_async_and_wait(bio_entrypoint_t task, void* userdata) {
 	bio_signal_t signal = bio_make_signal();
 	bio_run_async(task, userdata, signal);
-	bio_wait_for_signals(&signal, 1, true);
+	bio_wait_for_one_signal(signal);
 }
 
 #if defined(__GNUC__) || defined(__clang__)

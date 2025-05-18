@@ -269,3 +269,23 @@ bio_unmonitor(bio_monitor_t ref) {
 		bio_free(monitor);
 	}
 }
+
+void
+bio_set_coro_data(void* data, const bio_tag_t* tag) {
+	mco_coro* impl = mco_running();
+	if (BIO_LIKELY(impl)) {
+		bio_coro_impl_t* coro = impl->user_data;
+		coro->extra_data = data;
+		coro->extra_data_tag = tag;
+	}
+}
+
+void*
+bio_get_coro_data(bio_coro_t coro, const bio_tag_t* tag) {
+	bio_coro_impl_t* coro_impl = bio_resolve_handle(coro.handle, &BIO_CORO_HANDLE);
+	if (BIO_LIKELY(coro_impl != NULL && coro_impl->extra_data_tag == tag)) {
+		return coro_impl->extra_data;
+	} else {
+		return NULL;
+	}
+}
