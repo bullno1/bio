@@ -17,17 +17,17 @@ typedef struct {
 
 #define BIO_SERVICE(T) \
 	struct { \
-		bio_coro_t bio__coro; \
-		BIO_MAILBOX(T) bio__mailbox; \
+		bio_coro_t coro; \
+		BIO_MAILBOX(T) mailbox; \
 	}
 
 #define BIO_SERVICE_MSG bio_service_msg_base_t bio__service_msg_base;
 
 #define bio_start_service(ptr, entry, args, mailbox_capacity) \
 	bio__service_start(\
-		&(ptr)->bio__coro, \
-		&(ptr)->bio__mailbox.bio__handle, \
-		sizeof(*((ptr)->bio__mailbox.bio__message)), \
+		&(ptr)->coro, \
+		&(ptr)->mailbox.bio__handle, \
+		sizeof(*((ptr)->mailbox.bio__message)), \
 		mailbox_capacity, \
 		entry, \
 		&args, \
@@ -35,17 +35,17 @@ typedef struct {
 	)
 
 #define bio_stop_service(service) \
-	bio__service_stop((service).bio__coro, (service).bio__mailbox.bio__handle)
+	bio__service_stop((service).coro, (service).mailbox.bio__handle)
 
 #define bio_get_service_info(userdata, mailbox_ptr, args_ptr) \
 	bio__service_get_info(userdata, &(mailbox_ptr)->bio__handle, args_ptr)
 
 #define bio_call_service(service, message, cancel_signal) \
 	( \
-		BIO__TYPECHECK_EXP((message), *(service.bio__mailbox.bio__message)), \
+		BIO__TYPECHECK_EXP((message), *(service.mailbox.bio__message)), \
 		bio__service_call( \
-			(service).bio__coro, \
-			(service).bio__mailbox.bio__handle, \
+			(service).coro, \
+			(service).mailbox.bio__handle, \
 			&((message).bio__service_msg_base), \
 			&(message), \
 			sizeof(message), \
@@ -54,14 +54,14 @@ typedef struct {
 	)
 
 #define bio_service_state(service) \
-	bio_coro_state((service).bio__coro)
+	bio_coro_state((service).coro)
 
 #define bio_notify_service(service, message, retry_condition) \
-	do { \
-		while ((retry_condition) && (bio_service_state(service) != BIO_CORO_DEAD)) { \
-			if (bio_send_message((service).bio__mailbox, message)) { break; } \
-		} \
-	} while (0)
+	bio_wait_and_send_message( \
+		((bio_service_state(service) != BIO_CORO_DEAD) && (retry_condition)), \
+		(service).mailbox, \
+		(message) \
+	)
 
 #define bio_is_call_cancelled(msg) \
 	bio__service_is_call_cancelled(&(msg).bio__service_msg_base)

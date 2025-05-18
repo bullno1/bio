@@ -95,7 +95,7 @@ BIO_TEST(service, call) {
 	BTEST_EXPECT(add_result == (lhs + rhs));
 
 	bio_stop_service(service);
-	BTEST_EXPECT(bio_coro_state(service.bio__coro) == BIO_CORO_DEAD);
+	BTEST_EXPECT(bio_coro_state(service.coro) == BIO_CORO_DEAD);
 }
 
 static void

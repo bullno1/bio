@@ -178,6 +178,13 @@ bio_wait_for_signals(
 	bool wait_all
 );
 
+static inline void
+bio_join(bio_coro_t coro) {
+	bio_signal_t term_signal = bio_make_signal();
+	bio_monitor(coro, term_signal);
+	bio_wait_for_signals(&term_signal, 1, true);
+}
+
 bio_handle_t
 bio_make_handle(void* obj, const bio_tag_t* tag);
 

@@ -44,6 +44,13 @@
 		bio__mailbox_send(mailbox.bio__handle, &message, sizeof(message)) \
 	)
 
+#define bio_wait_and_send_message(condition, mailbox, message) \
+	do { \
+		while ((bio_is_mailbox_open(mailbox)) && (condition)) { \
+			if (bio_send_message((mailbox), (message))) { break; } \
+		} \
+	} while (0)
+
 #define bio_recv_message(mailbox, message) \
 	( \
 		BIO__TYPECHECK_EXP(*(message), *(mailbox.bio__message)), \
