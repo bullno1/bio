@@ -38,9 +38,8 @@ service_entry(void* userdata) {
 	BIO_MAILBOX(service_msg_t) mailbox;
 	bio_get_service_info(userdata, &mailbox, &start_arg);
 
-	bio_foreach_message(msg, mailbox) {
-		if (bio_is_call_cancelled(msg)) { continue; }
-
+	bio_service_loop(msg, mailbox) {
+		bio_yield();  // Simulate other activites that switch context
 		switch (msg.type) {
 			case INFO:
 				bio_respond(msg) {
@@ -79,7 +78,7 @@ call(void* userdata) {
 	bio_signal_t cancel_signal = { 0 };
 
 	bio_call_status_t status = bio_call_service(service, info, cancel_signal);
-	BTEST_EXPECT(status == BIO_CALL_OK);
+	BTEST_EXPECT_EX(status == BIO_CALL_OK, "status = %d", status);
 	BTEST_EXPECT(saved_start_arg == start_arg);
 
 	int add_result;
@@ -94,7 +93,7 @@ call(void* userdata) {
 		},
 	};
 	status = bio_call_service(service, add, cancel_signal);
-	BTEST_EXPECT(status == BIO_CALL_OK);
+	BTEST_EXPECT_EX(status == BIO_CALL_OK, "status = %d", status);
 	BTEST_EXPECT(add_result == (lhs + rhs));
 
 	bio_stop_service(service);
@@ -104,6 +103,12 @@ call(void* userdata) {
 BTEST(service, call) {
 	bio_spawn(call, NULL);
 	bio_loop();
+}
+
+static void
+canceller(void* userdata) {
+	bio_signal_t signal = *(bio_signal_t*)userdata;
+	bio_raise_signal(signal);
 }
 
 static void
@@ -123,6 +128,7 @@ cancel(void* userdata) {
 	BTEST_EXPECT(status == BIO_CALL_CANCELLED);
 	BTEST_EXPECT(saved_start_arg == 0);
 
+	// Call timeout
 	service_msg_t drop = {  // This request will never be fulfilled
 		.type = DROP,
 	};
@@ -131,7 +137,15 @@ cancel(void* userdata) {
 	status = bio_call_service(service, drop, cancel_signal);
 	BTEST_EXPECT(status == BIO_CALL_CANCELLED);
 
+	// Async cancel
+	cancel_signal = bio_make_signal();
+	bio_spawn(canceller, &cancel_signal);
+	status = bio_call_service(service, info, cancel_signal);
+	BTEST_EXPECT(status == BIO_CALL_CANCELLED);
+	BTEST_EXPECT(saved_start_arg == 0);  // service must not write to var
+
 	bio_stop_service(service);
+	BTEST_EXPECT(saved_start_arg == 0);  // service must not write to var
 }
 
 BTEST(service, cancel) {

@@ -62,6 +62,14 @@ typedef struct {
 #define bio_end_response(msg) \
 	bio_raise_signal((msg).bio__service_msg_base.bio__ack_signal)
 
+#define bio_service_loop(msg, mailbox) \
+	bio_foreach_message(msg, mailbox) \
+		for ( \
+			int bio__svc_loop = 0; \
+			(bio__svc_loop < 1) && !bio_is_call_cancelled(msg); \
+			++bio__svc_loop \
+		)
+
 #define bio_respond(msg) \
 	for ( \
 		bool bio__can_respond = bio_begin_response(msg); \

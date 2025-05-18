@@ -223,16 +223,21 @@ bio_wait_for_signals(
 		// Ensure that only the relevant signals are checked
 		int wait_counter = ++coro->wait_counter;
 		int num_blocking_signals = 0;
+		bool signal_raised = false;
 		for (int i = 0; i < num_signals; ++i) {
 			bio_signal_impl_t* signal = bio_resolve_handle(signals[i].handle, &BIO_SIGNAL_HANDLE);
 
-			if (BIO_LIKELY(signal != NULL && signal->owner == coro)) {
-				signal->wait_counter = wait_counter;
-				++num_blocking_signals;
+			if (BIO_LIKELY(signal != NULL)) {
+				if (signal->owner == coro) {
+					signal->wait_counter = wait_counter;
+					++num_blocking_signals;
+				}
+			} else {
+				signal_raised = true;
 			}
 		}
 
-		if (BIO_LIKELY(num_blocking_signals > 0)) {
+		if (BIO_LIKELY((num_blocking_signals > 0) && (wait_all || !signal_raised))) {
 			coro->num_blocking_signals = wait_all ? num_blocking_signals : 1;
 			mco_yield(impl);
 		}
