@@ -1,0 +1,12 @@
+#!/bin/bash -e
+
+main() {
+	sync_deps
+}
+
+sync_deps() {
+	git submodule sync
+	git submodule update --init
+}
+
+main
