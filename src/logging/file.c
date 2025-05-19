@@ -75,30 +75,58 @@ static void
 bio_log_to_file(void* userdata, const bio_log_ctx_t* ctx, const char* msg) {
 	bio_file_logger_data_t* data = userdata;
 	if (BIO_LIKELY(ctx != NULL)) {
+		const char* coro_name = bio_get_coro_name(ctx->coro);
 		int msg_len;
 		if (data->with_colors) {
-			msg_len = bio_fmt(
-				&data->msg_buf,
-				"[%c%s%s%c%s][%s:%d]<%d:%d>: %s\n",
+			if (coro_name != NULL) {
+				msg_len = bio_fmt(
+					&data->msg_buf,
+					"[%c%s%s%c%s][%s:%d]<%s>: %s\n",
 
-				BIO_LOG_TERM_CODE, BIO_LOG_LEVEL_COLOR[ctx->level],
-				BIO_LOG_LEVEL_LABEL[ctx->level],
-				BIO_LOG_TERM_CODE, BIO_LOG_TERM_RESET,
+					BIO_LOG_TERM_CODE, BIO_LOG_LEVEL_COLOR[ctx->level],
+					BIO_LOG_LEVEL_LABEL[ctx->level],
+					BIO_LOG_TERM_CODE, BIO_LOG_TERM_RESET,
 
-				ctx->file, ctx->line,
-				ctx->coro.handle.index, ctx->coro.handle.gen,
-				msg
-			);
+					ctx->file, ctx->line,
+					coro_name,
+					msg
+				);
+			} else {
+				msg_len = bio_fmt(
+					&data->msg_buf,
+					"[%c%s%s%c%s][%s:%d]<%d:%d>: %s\n",
+
+					BIO_LOG_TERM_CODE, BIO_LOG_LEVEL_COLOR[ctx->level],
+					BIO_LOG_LEVEL_LABEL[ctx->level],
+					BIO_LOG_TERM_CODE, BIO_LOG_TERM_RESET,
+
+					ctx->file, ctx->line,
+					ctx->coro.handle.index, ctx->coro.handle.gen,
+					msg
+				);
+			}
 		} else {
-			msg_len = bio_fmt(
-				&data->msg_buf,
-				"[%s][%s:%d]<%d:%d>: %s\n",
-				BIO_LOG_LEVEL_LABEL[ctx->level],
+			if (coro_name != NULL) {
+				msg_len = bio_fmt(
+					&data->msg_buf,
+					"[%s][%s:%d]<%s>: %s\n",
+					BIO_LOG_LEVEL_LABEL[ctx->level],
 
-				ctx->file, ctx->line,
-				ctx->coro.handle.index, ctx->coro.handle.gen,
-				msg
-			);
+					ctx->file, ctx->line,
+					coro_name,
+					msg
+				);
+			} else {
+				msg_len = bio_fmt(
+					&data->msg_buf,
+					"[%s][%s:%d]<%d:%d>: %s\n",
+					BIO_LOG_LEVEL_LABEL[ctx->level],
+
+					ctx->file, ctx->line,
+					ctx->coro.handle.index, ctx->coro.handle.gen,
+					msg
+				);
+			}
 		}
 
 		bio_fmt_buf_t msg_copy = {
