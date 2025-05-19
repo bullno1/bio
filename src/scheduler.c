@@ -289,3 +289,22 @@ bio_get_coro_data(bio_coro_t coro, const bio_tag_t* tag) {
 		return NULL;
 	}
 }
+
+void
+bio_set_coro_name(const char* name) {
+	mco_coro* impl = mco_running();
+	if (BIO_LIKELY(impl)) {
+		bio_coro_impl_t* coro = impl->user_data;
+		coro->name = name;
+	}
+}
+
+const char*
+bio_get_coro_name(bio_coro_t coro) {
+	bio_coro_impl_t* coro_impl = bio_resolve_handle(coro.handle, &BIO_CORO_HANDLE);
+	if (BIO_LIKELY(coro_impl != NULL)) {
+		return coro_impl->name;
+	} else {
+		return NULL;
+	}
+}

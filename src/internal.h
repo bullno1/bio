@@ -8,6 +8,7 @@
 #endif
 
 #include <bio/bio.h>
+#include <stdio.h>
 #include "array.h"
 
 #ifdef __GNUC__
@@ -90,6 +91,7 @@ struct bio_coro_impl_s {
 	void* userdata;
 	void* extra_data;
 	const bio_tag_t* extra_data_tag;
+	const char* name;
 
 	bio_handle_t handle;
 	bio_coro_state_t state;
@@ -115,6 +117,11 @@ typedef struct {
 } bio_timer_entry_t;
 
 typedef struct {
+	char* ptr;
+	int len;
+} bio_fmt_buf_t;
+
+typedef struct {
 	bio_options_t options;
 
 	// Handle table
@@ -136,6 +143,8 @@ typedef struct {
 
 	// Logging
 	bio_logger_link_t loggers;
+	int log_prefix_len;
+	bio_fmt_buf_t log_msg_buf;
 
 	// Thread pool
 	bio_worker_thread_t* thread_pool;
@@ -182,6 +191,37 @@ bio_next_pow2(uint32_t v) {
     next++;
 
     return next;
+}
+
+static inline int
+bio_vfmt(bio_fmt_buf_t* buf, const char* fmt, va_list args) {
+	va_list args_copy;
+	va_copy(args_copy, args);
+	int num_chars = vsnprintf(buf->ptr, (size_t)buf->len, fmt, args_copy);
+	va_end(args_copy);
+
+	if (num_chars < 0) { return num_chars; }  // Format error
+
+	if (num_chars >= (int)buf->len) {
+		bio_free(buf->ptr);
+		buf->ptr = bio_malloc(num_chars + 1);
+		buf->len = num_chars + 1;
+
+		vsnprintf(buf->ptr, (size_t)buf->len, fmt, args);
+	}
+
+	buf->ptr[num_chars] = '\0';
+	return num_chars;
+}
+
+BIO_FORMAT_ATTRIBUTE(2, 3)
+static inline int
+bio_fmt(bio_fmt_buf_t* buf, const char* fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	int num_chars = bio_vfmt(buf, fmt, args);
+	va_end(args);
+	return num_chars;
 }
 
 // Handle table

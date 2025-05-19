@@ -6,8 +6,17 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
+#if defined(__GNUC__) || defined(__clang__)
+#	define BIO_FORMAT_ATTRIBUTE(FMT, VA) __attribute__((format(printf, FMT, VA)))
+#	define BIO_FORMAT_CHECK(...) (void)(sizeof(0))
+#else
+#	include <stdio.h>
+#	define BIO_FORMAT_ATTRIBUTE(FMT, VA)
+#	define BIO_FORMAT_CHECK(...) (void)(sizeof(printf(__VA_ARGS__)))
+#endif
+
 #define BIO_LOG(LEVEL, ...) \
-	bio_log(LEVEL, __FILE__, __LINE__, __VA_ARGS__)
+	(BIO_FORMAT_CHECK(__VA_ARGS__), bio_log(LEVEL, __FILE__, __LINE__, __VA_ARGS__))
 
 #define BIO_TRACE(...) BIO_LOG(BIO_LOG_LEVEL_TRACE, __VA_ARGS__)
 #define BIO_DEBUG(...) BIO_LOG(BIO_LOG_LEVEL_DEBUG, __VA_ARGS__)
@@ -74,6 +83,12 @@ typedef struct {
 } bio_allocator_t;
 
 typedef struct {
+	// For shortening path in log
+	const char* current_filename;
+	int current_depth_in_project;
+} bio_log_options_t;
+
+typedef struct {
 	bio_allocator_t allocator;
 
 	struct {
@@ -81,6 +96,7 @@ typedef struct {
 		int queue_size;
 	} thread_pool;
 
+	bio_log_options_t log_options;
 	bio_linux_options_t linux;
 } bio_options_t;
 
@@ -122,12 +138,7 @@ typedef struct {
 	const char* file;
 } bio_log_ctx_t;
 
-typedef void (*bio_log_fn_t)(
-	void* userdata,
-	const bio_log_ctx_t* ctx,
-	const char* fmt,
-	va_list args
-);
+typedef void (*bio_log_fn_t)(void* userdata, const bio_log_ctx_t* ctx, const char* msg);
 
 void
 bio_init(const bio_options_t* options);
@@ -169,7 +180,13 @@ void
 bio_set_coro_data(void* data, const bio_tag_t* tag);
 
 void*
-bio_get_coro_data(bio_coro_t, const bio_tag_t* tag);
+bio_get_coro_data(bio_coro_t coro, const bio_tag_t* tag);
+
+void
+bio_set_coro_name(const char* name);
+
+const char*
+bio_get_coro_name(bio_coro_t coro);
 
 bio_time_t
 bio_current_time_ms(void);
@@ -221,9 +238,7 @@ bio_run_async_and_wait(bio_entrypoint_t task, void* userdata) {
 	bio_wait_for_one_signal(signal);
 }
 
-#if defined(__GNUC__) || defined(__clang__)
-__attribute__((format(printf, 4, 5)))
-#endif
+BIO_FORMAT_ATTRIBUTE(4, 5)
 void
 bio_log(
 	bio_log_level_t level,

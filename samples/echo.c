@@ -60,14 +60,13 @@ echo_handler(void* userdata) {
 
 static void
 echo_server(void* userdata) {
-	bio_logger_t logger = bio_add_file_logger(&(bio_file_logger_options_t){
-		.file = BIO_STDERR,
-		.min_level = BIO_LOG_LEVEL_TRACE,
-		.with_colors = true,
-
-		.current_filename = __FILE__,
-		.current_depth_in_project = 1,
-	});
+	bio_logger_t logger = bio_add_file_logger(
+		BIO_LOG_LEVEL_TRACE,
+			&(bio_file_logger_options_t){
+			.file = BIO_STDERR,
+			.with_colors = true,
+		}
+	);
 
 	uint16_t port = *(uint16_t*)userdata;
 
@@ -127,6 +126,10 @@ main(int argc, const char* argv[]) {
 
 	bio_init(&(bio_options_t){
 		.allocator.realloc = stdlib_realloc,
+		.log_options = {
+			.current_filename = __FILE__,
+			.current_depth_in_project = 1,
+		},
 	});
 
 	bio_spawn(echo_server, &port);
