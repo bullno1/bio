@@ -249,7 +249,14 @@ bio_wait_for_signals(
 bio_monitor_t
 bio_monitor(bio_coro_t coro, bio_signal_t signal) {
 	bio_coro_impl_t* coro_impl = bio_resolve_handle(coro.handle, &BIO_CORO_HANDLE);
-	if (BIO_LIKELY(coro_impl != NULL)) {
+	bio_signal_impl_t* signal_impl = bio_resolve_handle(signal.handle, &BIO_SIGNAL_HANDLE);
+	if (
+		BIO_LIKELY(
+			coro_impl != NULL
+			&& signal_impl != NULL
+			&& signal_impl->owner != coro_impl
+		)
+	) {
 		bio_monitor_impl_t* monitor = bio_malloc(sizeof(bio_monitor_impl_t));
 		*monitor = (bio_monitor_impl_t){ .signal = signal };
 		monitor->handle = bio_make_handle(monitor, &BIO_MONITOR_HANDLE);

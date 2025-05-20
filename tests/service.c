@@ -216,3 +216,27 @@ BIO_TEST(service, notify) {
 
 	BTEST_EXPECT(bio_service_state(service) == BIO_CORO_DEAD);
 }
+
+static void
+self_stop_service(void* userdata) {
+	int start_arg;
+	BIO_MAILBOX(int) mailbox;
+	bio_get_service_info(userdata, &mailbox, &start_arg);
+
+	BIO_SERVICE(int) self = { .coro = bio_current_coro() };
+	self.mailbox.bio__handle = mailbox.bio__handle;
+
+	bio_foreach_message(msg, mailbox) {
+		if (msg == start_arg) {
+			bio_stop_service(self);
+		}
+	}
+}
+
+BIO_TEST(service, self_stop) {
+	BIO_SERVICE(int) service;
+	int start_arg = 42;
+	bio_start_service(&service, self_stop_service, start_arg, 4);
+	bio_wait_and_send_message(true, service.mailbox, start_arg);
+	bio_join(service.coro);
+}

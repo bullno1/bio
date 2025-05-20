@@ -60,9 +60,7 @@ void
 bio__service_stop(bio_coro_t coro, bio_handle_t mailbox) {
 	bio__mailbox_close(mailbox);
 	if (bio_coro_state(coro) != BIO_CORO_DEAD) {
-		bio_signal_t term_signal = bio_make_signal();
-		bio_monitor(coro, term_signal);
-		bio_wait_for_one_signal(term_signal);
+		bio_join(coro);
 	}
 }
 
