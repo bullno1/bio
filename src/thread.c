@@ -1,5 +1,6 @@
 #include "internal.h"
 #include <threads.h>
+#include <limits.h>
 
 typedef struct {
 	mtx_t mtx;
@@ -20,6 +21,12 @@ struct bio_worker_thread_s {
 	thrd_t thread;
 	bio_spscq_t request_queue;
 	bio_spscq_t response_queue;
+	// We need a separate counter since the length of the queue is not reliable.
+	// If a worker has dequeued a job and is working on it, the queue would
+	// omit that count.
+	// There is no way to tell an idle worker from a busy one when both can
+	// have an empty queue.
+	unsigned int load;
 };
 
 typedef enum {
@@ -141,9 +148,14 @@ bio_async_worker(void* userdata) {
 		// If the scheduler is waiting for I/O, wake it up
 		// The condition hopefully introduces a dependency and ensure that
 		// notification is only sent after the queue message is published.
+
+		// Store the notification flag locally before sending the message.
+		// This is because the scheduler will free the message so accessing
+		// msg->need_notification after bio_spscq_produce is unsafe.
+		bool need_notification = msg->need_notification;
 		if (
 			bio_spscq_produce(&self->response_queue, msg, true)
-			&& msg->need_notification
+			&& need_notification
 		) {
 			bio_platform_notify();
 		}
@@ -219,6 +231,7 @@ bio_thread_drain_responses(bio_worker_thread_t* worker) {
 		if (msg->type == BIO_WORKER_MSG_RUN) {
 			bio_raise_signal(msg->run.signal);
 			--bio_ctx.num_running_async_jobs;
+			--worker->load;
 		}
 
 		bio_free(msg);
@@ -251,16 +264,28 @@ bio_run_async(bio_entrypoint_t task, void* userdata, bio_signal_t signal) {
 	bio_worker_thread_t* workers = bio_ctx.thread_pool;
 	bool message_sent = false;
 	do {
-		// Try to send to one worker
+		// Try to send to the least busy worker
+		int chosen_worker_index = -1;
+		unsigned int min_load = UINT_MAX;
 		for (int i = 0; i < num_threads; ++i) {
 			bio_worker_thread_t* worker = &workers[i];
+
 			// Drain before submit to prevent queue from filling up
 			bio_thread_drain_responses(worker);
-			if (bio_spscq_produce(&worker->request_queue, msg, false)) {
-				message_sent = true;
-				++bio_ctx.num_running_async_jobs;
-				break;
+
+			unsigned int load = worker->load;
+			if (load < min_load) {
+				min_load = load;
+				chosen_worker_index = i;
 			}
+		}
+
+		bio_worker_thread_t* worker = &workers[chosen_worker_index];
+		if (bio_spscq_produce(&worker->request_queue, msg, false)) {
+			message_sent = true;
+			++bio_ctx.num_running_async_jobs;
+			++worker->load;
+			break;
 		}
 
 		// Let other threads run

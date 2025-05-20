@@ -48,6 +48,7 @@
 	do { \
 		while ((bio_is_mailbox_open(mailbox)) && (condition)) { \
 			if (bio_send_message((mailbox), (message))) { break; } \
+			bio_yield(); \
 		} \
 	} while (0)
 
