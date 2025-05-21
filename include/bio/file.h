@@ -11,6 +11,10 @@ extern bio_file_t BIO_STDIN;
 extern bio_file_t BIO_STDOUT;
 extern bio_file_t BIO_STDERR;
 
+typedef struct {
+	uint64_t size;
+} bio_stat_t;
+
 bool
 bio_fopen(
 	bio_file_t* file_ptr,
@@ -54,5 +58,8 @@ bio_fflush(bio_file_t file, bio_error_t* error);
 
 bool
 bio_fclose(bio_file_t file, bio_error_t* error);
+
+bool
+bio_fstat(bio_file_t file, bio_stat_t* stat, bio_error_t* error);
 
 #endif

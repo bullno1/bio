@@ -1,6 +1,9 @@
+#define _GNU_SOURCE
 #include "common.h"
 #include <bio/file.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 static const bio_tag_t BIO_FILE_HANDLE = BIO_TAG_INIT("bio.handle.file");
 
@@ -217,6 +220,26 @@ bio_ftell(
 		} else {
 			bio_set_errno(error, ENOTSUP);
 			return -1;
+		}
+	} else {
+		bio_set_errno(error, EINVAL);
+		return -1;
+	}
+}
+
+bool
+bio_fstat(bio_file_t file, bio_stat_t* stat, bio_error_t* error) {
+	bio_file_impl_t* impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		struct io_uring_sqe* sqe = bio_acquire_io_req();
+		struct statx statx;
+		io_uring_prep_statx(sqe, impl->fd, "", AT_EMPTY_PATH, STATX_SIZE, &statx);
+		int result = bio_submit_io_req(sqe, NULL);
+		if (result == 0) {
+			stat->size = statx.stx_size;
+			return true;
+		} else {
+			return bio_result_to_bool(result, error);
 		}
 	} else {
 		bio_set_errno(error, EINVAL);
