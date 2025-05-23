@@ -54,6 +54,15 @@ static const bio_addr_t BIO_ADDR_IPV6_LOOPBACK = {
 	.ipv6 = { [15] = 1 },
 };
 
+#ifdef __linux__
+
+// TODO: what would the API for Windows be?
+
+bio_socket_t
+bio_net_wrap_fd(int handle);
+
+#endif
+
 bool
 bio_net_listen(
 	bio_socket_type_t socket_type,

@@ -153,6 +153,11 @@ bio_socket_from_fd(int fd) {
 	};
 }
 
+bio_socket_t
+bio_net_wrap_fd(int handle) {
+	return bio_socket_from_fd(handle);
+}
+
 bool
 bio_net_listen(
 	bio_socket_type_t socket_type,
