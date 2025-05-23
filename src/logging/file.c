@@ -17,7 +17,6 @@ typedef struct {
 	// Serialize writes through a mailbox
 	log_mailbox_t log_mailbox;
 	bio_coro_t writer_coro;
-	bio_fmt_buf_t msg_buf;
 } bio_file_logger_data_t;
 
 typedef struct {
@@ -47,24 +46,14 @@ static void
 bio_log_file_writer(void* userdata) {
 	bio_log_file_writer_data_t* writer_data = userdata;
 
-	while (true) {
-		bio_file_log_msg_t msg;
-		if (!bio_recv_message(writer_data->log_mailbox, &msg)) { break; }
-
+	bio_foreach_message(msg, writer_data->log_mailbox) {
 		if (msg.terminate) { break; }
 
-		// Write in a loop to deal with short writes
-		size_t log_size = (size_t)msg.buf.len;
-		const char* log_ptr = msg.buf.ptr;
-		while (log_size > 0) {
-			size_t bytes_written = bio_fwrite(writer_data->file, log_ptr, log_size, NULL);
-			if (bytes_written == 0) { break; }
-
-			log_size -= bytes_written;
-			log_ptr += bytes_written;
-		}
-
+		bio_error_t error = { 0 };
+		bio_fwrite_exactly(writer_data->file, msg.buf.ptr, msg.buf.len, &error);
 		bio_free(msg.buf.ptr);
+
+		if (bio_has_error(&error)) { break; }
 	}
 
 	bio_close_mailbox(writer_data->log_mailbox);
@@ -72,15 +61,34 @@ bio_log_file_writer(void* userdata) {
 }
 
 static void
+bio_init_file_logging_cls(void* data) {
+	bio_fmt_buf_t* buf = data;
+	*buf = (bio_fmt_buf_t) { 0 };
+}
+
+static void
+bio_cleanup_file_logging_cls(void* data) {
+	bio_fmt_buf_t* buf = data;
+	bio_free(buf->ptr);
+}
+
+static const bio_cls_t bio_file_logging_cls = {
+	.size = sizeof(bio_fmt_buf_t),
+	.init = bio_init_file_logging_cls,
+	.cleanup = bio_cleanup_file_logging_cls,
+};
+
+static void
 bio_log_to_file(void* userdata, const bio_log_ctx_t* ctx, const char* msg) {
 	bio_file_logger_data_t* data = userdata;
 	if (BIO_LIKELY(ctx != NULL)) {
 		const char* coro_name = bio_get_coro_name(ctx->coro);
 		int msg_len;
+		bio_fmt_buf_t* msg_buf = bio_get_cls(&bio_file_logging_cls);
 		if (data->with_colors) {
 			if (coro_name != NULL) {
 				msg_len = bio_fmt(
-					&data->msg_buf,
+					msg_buf,
 					"[%c%s%s%c%s][%s:%d]<%s>: %s\n",
 
 					BIO_LOG_TERM_CODE, BIO_LOG_LEVEL_COLOR[ctx->level],
@@ -93,7 +101,7 @@ bio_log_to_file(void* userdata, const bio_log_ctx_t* ctx, const char* msg) {
 				);
 			} else {
 				msg_len = bio_fmt(
-					&data->msg_buf,
+					msg_buf,
 					"[%c%s%s%c%s][%s:%d]<%d:%d>: %s\n",
 
 					BIO_LOG_TERM_CODE, BIO_LOG_LEVEL_COLOR[ctx->level],
@@ -108,7 +116,7 @@ bio_log_to_file(void* userdata, const bio_log_ctx_t* ctx, const char* msg) {
 		} else {
 			if (coro_name != NULL) {
 				msg_len = bio_fmt(
-					&data->msg_buf,
+					msg_buf,
 					"[%s][%s:%d]<%s>: %s\n",
 					BIO_LOG_LEVEL_LABEL[ctx->level],
 
@@ -118,7 +126,7 @@ bio_log_to_file(void* userdata, const bio_log_ctx_t* ctx, const char* msg) {
 				);
 			} else {
 				msg_len = bio_fmt(
-					&data->msg_buf,
+					msg_buf,
 					"[%s][%s:%d]<%d:%d>: %s\n",
 					BIO_LOG_LEVEL_LABEL[ctx->level],
 
@@ -133,19 +141,14 @@ bio_log_to_file(void* userdata, const bio_log_ctx_t* ctx, const char* msg) {
 			.len = msg_len,
 			.ptr = bio_malloc(msg_len),
 		};
-		memcpy(msg_copy.ptr, data->msg_buf.ptr, msg_len);
+		memcpy(msg_copy.ptr, msg_buf->ptr, msg_len);
 		bio_file_log_msg_t msg_to_writer = { .buf = msg_copy };
-		while (!bio_send_message(data->log_mailbox, msg_to_writer)) {
-			bio_yield();
-		}
+		bio_wait_and_send_message(true, data->log_mailbox, msg_to_writer);
 	} else {
 		bio_file_log_msg_t terminate = { .terminate = true };
-		while (!bio_send_message(data->log_mailbox, terminate)) {
-			bio_yield();
-		}
+		bio_wait_and_send_message(true, data->log_mailbox, terminate);
 		bio_join(data->writer_coro);
 
-		bio_free(data->msg_buf.ptr);
 		bio_free(data);
 	}
 }

@@ -62,4 +62,21 @@ bio_fclose(bio_file_t file, bio_error_t* error);
 bool
 bio_fstat(bio_file_t file, bio_stat_t* stat, bio_error_t* error);
 
+static inline size_t
+bio_fwrite_exactly(bio_file_t file, const void* buf, size_t size, bio_error_t* error) {
+	size_t total_bytes_written = 0;
+	while (total_bytes_written < size) {
+		size_t bytes_written = bio_fwrite(
+			file,
+			(char*)buf + total_bytes_written,
+			size - total_bytes_written,
+			error
+		);
+		if (bytes_written == 0) { break; }
+		total_bytes_written += bytes_written;
+	}
+
+	return total_bytes_written;
+}
+
 #endif
