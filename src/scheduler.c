@@ -1,5 +1,6 @@
 #include "internal.h"
 #include <minicoro.h>
+#include <string.h>
 
 static const bio_tag_t BIO_CORO_HANDLE = BIO_TAG_INIT("bio.handle.coro");
 static const bio_tag_t BIO_SIGNAL_HANDLE = BIO_TAG_INIT("bio.handle.signal");
@@ -8,6 +9,11 @@ static const bio_tag_t BIO_MONITOR_HANDLE = BIO_TAG_INIT("bio.handle.monitor");
 void
 bio_scheduler_init(void) {
 	bio_ctx.num_coros = 0;
+	if (bio_ctx.options.num_cls_buckets == 0) {
+		bio_ctx.options.num_cls_buckets = 4;
+	} else {
+		bio_ctx.options.num_cls_buckets = bio_next_pow2(bio_ctx.options.num_cls_buckets);
+	}
 }
 
 void
@@ -35,6 +41,27 @@ bio_loop(void) {
 					bio_array_push(bio_ctx.next_ready_coros, coro);
 				}
 			} else {
+				// Cleanup all CLS
+				bio_cls_link_t* buckets = coro->cls_buckets;
+				int num_buckets = bio_ctx.options.num_cls_buckets;
+				for (int i = 0; i < num_buckets && buckets != NULL; ++i) {
+					bio_cls_link_t* bucket = &buckets[i];
+					for (
+						bio_cls_link_t* itr = bucket->next;
+						itr != bucket;
+					) {
+						bio_cls_link_t* next = itr->next;
+						bio_cls_entry_t* entry = BIO_CONTAINER_OF(itr, bio_cls_entry_t, link);
+
+						const bio_cls_t* cls = entry->spec;
+						if (cls->cleanup != NULL) { cls->cleanup(entry->data); }
+						bio_free(entry);
+
+						itr = next;
+					}
+				}
+				bio_free(buckets);
+
 				// Destroy all signals
 				for (
 					bio_signal_link_t* itr = coro->pending_signals.next;
@@ -311,6 +338,53 @@ bio_get_coro_name(bio_coro_t coro) {
 	bio_coro_impl_t* coro_impl = bio_resolve_handle(coro.handle, &BIO_CORO_HANDLE);
 	if (BIO_LIKELY(coro_impl != NULL)) {
 		return coro_impl->name;
+	} else {
+		return NULL;
+	}
+}
+
+// https://nullprogram.com/blog/2018/07/31/
+static uint64_t
+bio_splittable64(uint64_t x) {
+	x ^= x >> 30;
+	x *= 0xbf58476d1ce4e5b9U;
+	x ^= x >> 27;
+	x *= 0x94d049bb133111ebU;
+	x ^= x >> 31;
+	return x;
+}
+
+void*
+bio_get_cls(const bio_cls_t* cls) {
+	mco_coro* impl = mco_running();
+	if (BIO_LIKELY(impl)) {
+		bio_coro_impl_t* coro = impl->user_data;
+
+		int num_buckets = bio_ctx.options.num_cls_buckets;
+		bio_cls_link_t* buckets = coro->cls_buckets;
+		if (buckets == NULL) {
+			coro->cls_buckets = buckets = bio_malloc(sizeof(bio_cls_link_t) * num_buckets);
+			for (int i = 0; i < num_buckets; ++i) {
+				BIO_LIST_INIT(&buckets[i]);
+			}
+		}
+
+		uint64_t hash = bio_splittable64((uint64_t)(uintptr_t)cls);
+		int bucket_index = (int)(hash & ((uint64_t)num_buckets - 1));
+		bio_cls_link_t* bucket = &buckets[bucket_index];
+
+		for (bio_cls_link_t* itr = bucket->next; itr != bucket; itr = itr->next) {
+			bio_cls_entry_t* entry = BIO_CONTAINER_OF(itr, bio_cls_entry_t, link);
+			if (entry->spec == cls) {
+				return entry->data;
+			}
+		}
+
+		bio_cls_entry_t* new_entry = bio_malloc(sizeof(bio_cls_entry_t) + cls->size);
+		new_entry->spec = cls;
+		if (cls->init != NULL) { cls->init(new_entry->data); }
+		BIO_LIST_APPEND(bucket, &new_entry->link);
+		return new_entry->data;
 	} else {
 		return NULL;
 	}

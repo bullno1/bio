@@ -48,7 +48,6 @@ bio_logging_cleanup(void) {
 		bio_logger_impl_t* logger = BIO_CONTAINER_OF(bio_ctx.loggers.next, bio_logger_impl_t, link);
 		bio_remove_logger((bio_logger_t){ logger->handle });
 	}
-	bio_free(bio_ctx.log_msg_buf.ptr);
 }
 
 bio_logger_t
@@ -89,6 +88,28 @@ bio_set_min_log_level(bio_logger_t logger, bio_log_level_t level) {
 	}
 }
 
+typedef struct {
+	bio_fmt_buf_t log_msg_buf;
+} bio_logging_cls_t;
+
+static void
+bio_init_logging_cls(void* data) {
+	bio_logging_cls_t* cls = data;
+	*cls = (bio_logging_cls_t) { 0 };
+}
+
+static void
+bio_cleanup_logging_cls(void* data) {
+	bio_logging_cls_t* cls = data;
+	bio_free(cls->log_msg_buf.ptr);
+}
+
+static const bio_cls_t bio_logging_cls = {
+	.size = sizeof(bio_logging_cls_t),
+	.init = bio_init_logging_cls,
+	.cleanup = bio_cleanup_logging_cls,
+};
+
 void
 bio_log(
 	bio_log_level_t level,
@@ -116,7 +137,7 @@ bio_log(
 		.file = filename,
 	};
 
-	int msg_len = -1;
+	const char* msg = NULL;
 	for (
 		bio_logger_link_t* itr = bio_ctx.loggers.next;
 		itr != &bio_ctx.loggers;
@@ -126,15 +147,17 @@ bio_log(
 
 		if (level >= logger->min_level) {
 			// Delay formatting until it's actually needed
-			if (msg_len < 0) {
+			if (msg == NULL) {
+				bio_logging_cls_t* cls = bio_get_cls(&bio_logging_cls);
 				va_list args;
 				va_start(args, fmt);
-				msg_len = bio_vfmt(&bio_ctx.log_msg_buf, fmt, args);
+				int msg_len = bio_vfmt(&cls->log_msg_buf, fmt, args);
 				va_end(args);
 				if (msg_len < 0) { return; }
+				msg = cls->log_msg_buf.ptr;
 			}
 
-			logger->log_fn(logger->userdata, &ctx, bio_ctx.log_msg_buf.ptr);
+			logger->log_fn(logger->userdata, &ctx, msg);
 		}
 
 		itr = next;

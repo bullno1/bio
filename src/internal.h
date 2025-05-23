@@ -73,6 +73,7 @@ typedef struct mco_coro mco_coro;
 BIO_DEFINE_LIST_LINK(bio_signal_link);
 BIO_DEFINE_LIST_LINK(bio_logger_link);
 BIO_DEFINE_LIST_LINK(bio_monitor_link);
+BIO_DEFINE_LIST_LINK(bio_cls_link);
 
 typedef struct bio_coro_impl_s bio_coro_impl_t;
 
@@ -85,6 +86,13 @@ typedef struct {
 	int wait_counter;
 } bio_signal_impl_t;
 
+typedef struct {
+	bio_cls_link_t link;
+	const bio_cls_t* spec;
+
+	_Alignas(BIO_ALIGN_TYPE) char data[];
+} bio_cls_entry_t;
+
 struct bio_coro_impl_s {
 	mco_coro* impl;
 	bio_entrypoint_t entrypoint;
@@ -92,6 +100,7 @@ struct bio_coro_impl_s {
 	void* extra_data;
 	const bio_tag_t* extra_data_tag;
 	const char* name;
+	bio_cls_link_t* cls_buckets;
 
 	bio_handle_t handle;
 	bio_coro_state_t state;
@@ -144,7 +153,6 @@ typedef struct {
 	// Logging
 	bio_logger_link_t loggers;
 	int log_prefix_len;
-	bio_fmt_buf_t log_msg_buf;
 
 	// Thread pool
 	bio_worker_thread_t* thread_pool;

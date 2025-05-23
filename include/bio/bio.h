@@ -83,6 +83,12 @@ typedef struct {
 } bio_allocator_t;
 
 typedef struct {
+	size_t size;
+	void (*init)(void* data);
+	void (*cleanup)(void* data);
+} bio_cls_t;
+
+typedef struct {
 	// For shortening path in log
 	const char* current_filename;
 	int current_depth_in_project;
@@ -90,6 +96,8 @@ typedef struct {
 
 typedef struct {
 	bio_allocator_t allocator;
+
+	int num_cls_buckets;
 
 	struct {
 		int num_threads;
@@ -187,6 +195,9 @@ bio_set_coro_name(const char* name);
 
 const char*
 bio_get_coro_name(bio_coro_t coro);
+
+void*
+bio_get_cls(const bio_cls_t* cls);
 
 bio_time_t
 bio_current_time_ms(void);
