@@ -119,4 +119,22 @@ bio_net_recvfrom(
 int
 bio_net_address_compare(const bio_addr_t* lhs, const bio_addr_t* rhs);
 
+static inline size_t
+bio_net_send_exactly(bio_socket_t socket, char* data, size_t size, bio_error_t* error) {
+	size_t total_bytes_sent = 0;
+	while (total_bytes_sent < size) {
+		size_t bytes_sent = bio_net_send(
+			socket,
+			data + total_bytes_sent,
+			size - total_bytes_sent,
+			error
+		);
+		if (bytes_sent == 0) { break; }
+		total_bytes_sent += bytes_sent;
+	}
+
+	return total_bytes_sent;
+}
+
+
 #endif

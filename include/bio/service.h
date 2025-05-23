@@ -42,7 +42,7 @@ typedef struct {
 
 #define bio_call_service(service, message, cancel_signal) \
 	( \
-		BIO__TYPECHECK_EXP((message), *(service.mailbox.bio__message)), \
+		BIO__TYPECHECK_EXP((message), *((service).mailbox.bio__message)), \
 		bio__service_call( \
 			(service).coro, \
 			(service).mailbox.bio__handle, \
