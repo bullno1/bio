@@ -56,6 +56,11 @@ bio_fs_test_lseek(void* userdata) {
 	args->result = lseek(args->fd, 0, args->whence);
 }
 
+bio_file_t
+bio_fdopen(int fd) {
+	return bio_file_from_fd(fd, -1, false);
+}
+
 bool
 bio_fopen(
 	bio_file_t* file_ptr,

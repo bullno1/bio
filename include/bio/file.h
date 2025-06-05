@@ -15,6 +15,13 @@ typedef struct {
 	uint64_t size;
 } bio_stat_t;
 
+#ifdef __linux__
+
+bio_file_t
+bio_fdopen(int fd);
+
+#endif
+
 bool
 bio_fopen(
 	bio_file_t* file_ptr,

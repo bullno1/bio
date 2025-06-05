@@ -4,6 +4,7 @@
 #define _GNU_SOURCE
 #include <liburing.h>
 #include <threads.h>
+#include <signal.h>
 
 typedef struct {
 	struct io_uring ioring;
@@ -12,6 +13,7 @@ typedef struct {
 	int eventfd;
 	atomic_uint notification_counter;
 	unsigned int ack_counter;
+	sigset_t old_sigmask;
 
 	// Compatibility
 	bool has_op_bind;

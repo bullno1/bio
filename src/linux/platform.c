@@ -195,6 +195,20 @@ bio_platform_current_time_ms(void) {
 	return (timespec.tv_sec * 1000L) + (timespec.tv_nsec / 1000000L);
 }
 
+void
+bio_platform_begin_create_thread_pool(void) {
+	// block all signals before creating new threads so only the main thread
+	// can receive signal
+	sigset_t sigset;
+	sigfillset(&sigset);
+	pthread_sigmask(SIG_BLOCK, &sigset, &bio_ctx.platform.old_sigmask);
+}
+
+void
+bio_platform_end_create_thread_pool(void) {
+	pthread_sigmask(SIG_SETMASK, &bio_ctx.platform.old_sigmask, NULL);
+}
+
 struct io_uring_sqe*
 bio_acquire_io_req(void) {
 	struct io_uring_sqe* sqe;

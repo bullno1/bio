@@ -301,6 +301,12 @@ bio_platform_notify(void);
 bio_time_t
 bio_platform_current_time_ms(void);
 
+void
+bio_platform_begin_create_thread_pool(void);
+
+void
+bio_platform_end_create_thread_pool(void);
+
 // File
 
 void
