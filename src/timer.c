@@ -1,6 +1,21 @@
 #include "internal.h"
+#include <bio/timer.h>
 
 #define BIO_INITIAL_TIMER_CAPACITY 4
+
+static const bio_tag_t BIO_TIMER_HANDLE = BIO_TAG_INIT("bio.handle.timer");
+
+typedef struct {
+	bio_timer_type_t type;
+	bio_time_t timeout_ms;
+	bio_entrypoint_t fn;
+	void* userdata;
+
+	bio_signal_t wake_signal;
+	bio_time_t due_time_ms;
+	bool cancelled;
+	bio_handle_t handle;
+} bio_timer_impl_t;
 
 void
 bio_timer_init(void) {
@@ -111,5 +126,77 @@ bio_time_until_next_timer(void) {
 		}
 	} else {
 		return -1;
+	}
+}
+
+static void
+bio_timer_entry(void* userdata) {
+	bio_timer_impl_t* impl = userdata;
+	while (true) {
+		impl->wake_signal = bio_make_signal();
+		bio_raise_signal_after(
+			impl->wake_signal,
+			impl->due_time_ms - bio_current_time_ms()
+		);
+		bio_wait_for_one_signal(impl->wake_signal);
+
+		bio_time_t current_time_ms = bio_current_time_ms();
+		if (impl->cancelled) {
+			break;
+		} else if (current_time_ms >= impl->due_time_ms) {
+			impl->fn(impl->userdata);
+			if (impl->type == BIO_TIMER_ONESHOT) {
+				break;
+			} else {
+				impl->due_time_ms = current_time_ms + impl->timeout_ms;
+			}
+		}
+	}
+
+	bio_close_handle(impl->handle, &BIO_TIMER_HANDLE);
+	bio_free(impl);
+}
+
+bio_timer_t
+bio_create_timer(
+	bio_timer_type_t type, bio_time_t timeout_ms,
+	bio_entrypoint_t fn, void* userdata
+) {
+	bio_timer_impl_t* impl = bio_malloc(sizeof(bio_timer_impl_t));
+	*impl = (bio_timer_impl_t){
+		.type = type,
+		.timeout_ms = timeout_ms,
+		.fn = fn,
+		.userdata = userdata,
+
+		.due_time_ms = bio_current_time_ms() + timeout_ms,
+	};
+	bio_handle_t handle = impl->handle = bio_make_handle(impl, &BIO_TIMER_HANDLE);
+	bio_spawn(bio_timer_entry, impl);
+
+	return (bio_timer_t){ .handle = handle };
+}
+
+bool
+bio_is_timer_pending(bio_timer_t timer) {
+	return bio_resolve_handle(timer.handle, &BIO_TIMER_HANDLE) != NULL;
+}
+
+void
+bio_reset_timer(bio_timer_t timer, bio_time_t timeout_ms) {
+	bio_timer_impl_t* impl = bio_resolve_handle(timer.handle, &BIO_TIMER_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		impl->timeout_ms = timeout_ms;
+		impl->due_time_ms = bio_current_time_ms() + timeout_ms;
+	}
+}
+
+void
+bio_cancel_timer(bio_timer_t timer) {
+	bio_timer_impl_t* impl = bio_resolve_handle(timer.handle, &BIO_TIMER_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		impl->cancelled = true;
+		bio_raise_signal(impl->wake_signal);
+		bio_close_handle(impl->handle, &BIO_TIMER_HANDLE);
 	}
 }

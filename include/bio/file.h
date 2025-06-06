@@ -86,4 +86,21 @@ bio_fwrite_exactly(bio_file_t file, const void* buf, size_t size, bio_error_t* e
 	return total_bytes_written;
 }
 
+static inline size_t
+bio_fread_exactly(bio_file_t file, void* buf, size_t size, bio_error_t* error) {
+	size_t total_bytes_read = 0;
+	while (total_bytes_read < size) {
+		size_t bytes_read = bio_fread(
+			file,
+			(char*)buf + total_bytes_read,
+			size - total_bytes_read,
+			error
+		);
+		if (bytes_read == 0) { break; }
+		total_bytes_read += bytes_read;
+	}
+
+	return total_bytes_read;
+}
+
 #endif
