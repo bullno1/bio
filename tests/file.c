@@ -2,13 +2,13 @@
 #include <bio/file.h>
 #include <string.h>
 
-static suite_t file = {
+static suite_t file_ = {
 	.name = "file",
 	.init_per_test = init_bio,
 	.cleanup_per_test = cleanup_bio,
 };
 
-BIO_TEST(file, read_write) {
+BIO_TEST(file_, read_write) {
 	bio_file_t file;
 	bio_error_t error = { 0 };
 	bio_fopen(&file, "testfile", "w+", &error);

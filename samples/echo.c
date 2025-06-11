@@ -8,6 +8,7 @@
 
 static void*
 stdlib_realloc(void* ptr, size_t size, void* ctx) {
+	(void)ctx;
 	if (size == 0) {
 		free(ptr);
 		return NULL;
@@ -86,7 +87,6 @@ echo_server(void* userdata) {
 	BIO_INFO("Started server");
 
 	while (true) {
-		bio_error_t error = { 0 };
 		bio_socket_t client;
 
 		if (!bio_net_accept(server_socket, &client, &error)) {

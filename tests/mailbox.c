@@ -1,7 +1,7 @@
 #include "common.h"
 #include <bio/mailbox.h>
 
-static suite_t mailbox = {
+static suite_t mailbox_ = {
 	.name = "mailbox",
 	.init_per_test = init_bio,
 	.cleanup_per_test = cleanup_bio,
@@ -26,7 +26,7 @@ send_recv_sender(void* userdata) {
 	CHECK(bio_send_message(mailbox, (int){ 69 }), "Could not send");
 }
 
-TEST(mailbox, send_recv) {
+TEST(mailbox_, send_recv) {
 	int_mailbox_t mailbox;
 	bio_open_mailbox(&mailbox, 4);
 
@@ -38,7 +38,7 @@ TEST(mailbox, send_recv) {
 	bio_close_mailbox(mailbox);
 }
 
-TEST(mailbox, full) {
+TEST(mailbox_, full) {
 	int_mailbox_t mailbox;
 	bio_open_mailbox(&mailbox, 4);
 
@@ -69,7 +69,7 @@ close_sender(void* userdata) {
 	CHECK(!bio_can_send_message(mailbox), "Invalid state");
 }
 
-TEST(mailbox, close) {
+TEST(mailbox_, close) {
 	int_mailbox_t mailbox;
 	bio_open_mailbox(&mailbox, 4);
 

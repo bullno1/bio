@@ -25,7 +25,7 @@ typedef struct {
 	};
 } service_msg_t;
 
-static btest_suite_t service = {
+static btest_suite_t service_ = {
 	.name = "service",
 	.init_per_test = init_bio,
 	.cleanup_per_test = cleanup_bio,
@@ -63,7 +63,7 @@ service_entry(void* userdata) {
 end:;
 }
 
-BIO_TEST(service, call) {
+BIO_TEST(service_, call) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -105,7 +105,7 @@ canceller(void* userdata) {
 	bio_raise_signal(signal);
 }
 
-BIO_TEST(service, cancel) {
+BIO_TEST(service_, cancel) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -141,7 +141,7 @@ BIO_TEST(service, cancel) {
 	BTEST_EXPECT(saved_start_arg == 0);  // service must not write to var
 }
 
-BIO_TEST(service, target_dies_during_call) {
+BIO_TEST(service_, target_dies_during_call) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -156,7 +156,7 @@ BIO_TEST(service, target_dies_during_call) {
 	bio_stop_service(service);
 }
 
-BIO_TEST(service, target_already_dead) {
+BIO_TEST(service_, target_already_dead) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -181,7 +181,7 @@ kill_service(void* userdata) {
 	bio_stop_service(service);
 }
 
-BIO_TEST(service, target_stops_during_call) {
+BIO_TEST(service_, target_stops_during_call) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -195,7 +195,7 @@ BIO_TEST(service, target_stops_during_call) {
 	BTEST_EXPECT(status == BIO_CALL_TARGET_DEAD);
 }
 
-BIO_TEST(service, notify) {
+BIO_TEST(service_, notify) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
 	bio_start_service(&service, service_entry, start_arg, 4);
@@ -233,7 +233,7 @@ self_stop_service(void* userdata) {
 	}
 }
 
-BIO_TEST(service, self_stop) {
+BIO_TEST(service_, self_stop) {
 	BIO_SERVICE(int) service;
 	int start_arg = 42;
 	bio_start_service(&service, self_stop_service, start_arg, 4);

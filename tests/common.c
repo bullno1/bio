@@ -4,6 +4,7 @@
 
 static void*
 stdlib_realloc(void* ptr, size_t size, void* ctx) {
+	(void)ctx;
 	if (size == 0) {
 		free(ptr);
 		return NULL;

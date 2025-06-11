@@ -18,7 +18,16 @@ set(LINUX_SOURCES
 	"linux/net.c"
 	"linux/file.c"
 )
-add_library(bio STATIC ${COMMON_SOURCES} ${LINUX_SOURCES})
+set(WIN32_SOURCES
+	"windows/platform.c"
+)
+if (LINUX)
+	add_library(bio STATIC ${COMMON_SOURCES} ${LINUX_SOURCES})
+elseif (WIN32)
+	add_library(bio STATIC ${COMMON_SOURCES} ${WIN32_SOURCES})
+else ()
+	message(SEND_ERROR "Unsupported platform")
+endif ()
 target_include_directories(bio PUBLIC "../include")
 target_link_libraries(bio PRIVATE minicoro)
 

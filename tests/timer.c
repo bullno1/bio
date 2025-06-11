@@ -75,7 +75,7 @@ TEST(timer, sort) {
 	// Spawn 1000 coros, giving them random numbers which is their delay
 	// They must all wake up in order, aka timer sort.
 
-	srand(time(NULL));
+	srand((int)time(NULL));
 	for (int i = 0; i < 1000; ++i) {
 		int delay = rand() % 500;
 		sort_fixture.numbers[i] = delay;

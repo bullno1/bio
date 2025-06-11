@@ -1,5 +1,6 @@
 #include "internal.h"
 #include <threads.h>
+#include <stdatomic.h>
 #include <limits.h>
 
 typedef struct {
@@ -10,11 +11,11 @@ typedef struct {
 typedef struct {
 	bio_thread_signal_t can_produce;
 	bio_thread_signal_t can_consume;
-	atomic_uint count;
-	atomic_uint head;
-	atomic_uint tail;
+	atomic_int count;
+	atomic_int head;
+	atomic_int tail;
 	void** values;
-	unsigned int size;
+	int size;
 } bio_spscq_t;
 
 struct bio_worker_thread_s {

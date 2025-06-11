@@ -190,6 +190,7 @@ BIO_TEST(coro, monitor) {
 
 static void
 unmonitor_child(void* userdata) {
+	(void)userdata;
 	bio_yield();
 }
 
@@ -211,6 +212,7 @@ BIO_TEST(coro, unmonitor) {
 
 static void
 monitor_dead_coro_child(void* userdata) {
+	(void)userdata;
 }
 
 BIO_TEST(coro, monitor_dead_coro) {

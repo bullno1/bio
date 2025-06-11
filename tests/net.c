@@ -194,7 +194,6 @@ net_test_echo_server(void* userdata) {
 
 	// Accept until killed
 	while (true) {
-		bio_error_t error = { 0 };
 		bio_socket_t client;
 
 		if (!bio_net_accept(server_socket, &client, &error)) {

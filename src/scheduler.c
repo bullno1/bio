@@ -29,8 +29,8 @@ bio_loop(void) {
 	while (true) {
 		// Pop and run coros off the current list until it is empty
 		int num_coros = (int)bio_array_len(bio_ctx.current_ready_coros);
-		for (int i = 0; i < num_coros; ++i) {
-			bio_coro_impl_t* coro = bio_ctx.current_ready_coros[i];
+		for (int coro_index = 0; coro_index < num_coros; ++coro_index) {
+			bio_coro_impl_t* coro = bio_ctx.current_ready_coros[coro_index];
 			coro->state = BIO_CORO_RUNNING;
 			coro->num_blocking_signals = 0;
 			mco_resume(coro->impl);
@@ -44,8 +44,8 @@ bio_loop(void) {
 				// Cleanup all CLS
 				bio_cls_link_t* buckets = coro->cls_buckets;
 				int num_buckets = bio_ctx.options.num_cls_buckets;
-				for (int i = 0; i < num_buckets && buckets != NULL; ++i) {
-					bio_cls_link_t* bucket = &buckets[i];
+				for (int bucket_index = 0; bucket_index < num_buckets && buckets != NULL; ++bucket_index) {
+					bio_cls_link_t* bucket = &buckets[bucket_index];
 					for (
 						bio_cls_link_t* itr = bucket->next;
 						itr != bucket;
