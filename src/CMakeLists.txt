@@ -20,6 +20,7 @@ set(LINUX_SOURCES
 )
 set(WIN32_SOURCES
 	"windows/platform.c"
+	"windows/file.c"
 )
 if (LINUX)
 	add_library(bio STATIC ${COMMON_SOURCES} ${LINUX_SOURCES})

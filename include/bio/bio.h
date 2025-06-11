@@ -78,6 +78,12 @@ typedef struct {
 } bio_linux_options_t;
 
 typedef struct {
+	struct {
+		unsigned int batch_size;
+	} iocp;
+} bio_windows_options_t;
+
+typedef struct {
 	void* ctx;
 	void* (*realloc)(void* ptr, size_t size, void* ctx);
 } bio_allocator_t;
@@ -106,6 +112,7 @@ typedef struct {
 
 	bio_log_options_t log_options;
 	bio_linux_options_t linux;
+	bio_windows_options_t windows;
 } bio_options_t;
 
 typedef struct {
