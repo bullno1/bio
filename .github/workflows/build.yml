@@ -20,7 +20,7 @@ jobs:
           sdk: 10.0.22621.0
           vsversion: 2022
       - name: Generate project
-        run: .\\msvc.bat
+        run: .\msvc.bat
       - name: Build
         run: |
           cd msvc
@@ -28,7 +28,7 @@ jobs:
       - name: Test
         run: |
           cd msvc
-          bin\\Debug\\tests.exe
+          .\bin\Debug\tests.exe
   build-linux:
     runs-on: ubuntu-latest
     steps:
