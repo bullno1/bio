@@ -80,6 +80,15 @@ bio_wait_for_io(bio_io_req_t* req) {
 }
 
 void
+bio_maybe_wait_after_success(bio_io_req_t* req, bio_completion_mode_t completion_mode) {
+	if (completion_mode == BIO_COMPLETION_MODE_SKIP_ON_SUCCESS) {
+		bio_raise_signal(req->signal);
+	} else {
+		bio_wait_for_one_signal(req->signal);
+	}
+}
+
+void
 bio_platform_begin_create_thread_pool(void) {
 }
 

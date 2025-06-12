@@ -2,9 +2,34 @@
 
 #define bio_set_last_wsa_error(error) bio_set_error(error, WSAGetLastError())
 
+static bio_completion_mode_t
+bio_net_ws_completion_mode(SOCKET socket) {
+	WSAPROTOCOL_INFO protocol_info;
+	int proto_info_len = (int)sizeof(protocol_info);
+	if (getsockopt(socket, SOL_SOCKET, SO_PROTOCOL_INFO, (char*)&protocol_info, &proto_info_len) == 0) {
+		return (protocol_info.dwServiceFlags1 & XP1_IFS_HANDLES) > 0
+			? BIO_COMPLETION_MODE_SKIP_ON_SUCCESS
+			: BIO_COMPLETION_MODE_ALWAYS;
+	} else {
+		return BIO_COMPLETION_MODE_UNKNOWN;
+	}
+}
+
+static bio_completion_mode_t
+bio_net_ws_init_completion_mode(SOCKET socket) {
+	bio_completion_mode_t completion_mode = bio_net_ws_completion_mode(socket);
+	if (completion_mode == BIO_COMPLETION_MODE_SKIP_ON_SUCCESS) {
+		return SetFileCompletionNotificationModes((HANDLE)socket, FILE_SKIP_COMPLETION_PORT_ON_SUCCESS)
+			? BIO_COMPLETION_MODE_SKIP_ON_SUCCESS
+			: BIO_COMPLETION_MODE_ALWAYS;
+	} else {
+		return BIO_COMPLETION_MODE_ALWAYS;
+	}
+}
+
 static bool
 bio_net_maybe_wait_for_io(
-	SOCKET socket,
+	SOCKET socket, bio_completion_mode_t completion_mode,
 	bio_io_req_t* req,
 	bio_error_t* error,
 	bool overlapped_op_succeeded
@@ -25,7 +50,7 @@ bio_net_maybe_wait_for_io(
 
 		return true;
 	} else {
-		bio_raise_signal(req->signal);
+		bio_maybe_wait_after_success(req, completion_mode);
 		return true;
 	}
 }
@@ -77,7 +102,7 @@ bio_net_ws_listen(
 	success = true;
 end:
 	if (BIO_LIKELY(success)) {
-		*sock = (bio_net_ws_socket_t){ .socket = handle };
+		*sock = (bio_net_ws_socket_t){ .handle = handle };
 	} else {
 		closesocket(handle);
 	}
@@ -94,45 +119,54 @@ bio_net_ws_accept(
 	DWORD num_bytes;
 
 	// Initialize lazily so we can support sockets passed through bio_net_wrap_handle
-	if (socket->accept_fn == NULL) {
+	if (socket->completion_mode == BIO_COMPLETION_MODE_UNKNOWN) {
+		socket->completion_mode = bio_net_ws_init_completion_mode(socket->handle);
+	}
+
+	if (socket->listen_data == NULL) {
 		GUID accept_ex_guid = WSAID_ACCEPTEX;
+		bio_net_ws_listen_data_t listen_data;
 		bio_io_req_t req = bio_prepare_io_req();
 		if (!bio_net_maybe_wait_for_io(
-			socket->socket, &req, error,
+			socket->handle, socket->completion_mode,
+			&req, error,
 			WSAIoctl(
-				socket->socket,
+				socket->handle,
 				SIO_GET_EXTENSION_FUNCTION_POINTER,
 				&accept_ex_guid, sizeof(accept_ex_guid),
-				&socket->accept_fn, sizeof(socket->accept_fn),
+				&listen_data.accept_fn, sizeof(listen_data.accept_fn),
 				&num_bytes,
 				&req.overlapped, NULL
-			)
+			) == 0
 		)) {
 			return false;
 		}
 
 		if (getsockname(
-			socket->socket,
-			(struct sockaddr*)&socket->sockaddr, &socket->sockaddr_len
+			socket->handle,
+			(struct sockaddr*)&listen_data.sockaddr, &listen_data.sockaddr_len
 		)) {
 			bio_set_last_wsa_error(error);
 			return false;
 		}
 
-		int sock_type_len = (int)sizeof(socket->sock_type);
+		int sock_type_len = (int)sizeof(listen_data.sock_type);
 		if (getsockopt(
-			socket->socket,
+			socket->handle,
 			SOL_SOCKET, SO_TYPE,
-			(char*)&socket->sock_type, &sock_type_len
+			(char*)&listen_data.sock_type, &sock_type_len
 		)) {
 			bio_set_last_wsa_error(error);
 			return false;
 		}
+
+		socket->listen_data = bio_malloc(sizeof(bio_net_ws_listen_data_t));
+		*(socket->listen_data) = listen_data;
 	}
 
 	SOCKET client_socket = WSASocketA(
-		socket->sockaddr.ss_family,
-		socket->sock_type,
+		socket->listen_data->sockaddr.ss_family,
+		socket->listen_data->sock_type,
 		0,
 		NULL,
 		0,
@@ -147,9 +181,10 @@ bio_net_ws_accept(
 	char output_buf[(sizeof(struct sockaddr_in6) + 16) * 2];
 	bio_io_req_t req = bio_prepare_io_req();
 	if (!bio_net_maybe_wait_for_io(
-		socket->socket, &req, error,
-		socket->accept_fn(
-			socket->socket,
+		socket->handle, socket->completion_mode,
+		&req, error,
+		socket->listen_data->accept_fn(
+			socket->handle,
 			client_socket,
 			output_buf, 0,
 			sizeof(struct sockaddr_in6) + 16,
@@ -164,7 +199,7 @@ bio_net_ws_accept(
 	if (setsockopt(
 		client_socket,
 		SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT,
-		(char*)&socket->socket, sizeof(socket->socket)
+		(char*)&socket->handle, sizeof(socket->handle)
 	)) {
 		bio_set_last_wsa_error(error);
 		goto end;
@@ -178,7 +213,7 @@ bio_net_ws_accept(
 	success = true;
 end:
 	if (success) {
-		*client = (bio_net_ws_socket_t){ .socket = client_socket };
+		*client = (bio_net_ws_socket_t){ .handle = client_socket };
 	} else {
 		closesocket(client_socket);
 	}
@@ -211,6 +246,7 @@ bio_net_ws_connect(
 		bio_set_last_wsa_error(error);
 		return false;
 	}
+	bio_completion_mode_t completion_mode = bio_net_ws_init_completion_mode(handle);
 
 	bool success = false;
 	LPFN_CONNECTEX connect_ex;
@@ -218,7 +254,8 @@ bio_net_ws_connect(
 	DWORD num_bytes;
 	bio_io_req_t req = bio_prepare_io_req();
 	if (!bio_net_maybe_wait_for_io(
-		handle, &req, error,
+		handle, completion_mode,
+		&req, error,
 		WSAIoctl(
 			handle,
 			SIO_GET_EXTENSION_FUNCTION_POINTER,
@@ -226,14 +263,15 @@ bio_net_ws_connect(
 			&connect_ex, sizeof(connect_ex),
 			&num_bytes,
 			&req.overlapped, NULL
-		)
+		) == 0
 	)) {
 		goto end;
 	}
 
 	req = bio_prepare_io_req();
 	if (!bio_net_maybe_wait_for_io(
-		handle, &req, error,
+		handle, completion_mode,
+		&req, error,
 		connect_ex(
 			handle,
 			addr->addr, addr->addr_len,
@@ -253,7 +291,10 @@ bio_net_ws_connect(
 	success = true;
 end:
 	if (BIO_LIKELY(success)) {
-		*socket = (bio_net_ws_socket_t){ .socket = handle };
+		*socket = (bio_net_ws_socket_t){
+			.handle = handle,
+			.completion_mode = completion_mode,
+		};
 	} else {
 		closesocket(handle);
 	}
@@ -263,9 +304,11 @@ end:
 
 bool
 bio_net_ws_close(bio_net_ws_socket_t* socket, bio_error_t* error) {
-	CancelIo((HANDLE)socket->socket);
-	shutdown(socket->socket, SD_BOTH);
-	if (closesocket(socket->socket) == 0) {
+	SOCKET handle = socket->handle;
+	CancelIo((HANDLE)handle);
+	shutdown(handle, SD_BOTH);
+	bio_free(socket->listen_data);
+	if (closesocket(handle) == 0) {
 		return true;
 	} else {
 		bio_set_last_wsa_error(error);
@@ -280,6 +323,10 @@ bio_net_ws_send(
 	size_t size,
 	bio_error_t* error
 ) {
+	if (socket->completion_mode == BIO_COMPLETION_MODE_UNKNOWN) {
+		socket->completion_mode = bio_net_ws_init_completion_mode(socket->handle);
+	}
+
 	WSABUF wsabuf = {
 		.buf = (void*)buf,
 		.len = size > ULONG_MAX ? ULONG_MAX : (ULONG)size,
@@ -287,7 +334,7 @@ bio_net_ws_send(
 	DWORD num_bytes_transferred, flags;
 	bio_io_req_t req = bio_prepare_io_req();
 	if (WSASend(
-		socket->socket,
+		socket->handle,
 		&wsabuf, 1,
 		&num_bytes_transferred,
 		0,
@@ -301,7 +348,7 @@ bio_net_ws_send(
 		bio_wait_for_io(&req);
 
 		if (!WSAGetOverlappedResult(
-			socket->socket,
+			socket->handle,
 			&req.overlapped,
 			&num_bytes_transferred,
 			FALSE,
@@ -313,7 +360,7 @@ bio_net_ws_send(
 
 		return num_bytes_transferred;
 	} else {
-		bio_raise_signal(req.signal);
+		bio_maybe_wait_after_success(&req, socket->completion_mode);
 		return num_bytes_transferred;
 	}
 }
@@ -325,6 +372,10 @@ bio_net_ws_recv(
 	size_t size,
 	bio_error_t* error
 ) {
+	if (socket->completion_mode == BIO_COMPLETION_MODE_UNKNOWN) {
+		socket->completion_mode = bio_net_ws_init_completion_mode(socket->handle);
+	}
+
 	WSABUF wsabuf = {
 		.buf = (void*)buf,
 		.len = size > ULONG_MAX ? ULONG_MAX : (ULONG)size,
@@ -332,7 +383,7 @@ bio_net_ws_recv(
 	DWORD num_bytes_transferred, flags;
 	bio_io_req_t req = bio_prepare_io_req();
 	if (WSARecv(
-		socket->socket,
+		socket->handle,
 		&wsabuf, 1,
 		&num_bytes_transferred,
 		0,
@@ -346,7 +397,7 @@ bio_net_ws_recv(
 		bio_wait_for_io(&req);
 
 		if (!WSAGetOverlappedResult(
-			socket->socket,
+			socket->handle,
 			&req.overlapped,
 			&num_bytes_transferred,
 			FALSE,
@@ -358,7 +409,7 @@ bio_net_ws_recv(
 
 		return num_bytes_transferred;
 	} else {
-		bio_raise_signal(req.signal);
+		bio_maybe_wait_after_success(&req, socket->completion_mode);
 		return num_bytes_transferred;
 	}
 }

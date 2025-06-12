@@ -29,15 +29,27 @@ typedef enum {
 } bio_win_socket_type_t;
 
 typedef struct {
-	SOCKET socket;
 	LPFN_ACCEPTEX accept_fn;
 	SOCKADDR_STORAGE sockaddr;
 	int sockaddr_len;
 	int sock_type;
+} bio_net_ws_listen_data_t;
+
+typedef struct {
+	SOCKET handle;
+	bio_completion_mode_t completion_mode;
+	bio_net_ws_listen_data_t* listen_data;
 } bio_net_ws_socket_t;
 
 typedef struct {
+	int sock_type;
+	char name[257];
+} bio_net_pipe_listen_data_t;
+
+typedef struct {
 	HANDLE handle;
+	bio_completion_mode_t completion_mode;
+	bio_net_pipe_listen_data_t* listen_data;
 } bio_net_pipe_socket_t;
 
 typedef struct {

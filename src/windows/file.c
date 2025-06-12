@@ -9,6 +9,7 @@ static const bio_tag_t BIO_FILE_HANDLE = BIO_TAG_INIT("bio.handle.file");
 
 typedef struct {
 	HANDLE handle;
+	bio_completion_mode_t completion_mode;
 	uint64_t offset;
 } bio_file_impl_t;
 
@@ -57,7 +58,6 @@ bio_fs_open_file(void* userdata) {
 		NULL
 	);
 	if (args->handle != INVALID_HANDLE_VALUE) {
-		SetFileCompletionNotificationModes(args->handle, FILE_SKIP_COMPLETION_PORT_ON_SUCCESS);
 		args->error = ERROR_SUCCESS;
 	} else {
 		args->error = GetLastError();
@@ -206,18 +206,31 @@ bio_fopen(
         return false;
     }
 
-	return bio_fdopen(file_ptr, (uintptr_t)args.handle, error);
+	if (bio_fdopen(file_ptr, (uintptr_t)args.handle, error)) {
+		return true;
+	} else {
+		CloseHandle(args.handle);
+		return false;
+	}
 }
 
 bool
 bio_fdopen(bio_file_t* file_ptr, uintptr_t fd, bio_error_t* error) {
+	bio_completion_mode_t completion_mode =
+		SetFileCompletionNotificationModes((HANDLE)fd, FILE_SKIP_COMPLETION_PORT_ON_SUCCESS)
+		? BIO_COMPLETION_MODE_SKIP_ON_SUCCESS
+		: BIO_COMPLETION_MODE_ALWAYS;
+
 	if (CreateIoCompletionPort((HANDLE)fd, bio_ctx.platform.iocp, 0, 0) == NULL) {
 		bio_set_last_error(error);
 		return false;
 	}
 
 	bio_file_impl_t* impl = bio_malloc(sizeof(bio_file_impl_t));
-	*impl = (bio_file_impl_t){ .handle = (HANDLE)fd };
+	*impl = (bio_file_impl_t){
+		.handle = (HANDLE)fd,
+		.completion_mode = completion_mode,
+	};
 	*file_ptr = (bio_file_t){ .handle = bio_make_handle(impl, &BIO_FILE_HANDLE) };
 	return true;
 }
@@ -245,7 +258,7 @@ bio_fwrite(
 		};
 		bio_run_async_and_wait(bio_fs_write_file, &args);
 		if (args.error == ERROR_SUCCESS) {
-			bio_raise_signal(req.signal);
+			bio_maybe_wait_after_success(&req, impl->completion_mode);
 			impl->offset += args.bytes_transferred;
 			return args.bytes_transferred;
 		} else if (args.error == ERROR_IO_PENDING) {
@@ -289,7 +302,7 @@ bio_fread(
 		};
 		bio_run_async_and_wait(bio_fs_read_file, &args);
 		if (args.error == ERROR_SUCCESS) {
-			bio_raise_signal(req.signal);
+			bio_maybe_wait_after_success(&req, impl->completion_mode);
 			impl->offset += args.bytes_transferred;
 			return args.bytes_transferred;
 		} else if (args.error == ERROR_IO_PENDING) {
