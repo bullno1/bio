@@ -20,14 +20,15 @@ jobs:
           sdk: 10.0.22621.0
           vsversion: 2022
       - name: Generate project
-        run: msvc.bat
+        run: .\\msvc.bat
       - name: Build
         run: |
           cd msvc
           msbuild bio.sln /property:Configuration=Debug /property:Platform=x64
       - name: Test
         run: |
-          bin/Debug/tests.exe
+          cd msvc
+          bin\\Debug\\tests.exe
   build-linux:
     runs-on: ubuntu-latest
     steps:
