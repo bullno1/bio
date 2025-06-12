@@ -82,11 +82,10 @@ bio_net_ws_listen(
 	}
 
 	bool success = false;
-	if (addr->should_bind) {
-		if (bind(handle, addr->addr, addr->addr_len) != 0) {
-			bio_set_last_wsa_error(error);
-			goto end;
-		}
+	// Always bind in Windows
+	if (bind(handle, addr->addr, addr->addr_len) != 0) {
+		bio_set_last_wsa_error(error);
+		goto end;
 	}
 
 	if (listen(handle, 5) != 0) {

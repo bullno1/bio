@@ -46,11 +46,20 @@ typedef struct {
 	char name[257];
 } bio_net_pipe_listen_data_t;
 
+BIO_DEFINE_LIST_LINK(bio_net_pipe_acceptor_link);
+
 typedef struct {
 	HANDLE handle;
 	bio_completion_mode_t completion_mode;
 	bio_net_pipe_listen_data_t* listen_data;
+	bio_net_pipe_acceptor_link_t acceptors;
 } bio_net_pipe_socket_t;
+
+typedef struct {
+	bio_net_pipe_acceptor_link_t link;
+	HANDLE handle;
+	bool cancelled;
+} bio_net_pipe_acceptor_t;
 
 typedef struct {
 	bio_win_socket_type_t type;

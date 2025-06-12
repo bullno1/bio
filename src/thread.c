@@ -168,7 +168,7 @@ bio_async_worker(void* userdata) {
 void
 bio_thread_init(void) {
 	int num_threads = bio_ctx.options.thread_pool.num_threads;
-	if (num_threads <= 0) { num_threads = 1; }
+	if (num_threads <= 0) { num_threads = 2; }
 
 	int queue_size = bio_ctx.options.thread_pool.queue_size;
 	if (queue_size <= 0) { queue_size = 2; }

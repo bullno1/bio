@@ -24,6 +24,9 @@ bio_wait_for_io(bio_io_req_t* req);
 void
 bio_maybe_wait_after_success(bio_io_req_t* req, bio_completion_mode_t completion_mode);
 
+bool
+bio_ensure_iocp_link(HANDLE handle, bool* linked, bio_error_t* error);
+
 void
 bio_set_error(bio_error_t* error, DWORD last_error, const char* file, int line);
 

@@ -35,12 +35,16 @@
 
 #define BIO_LIST_REMOVE(item) \
 	do { \
-		(item)->next->prev = (item)->prev; \
-		(item)->prev->next = (item)->next; \
+		if ((item)->next != NULL) { \
+			(item)->next->prev = (item)->prev; \
+			(item)->prev->next = (item)->next; \
+			(item)->next = NULL; \
+			(item)->prev = NULL; \
+		} \
 	} while (0)
 
 #define BIO_LIST_IS_EMPTY(list) \
-	((list)->next == (list))
+	((list)->next == (list) || (list)->next == NULL)
 
 #define BIO_LIST_INIT(list) \
 	do { \

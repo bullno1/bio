@@ -52,7 +52,7 @@ bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 		batch_size,
 		&num_entries,
 		(DWORD)wait_timeout_ms,
-		TRUE
+		FALSE
 	);
 
 	for (ULONG entry_index = 0; entry_index < num_entries; ++entry_index) {
@@ -96,30 +96,34 @@ void
 bio_platform_end_create_thread_pool(void) {
 }
 
-static
-const char* bio_format_error(int code) {
+static const char*
+bio_format_error(int code) {
 	DWORD msg_len = FormatMessageA(
 		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL,
 		(DWORD)code,
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		bio_ctx.platform.error_msg_buf,
-		bio_ctx.platform.error_msg_buf_size,
+		bio_ctx.platform.error_msg_buf, bio_ctx.platform.error_msg_buf_size,
 		NULL
 	);
-	if (msg_len >= bio_ctx.platform.error_msg_buf_size) {
-		bio_free(bio_ctx.platform.error_msg_buf);
-		bio_ctx.platform.error_msg_buf = bio_malloc(msg_len + 1);
-		bio_ctx.platform.error_msg_buf_size = msg_len + 1;
-		FormatMessageA(
-			FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+	if (msg_len == 0) {
+		char* msg;
+		msg_len = FormatMessageA(
+			FORMAT_MESSAGE_FROM_SYSTEM
+			| FORMAT_MESSAGE_IGNORE_INSERTS
+			| FORMAT_MESSAGE_ALLOCATE_BUFFER,
 			NULL,
 			(DWORD)code,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			bio_ctx.platform.error_msg_buf,
-			bio_ctx.platform.error_msg_buf_size,
+			(char*)&msg, 0,
 			NULL
 		);
+
+		bio_free(bio_ctx.platform.error_msg_buf);
+		bio_ctx.platform.error_msg_buf = bio_malloc(msg_len + 1);
+		bio_ctx.platform.error_msg_buf_size = msg_len + 1;
+		memcpy(bio_ctx.platform.error_msg_buf, msg, msg_len + 1);
+		LocalFree(msg);
 	}
 	return bio_ctx.platform.error_msg_buf;
 }

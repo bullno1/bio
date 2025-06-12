@@ -46,7 +46,7 @@ bio_translate_address(
 				if (BIO_LIKELY(
 					addr->named.len + sizeof(BIO_PIPE_PREFIX) <= sizeof(result->storage.named_pipe.name)
 				)) {
-					size_t i = addr->named.len;
+					size_t i = 0;
 					// Named pipe in Windows is equivalent to abstract socket
 					if (addr->named.name[0] == '@' || addr->named.name[0] == '\0') {
 						++i;
@@ -106,6 +106,11 @@ bio_net_wrap_handle(
 	bio_addr_type_t addr_type,
 	bio_error_t* error
 ) {
+	if (!CreateIoCompletionPort((HANDLE)handle, bio_ctx.platform.iocp, 0, 0)) {
+		bio_set_last_error(error);
+		return false;
+	}
+
 	bio_socket_impl_t proto;
 	if (addr_type == BIO_ADDR_NAMED) {
 		proto = (bio_socket_impl_t){
@@ -118,7 +123,7 @@ bio_net_wrap_handle(
 		proto = (bio_socket_impl_t){
 			.type = BIO_SOCKET_WS,
 			.ws = {
-				.socket = (SOCKET)handle,
+				.handle = (SOCKET)handle,
 			}
 		};
 	}

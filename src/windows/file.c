@@ -216,14 +216,16 @@ bio_fopen(
 
 bool
 bio_fdopen(bio_file_t* file_ptr, uintptr_t fd, bio_error_t* error) {
-	bio_completion_mode_t completion_mode =
-		SetFileCompletionNotificationModes((HANDLE)fd, FILE_SKIP_COMPLETION_PORT_ON_SUCCESS)
-		? BIO_COMPLETION_MODE_SKIP_ON_SUCCESS
-		: BIO_COMPLETION_MODE_ALWAYS;
-
-	if (CreateIoCompletionPort((HANDLE)fd, bio_ctx.platform.iocp, 0, 0) == NULL) {
-		bio_set_last_error(error);
-		return false;
+	bio_completion_mode_t completion_mode;
+	if (CreateIoCompletionPort((HANDLE)fd, bio_ctx.platform.iocp, 0, 0)) {
+		completion_mode =
+			SetFileCompletionNotificationModes((HANDLE)fd, FILE_SKIP_COMPLETION_PORT_ON_SUCCESS)
+			? BIO_COMPLETION_MODE_SKIP_ON_SUCCESS
+			: BIO_COMPLETION_MODE_ALWAYS;
+	} else {
+		// If there is no overlapped IO support, ERROR_IO_PENDING will never be returned.
+		// When the async read/write call returns from the thread pool, there is nothing to wait for.
+		completion_mode = BIO_COMPLETION_MODE_SKIP_ON_SUCCESS;
 	}
 
 	bio_file_impl_t* impl = bio_malloc(sizeof(bio_file_impl_t));

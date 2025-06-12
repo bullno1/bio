@@ -40,11 +40,7 @@ net_test_listen_ipv6(void* userdata) {
 	bio_net_close(socket, &error);
 }
 
-#ifdef __linux__
-#define SOCKET_PATH "@/bio/test"
-#else
-#define SOCKET_PATH "/bio/test"
-#endif
+#define SOCKET_PATH "@bio/test"
 
 static void
 net_test_listen_named(void* userdata) {

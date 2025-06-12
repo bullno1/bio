@@ -8,10 +8,10 @@ void
 bio_init(const bio_options_t* options) {
 	bio_ctx.options = *options;
 
+	bio_platform_init();
 	bio_handle_table_init();
 	bio_timer_init();
 	bio_scheduler_init();
-	bio_platform_init();
 	bio_thread_init();
 	bio_fs_init();
 	bio_net_init();
@@ -24,10 +24,10 @@ bio_terminate(void) {
 	bio_net_cleanup();
 	bio_fs_cleanup();
 	bio_thread_cleanup();
-	bio_platform_cleanup();
 	bio_scheduler_cleanup();
 	bio_timer_cleanup();
 	bio_handle_table_cleanup();
+	bio_platform_cleanup();
 }
 
 bio_time_t
