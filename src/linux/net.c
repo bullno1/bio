@@ -24,7 +24,7 @@ typedef struct {
 	bool should_bind;
 } bio_addr_translation_result_t;
 
-bool
+static bool
 bio_translate_address(
 	const bio_addr_t* addr,
 	uint16_t port,
@@ -153,9 +153,23 @@ bio_socket_from_fd(int fd) {
 	};
 }
 
-bio_socket_t
-bio_net_wrap_fd(int handle) {
-	return bio_socket_from_fd(handle);
+void
+bio_net_init(void) {
+}
+
+void
+bio_net_cleanup(void) {
+}
+
+bool
+bio_net_wrap_handle(
+	bio_socket_t* sock,
+	uintptr_t handle,
+	bio_addr_type_t addr_type,
+	bio_error_t* error
+) {
+	bio_socket_from_fd((int)handle);
+	return true;
 }
 
 bool
