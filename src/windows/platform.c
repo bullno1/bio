@@ -125,6 +125,10 @@ bio_format_error(int code) {
 		memcpy(bio_ctx.platform.error_msg_buf, msg, msg_len + 1);
 		LocalFree(msg);
 	}
+	if (msg_len > 0 && bio_ctx.platform.error_msg_buf[msg_len - 1] == '\n') {
+		// Windows uses \r\n
+		bio_ctx.platform.error_msg_buf[msg_len - 2] = '\0';
+	}
 	return bio_ctx.platform.error_msg_buf;
 }
 

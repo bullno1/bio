@@ -1,4 +1,5 @@
 #include "../net.h"
+#include "mstcpip.h"
 
 #define bio_set_last_wsa_error(error) bio_set_error(error, WSAGetLastError())
 
@@ -141,6 +142,7 @@ bio_net_ws_accept(
 			return false;
 		}
 
+		listen_data.sockaddr_len = (int)sizeof(listen_data.sockaddr);
 		if (getsockname(
 			socket->handle,
 			(struct sockaddr*)&listen_data.sockaddr, &listen_data.sockaddr_len
@@ -245,9 +247,25 @@ bio_net_ws_connect(
 		bio_set_last_wsa_error(error);
 		return false;
 	}
-	bio_completion_mode_t completion_mode = bio_net_ws_init_completion_mode(handle);
 
 	bool success = false;
+	bio_completion_mode_t completion_mode = BIO_COMPLETION_MODE_UNKNOWN;
+
+	SOCKADDR_STORAGE bind_addr;
+	bind_addr.ss_family = addr->addr->sa_family;
+	INETADDR_SETANY((struct sockaddr*)&bind_addr);
+	if (bind(handle, (struct sockaddr*)&bind_addr, (int)sizeof(bind_addr)) != 0) {
+		bio_set_last_wsa_error(error);
+		goto end;
+	}
+
+	completion_mode = bio_net_ws_init_completion_mode(handle);
+
+	if (CreateIoCompletionPort((HANDLE)handle, bio_ctx.platform.iocp, 0, 0) == NULL) {
+		bio_set_last_error(error);
+		goto end;
+	}
+
 	LPFN_CONNECTEX connect_ex;
 	GUID connect_ex_guid = WSAID_CONNECTEX;
 	DWORD num_bytes;
@@ -279,11 +297,6 @@ bio_net_ws_connect(
 			&req.overlapped
 		)
 	)) {
-		goto end;
-	}
-
-	if (CreateIoCompletionPort((HANDLE)handle, bio_ctx.platform.iocp, 0, 0) == NULL) {
-		bio_set_last_error(error);
 		goto end;
 	}
 
@@ -379,13 +392,14 @@ bio_net_ws_recv(
 		.buf = (void*)buf,
 		.len = size > ULONG_MAX ? ULONG_MAX : (ULONG)size,
 	};
-	DWORD num_bytes_transferred, flags;
+	DWORD num_bytes_transferred;
+	DWORD flags = 0;
 	bio_io_req_t req = bio_prepare_io_req();
 	if (WSARecv(
 		socket->handle,
 		&wsabuf, 1,
 		&num_bytes_transferred,
-		0,
+		&flags,
 		&req.overlapped, NULL
 	)) {
 		int error_code = WSAGetLastError();
