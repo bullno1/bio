@@ -1,6 +1,30 @@
 #include "common.h"
 
+#define BIO_PLATFORM_WINDOWS_DEFAULT_BATCH_SIZE 4
+
 static const char BIO_WINDOWS_NOTIFY_KEY = 0;
+
+static ULONG
+bio_platform_process_events(DWORD timeout_ms, DWORD batch_size) {
+	ULONG num_entries = 0;
+	GetQueuedCompletionStatusEx(
+		bio_ctx.platform.iocp,
+		bio_ctx.platform.overlapped_entries, batch_size,
+		&num_entries,
+		timeout_ms,
+		FALSE
+	);
+
+	for (ULONG entry_index = 0; entry_index < num_entries; ++entry_index) {
+		OVERLAPPED_ENTRY* entry = &bio_ctx.platform.overlapped_entries[entry_index];
+		if (entry->lpCompletionKey != (uintptr_t)&BIO_WINDOWS_NOTIFY_KEY) {
+			bio_io_req_t* req = BIO_CONTAINER_OF(entry->lpOverlapped, bio_io_req_t, overlapped);
+			bio_raise_signal(req->signal);
+		}
+	}
+
+	return num_entries;
+}
 
 void
 bio_platform_init(void) {
@@ -10,7 +34,7 @@ bio_platform_init(void) {
 	bio_ctx.platform.iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
 
 	unsigned int batch_size = bio_ctx.options.windows.iocp.batch_size;
-	if (batch_size == 0) { batch_size = 4; }
+	if (batch_size == 0) { batch_size = BIO_PLATFORM_WINDOWS_DEFAULT_BATCH_SIZE; }
 	bio_ctx.platform.overlapped_entries = bio_malloc(
 		sizeof(OVERLAPPED_ENTRY) * batch_size
 	);
@@ -40,27 +64,15 @@ bio_platform_current_time_ms(void) {
 void
 bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 	unsigned int batch_size = bio_ctx.options.windows.iocp.batch_size;
-	if (batch_size == 0) { batch_size = 4; }
+	if (batch_size == 0) { batch_size = BIO_PLATFORM_WINDOWS_DEFAULT_BATCH_SIZE; }
 
 	if (wait_timeout_ms >= INFINITE) { wait_timeout_ms = INFINITE - 1;  }
 	if (wait_timeout_ms < 0) { wait_timeout_ms = INFINITE;  }
 
-	ULONG num_entries = 0;
-	GetQueuedCompletionStatusEx(
-		bio_ctx.platform.iocp,
-		bio_ctx.platform.overlapped_entries,
-		batch_size,
-		&num_entries,
-		(DWORD)wait_timeout_ms,
-		FALSE
-	);
+	ULONG num_entries = bio_platform_process_events((DWORD)wait_timeout_ms, batch_size);
 
-	for (ULONG entry_index = 0; entry_index < num_entries; ++entry_index) {
-		OVERLAPPED_ENTRY* entry = &bio_ctx.platform.overlapped_entries[entry_index];
-		if (entry->lpCompletionKey != (uintptr_t)&BIO_WINDOWS_NOTIFY_KEY) {
-			bio_io_req_t* req = BIO_CONTAINER_OF(entry->lpOverlapped, bio_io_req_t, overlapped);
-			bio_raise_signal(req->signal);
-		}
+	while (num_entries == batch_size) {
+		num_entries = bio_platform_process_events(0, batch_size);
 	}
 }
 
