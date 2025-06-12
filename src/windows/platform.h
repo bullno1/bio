@@ -4,6 +4,7 @@
 #include <stddef.h>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <WS2tcpip.h>
 
 typedef struct {
 	HANDLE iocp;
@@ -13,6 +14,7 @@ typedef struct {
 	OVERLAPPED_ENTRY* overlapped_entries;
 	DWORD error_msg_buf_size;
 	char* error_msg_buf;
+	WSADATA wsadata;
 } bio_platform_t;
 
 #endif

@@ -6,7 +6,7 @@
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
 
-const bio_tag_t BIO_SOCKET_HANDLE = BIO_TAG_INIT("bio.handle.socket");
+static const bio_tag_t BIO_SOCKET_HANDLE = BIO_TAG_INIT("bio.handle.socket");
 
 typedef struct {
 	int fd;

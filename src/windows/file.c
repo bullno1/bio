@@ -127,9 +127,9 @@ bio_fs_stat_file(void* userdata) {
 
 void
 bio_fs_init(void) {
-	bio_fdopen(&BIO_STDIN, GetStdHandle(STD_INPUT_HANDLE), NULL);
-	bio_fdopen(&BIO_STDOUT, GetStdHandle(STD_OUTPUT_HANDLE), NULL);
-	bio_fdopen(&BIO_STDERR, GetStdHandle(STD_ERROR_HANDLE), NULL);
+	bio_fdopen(&BIO_STDIN, (uintptr_t)GetStdHandle(STD_INPUT_HANDLE), NULL);
+	bio_fdopen(&BIO_STDOUT, (uintptr_t)GetStdHandle(STD_OUTPUT_HANDLE), NULL);
+	bio_fdopen(&BIO_STDERR, (uintptr_t)GetStdHandle(STD_ERROR_HANDLE), NULL);
 }
 
 void
@@ -206,18 +206,18 @@ bio_fopen(
         return false;
     }
 
-	return bio_fdopen(file_ptr, args.handle, error);
+	return bio_fdopen(file_ptr, (uintptr_t)args.handle, error);
 }
 
 bool
-bio_fdopen(bio_file_t* file_ptr, void* fd, bio_error_t* error) {
-	if (CreateIoCompletionPort(fd, bio_ctx.platform.iocp, 0, 0) == NULL) {
+bio_fdopen(bio_file_t* file_ptr, uintptr_t fd, bio_error_t* error) {
+	if (CreateIoCompletionPort((HANDLE)fd, bio_ctx.platform.iocp, 0, 0) == NULL) {
 		bio_set_last_error(error);
 		return false;
 	}
 
 	bio_file_impl_t* impl = bio_malloc(sizeof(bio_file_impl_t));
-	*impl = (bio_file_impl_t){ .handle = fd };
+	*impl = (bio_file_impl_t){ .handle = (HANDLE)fd };
 	*file_ptr = (bio_file_t){ .handle = bio_make_handle(impl, &BIO_FILE_HANDLE) };
 	return true;
 }

@@ -14,12 +14,14 @@ bio_init(const bio_options_t* options) {
 	bio_platform_init();
 	bio_thread_init();
 	bio_fs_init();
+	bio_net_init();
 	bio_logging_init();
 }
 
 void
 bio_terminate(void) {
 	bio_logging_cleanup();
+	bio_net_cleanup();
 	bio_fs_cleanup();
 	bio_thread_cleanup();
 	bio_platform_cleanup();

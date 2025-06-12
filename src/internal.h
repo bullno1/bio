@@ -317,4 +317,12 @@ bio_fs_init(void);
 void
 bio_fs_cleanup(void);
 
+// Net
+
+void
+bio_net_init(void);
+
+void
+bio_net_cleanup(void);
+
 #endif

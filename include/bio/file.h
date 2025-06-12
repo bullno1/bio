@@ -15,17 +15,8 @@ typedef struct {
 	uint64_t size;
 } bio_stat_t;
 
-#if defined(__linux__)
-
-bio_file_t
-bio_fdopen(int fd);
-
-#elif defined(_WIN32)
-
 bool
-bio_fdopen(bio_file_t* file_ptr, void* fd, bio_error_t* error);
-
-#endif
+bio_fdopen(bio_file_t* file_ptr, uintptr_t fd, bio_error_t* error);
 
 bool
 bio_fopen(

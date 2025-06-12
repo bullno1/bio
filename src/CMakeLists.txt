@@ -21,6 +21,9 @@ set(LINUX_SOURCES
 set(WIN32_SOURCES
 	"windows/platform.c"
 	"windows/file.c"
+	"windows/net.c"
+	"windows/net/ws.c"
+	"windows/net/pipe.c"
 )
 if (LINUX)
 	add_library(bio STATIC ${COMMON_SOURCES} ${LINUX_SOURCES})
@@ -38,4 +41,6 @@ endif ()
 
 if (LINUX)
 	target_link_libraries(bio PRIVATE liburing)
+elseif (WIN32)
+	target_link_libraries(bio PRIVATE "ws2_32.lib")
 endif ()

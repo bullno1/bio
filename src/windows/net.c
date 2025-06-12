@@ -1,28 +1,8 @@
-#include "common.h"
-#include <bio/net.h>
-#include <WS2tcpip.h>
+#include "net.h"
 
-struct sockaddr_named_pipe {
-	struct sockaddr base;
-	char name[256];
-};
+#define BIO_PIPE_PREFIX "\\\\.\\pipe\\"
 
-typedef struct {
-	union {
-		struct sockaddr_in ipv4;
-		struct sockaddr_in6 ipv6;
-		struct sockaddr_named_pipe named_pipe;
-	} storage;
-
-	struct sockaddr* addr;
-	int addr_len;
-	bool should_bind;
-} bio_addr_translation_result_t;
-
-typedef enum {
-	BIO_SOCKET_WINSOCK,
-	BIO_SOCKET_NAMED_PIPE,
-} bio_socket_type_t;
+static const bio_tag_t BIO_SOCKET_HANDLE = BIO_TAG_INIT("bio.handle.socket");
 
 static bool
 bio_translate_address(
@@ -37,8 +17,8 @@ bio_translate_address(
 			if (bio_net_address_compare(addr, &BIO_ADDR_IPV4_ANY) != 0 || port != BIO_PORT_ANY) {
 				result->storage.ipv4.sin_port = htons(port);
 
-				_Static_assert(sizeof(result->storage.ipv4.sin_addr) == sizeof(addr->addr.ipv4), "Address size mismatch");
-				memcpy(&result->storage.ipv4.sin_addr, addr->addr.ipv4, sizeof(addr->addr.ipv4));
+				_Static_assert(sizeof(result->storage.ipv4.sin_addr) == sizeof(addr->ipv4), "Address size mismatch");
+				memcpy(&result->storage.ipv4.sin_addr, addr->ipv4, sizeof(addr->ipv4));
 
 				result->should_bind = true;
 			}
@@ -51,8 +31,8 @@ bio_translate_address(
 			if (bio_net_address_compare(addr, &BIO_ADDR_IPV6_ANY) != 0 || port != BIO_PORT_ANY) {
 				result->storage.ipv6.sin6_port = htons(port);
 
-				_Static_assert(sizeof(result->storage.ipv6.sin6_addr) == sizeof(addr->addr.ipv6), "Address size mismatch");
-				memcpy(&result->storage.ipv6.sin6_addr, addr->addr.ipv6, sizeof(addr->addr.ipv6));
+				_Static_assert(sizeof(result->storage.ipv6.sin6_addr) == sizeof(addr->ipv6), "Address size mismatch");
+				memcpy(&result->storage.ipv6.sin6_addr, addr->ipv6, sizeof(addr->ipv6));
 
 				result->should_bind = true;
 			}
@@ -62,11 +42,28 @@ bio_translate_address(
 			return true;
 		case BIO_ADDR_NAMED:
 			result->storage.named_pipe.base.sa_family = AF_UNIX;
-			if (addr->addr.named.len > 0) {
-				if (BIO_LIKELY(addr->addr.named.len < sizeof(result->storage.named_pipe.name))) {
-					memcpy(result->storage.named_pipe.name, addr->addr.named.name, addr->addr.named.len);
-					result->storage.named_pipe.name[addr->addr.named.len] = '\0';
-					result->addr = (struct sockaddr*)&result->storage.named_pipe.base;
+			if (addr->named.len > 0) {
+				if (BIO_LIKELY(
+					addr->named.len + sizeof(BIO_PIPE_PREFIX) <= sizeof(result->storage.named_pipe.name)
+				)) {
+					size_t i = addr->named.len;
+					// Named pipe in Windows is equivalent to abstract socket
+					if (addr->named.name[0] == '@' || addr->named.name[0] == '\0') {
+						++i;
+					}
+
+					memcpy(result->storage.named_pipe.name, BIO_PIPE_PREFIX, sizeof(BIO_PIPE_PREFIX) - 1);
+					int addr_len = (int)sizeof(BIO_PIPE_PREFIX) - 1;
+					for (; i < addr->named.len; ++i) {
+						char ch = addr->named.name[i];
+						if (ch == '/') { ch = '\\'; }
+						result->storage.named_pipe.name[addr_len] = ch;
+						++addr_len;
+					}
+					result->storage.named_pipe.name[addr_len] = '\0';
+
+					result->addr = &result->storage.named_pipe.base;
+					result->addr_len = addr_len;
 					result->should_bind = true;
 					return true;
 				} else {
@@ -75,17 +72,17 @@ bio_translate_address(
 				}
 			}
 
-			result->addr = (struct sockaddr*)&result->storage.named_pipe.base;
+			result->addr = &result->storage.named_pipe.base;
 			return true;
 	}
 
-	bio_set_errno(error, EINVAL);
+	bio_set_error(error, ERROR_INVALID_PARAMETER);
 	return false;
 }
 
 void
 bio_net_init(void) {
-	int err = WSAStartup(MAKEWORD(2, 2), &bio_ctx.platform.wsadata);
+	WSAStartup(MAKEWORD(2, 2), &bio_ctx.platform.wsadata);
 }
 
 void
@@ -93,41 +90,41 @@ bio_net_cleanup(void) {
 	WSACleanup();
 }
 
-static bool
-bio_named_pipe_listen(
-	bio_socket_type_t socket_type,
-	bio_addr_translation_result_t* addr,
-	bio_port_t port,
-	bio_socket_t* sock,
-	bio_error_t* error
-) {
+static bio_socket_t
+bio_net_make_socket(const bio_socket_impl_t* proto) {
+	bio_socket_impl_t* instance = bio_malloc(sizeof(bio_socket_impl_t));
+	*instance = *proto;
+	return (bio_socket_t){
+		.handle = bio_make_handle(instance, &BIO_SOCKET_HANDLE),
+	};
 }
 
-static bool
-bio_winsock_listen(
-	bio_socket_type_t socket_type,
-	bio_addr_translation_result_t* addr,
-	bio_port_t port,
+bool
+bio_net_wrap_handle(
 	bio_socket_t* sock,
+	uintptr_t handle,
+	bio_addr_type_t addr_type,
 	bio_error_t* error
-) {	
-	int type;
-	switch (socket_type) {
-	case BIO_SOCKET_STREAM:
-		type = SOCK_STREAM;
-		break;
-	case BIO_SOCKET_DATAGRAM:
-		type = SOCK_DGRAM;
-		break;
+) {
+	bio_socket_impl_t proto;
+	if (addr_type == BIO_ADDR_NAMED) {
+		proto = (bio_socket_impl_t){
+			.type = BIO_SOCKET_PIPE,
+			.pipe = {
+				.handle = (HANDLE)handle,
+			},
+		};
+	} else {
+		proto = (bio_socket_impl_t){
+			.type = BIO_SOCKET_WS,
+			.ws = {
+				.socket = (SOCKET)handle,
+			}
+		};
 	}
 
-	SOCKET sock = socket(addr->addr->sa_family, type, 0);
-
-	if (addr->should_bind) {
-		bind(sock, addr->addr, addr->addr_len);
-	}
-
-	listen(sock, 5);
+	*sock = bio_net_make_socket(&proto);
+	return true;
 }
 
 bool
@@ -143,11 +140,21 @@ bio_net_listen(
 		return false;
 	}
 
+	bio_socket_impl_t proto;
 	if (translation_result.addr->sa_family == AF_UNIX) {
-		return bio_named_pipe_listen(socket_type, &translation_result, port, sock, error);
+		proto.type = BIO_SOCKET_PIPE;
+		if (!bio_net_pipe_listen(socket_type, &translation_result, &proto.pipe, error)) {
+			return false;
+		}
 	} else {
-		return bio_winsock_listen(socket_type, &translation_result, port, sock, error);
+		proto.type = BIO_SOCKET_WS;
+		if (!bio_net_ws_listen(socket_type, &translation_result, &proto.ws, error)) {
+			return false;
+		}
 	}
+
+	*sock = bio_net_make_socket(&proto);
+	return true;
 }
 
 bool
@@ -155,7 +162,29 @@ bio_net_accept(
 	bio_socket_t socket,
 	bio_socket_t* client,
 	bio_error_t* error
-);
+) {
+	bio_socket_impl_t* impl = bio_resolve_handle(socket.handle, &BIO_SOCKET_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		bio_socket_impl_t proto;
+		if (impl->type == BIO_SOCKET_WS) {
+			proto.type = BIO_SOCKET_WS;
+			if (!bio_net_ws_accept(&impl->ws, &proto.ws, error)) {
+				return false;
+			}
+		} else {
+			proto.type = BIO_SOCKET_PIPE;
+			if (!bio_net_pipe_accept(&impl->pipe, &proto.pipe, error)) {
+				return false;
+			}
+		}
+
+		*client = bio_net_make_socket(&proto);
+		return true;
+	} else {
+		bio_set_error(error, ERROR_INVALID_HANDLE);
+		return false;
+	}
+}
 
 bool
 bio_net_connect(
@@ -164,10 +193,46 @@ bio_net_connect(
 	bio_port_t port,
 	bio_socket_t* socket,
 	bio_error_t* error
-);
+) {
+	bio_addr_translation_result_t translation_result = { 0 };
+	if (!bio_translate_address(addr, port, &translation_result, error)) {
+		return false;
+	}
+
+	bio_socket_impl_t proto;
+	if (translation_result.addr->sa_family == AF_UNIX) {
+		proto.type = BIO_SOCKET_PIPE;
+		if (!bio_net_pipe_connect(socket_type, &translation_result, &proto.pipe, error)) {
+			return false;
+		}
+	} else {
+		proto.type = BIO_SOCKET_WS;
+		if (!bio_net_ws_connect(socket_type, &translation_result, &proto.ws, error)) {
+			return false;
+		}
+	}
+
+	*socket = bio_net_make_socket(&proto);
+	return true;
+}
 
 bool
-bio_net_close(bio_socket_t socket, bio_error_t* error);
+bio_net_close(bio_socket_t socket, bio_error_t* error) {
+	bio_socket_impl_t* impl = bio_close_handle(socket.handle, &BIO_SOCKET_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		bool success;
+		if (impl->type == BIO_SOCKET_WS) {
+			success = bio_net_ws_close(&impl->ws, error);
+		} else {
+			success = bio_net_pipe_close(&impl->pipe, error);
+		}
+		bio_free(impl);
+		return true;
+	} else {
+		bio_set_error(error, ERROR_INVALID_HANDLE);
+		return false;
+	}
+}
 
 size_t
 bio_net_send(
@@ -175,7 +240,21 @@ bio_net_send(
 	const void* buf,
 	size_t size,
 	bio_error_t* error
-);
+) {
+	bio_socket_impl_t* impl = bio_resolve_handle(socket.handle, &BIO_SOCKET_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		size_t bytes_transferred;
+		if (impl->type == BIO_SOCKET_WS) {
+			bytes_transferred = bio_net_ws_send(&impl->ws, buf, size, error);
+		} else {
+			bytes_transferred = bio_net_pipe_send(&impl->pipe, buf, size, error);
+		}
+		return bytes_transferred;
+	} else {
+		bio_set_error(error, ERROR_INVALID_HANDLE);
+		return 0;
+	}
+}
 
 size_t
 bio_net_recv(
@@ -183,22 +262,18 @@ bio_net_recv(
 	void* buf,
 	size_t size,
 	bio_error_t* error
-);
-
-size_t
-bio_net_sendto(
-	bio_socket_t socket,
-	const bio_addr_t* addr,
-	const void* buf,
-	size_t size,
-	bio_error_t* error
-);
-
-size_t
-bio_net_recvfrom(
-	bio_socket_t socket,
-	bio_addr_t* addr,
-	void* buf,
-	size_t size,
-	bio_error_t* error
-);
+) {
+	bio_socket_impl_t* impl = bio_resolve_handle(socket.handle, &BIO_SOCKET_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		size_t bytes_transferred;
+		if (impl->type == BIO_SOCKET_WS) {
+			bytes_transferred = bio_net_ws_recv(&impl->ws, buf, size, error);
+		} else {
+			bytes_transferred = bio_net_pipe_recv(&impl->pipe, buf, size, error);
+		}
+		return bytes_transferred;
+	} else {
+		bio_set_error(error, ERROR_INVALID_HANDLE);
+		return 0;
+	}
+}
