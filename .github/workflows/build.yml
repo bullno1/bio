@@ -28,9 +28,8 @@ jobs:
       - name: Test
         run: |
           cd msvc
-          dir
-          ls
-          .\bin\Debug\tests.exe
+          ls x64
+          .\x64\Debug\tests.exe
   build-linux:
     runs-on: ubuntu-latest
     steps:
