@@ -54,7 +54,7 @@ bio_net_pipe_accept(
 	bio_net_pipe_socket_t* client,
 	bio_error_t* error
 ) {
-	// Init lazily so we can accept a handle through bio_net_wrap_handle
+	// Init lazily so we can accept a handle through bio_net_wrap
 	if (socket->listen_data == NULL) {
 		bio_net_pipe_listen_data_t listen_data;
 		size_t name_prefix_len = sizeof(BIO_NET_PIPE_NAME_PREFIX) - 1;

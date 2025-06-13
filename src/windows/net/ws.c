@@ -118,7 +118,7 @@ bio_net_ws_accept(
 ) {
 	DWORD num_bytes;
 
-	// Initialize lazily so we can support sockets passed through bio_net_wrap_handle
+	// Initialize lazily so we can support sockets passed through bio_net_wrap
 	if (socket->completion_mode == BIO_COMPLETION_MODE_UNKNOWN) {
 		socket->completion_mode = bio_net_ws_init_completion_mode(socket->handle);
 	}

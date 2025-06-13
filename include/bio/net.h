@@ -55,7 +55,7 @@ static const bio_addr_t BIO_ADDR_IPV6_LOOPBACK = {
 };
 
 bool
-bio_net_wrap_handle(
+bio_net_wrap(
 	bio_socket_t* sock,
 	uintptr_t handle,
 	bio_addr_type_t addr_type,

@@ -100,7 +100,7 @@ bio_net_make_socket(const bio_socket_impl_t* proto) {
 }
 
 bool
-bio_net_wrap_handle(
+bio_net_wrap(
 	bio_socket_t* sock,
 	uintptr_t handle,
 	bio_addr_type_t addr_type,

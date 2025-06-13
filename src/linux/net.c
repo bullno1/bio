@@ -162,7 +162,7 @@ bio_net_cleanup(void) {
 }
 
 bool
-bio_net_wrap_handle(
+bio_net_wrap(
 	bio_socket_t* sock,
 	uintptr_t handle,
 	bio_addr_type_t addr_type,
