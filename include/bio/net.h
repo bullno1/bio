@@ -62,6 +62,9 @@ bio_net_wrap_handle(
 	bio_error_t* error
 );
 
+uintptr_t
+bio_net_unwrap(bio_socket_t socket);
+
 bool
 bio_net_listen(
 	bio_socket_type_t socket_type,

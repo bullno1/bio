@@ -18,6 +18,9 @@ typedef struct {
 bool
 bio_fdopen(bio_file_t* file_ptr, uintptr_t fd, bio_error_t* error);
 
+uintptr_t
+bio_funwrap(bio_file_t file);
+
 bool
 bio_fopen(
 	bio_file_t* file_ptr,

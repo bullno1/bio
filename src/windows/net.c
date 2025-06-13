@@ -132,6 +132,20 @@ bio_net_wrap_handle(
 	return true;
 }
 
+uintptr_t
+bio_net_unwrap(bio_socket_t socket) {
+	bio_socket_impl_t* impl = bio_resolve_handle(socket.handle, &BIO_SOCKET_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		if (impl->type == BIO_SOCKET_WS) {
+			return (uintptr_t)impl->ws.handle;
+		} else {
+			return (uintptr_t)impl->pipe.handle;
+		}
+	} else {
+		return (uintptr_t)(INVALID_HANDLE_VALUE);
+	}
+}
+
 bool
 bio_net_listen(
 	bio_socket_type_t socket_type,

@@ -62,6 +62,16 @@ bio_fdopen(bio_file_t* file_ptr, uintptr_t fd, bio_error_t* error) {
 	return true;
 }
 
+uintptr_t
+bio_funwrap(bio_file_t file) {
+	bio_file_impl_t* impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		return (uintptr_t)(impl->fd);
+	} else {
+		return (uintptr_t)(-1);
+	}
+}
+
 bool
 bio_fopen(
 	bio_file_t* file_ptr,
