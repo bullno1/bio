@@ -3,6 +3,14 @@
 
 #include "bio.h"
 
+/**
+ * @defgroup timer Timer
+ *
+ * Execute tasks at an interval or after a delay
+ *
+ * @{
+ */
+
 typedef struct {
 	bio_handle_t handle;
 } bio_timer_t;
@@ -26,5 +34,7 @@ bio_reset_timer(bio_timer_t timer, bio_time_t timeout_ms);
 
 void
 bio_cancel_timer(bio_timer_t timer);
+
+/**@}*/
 
 #endif

@@ -4,6 +4,14 @@
 #include <bio/bio.h>
 #include <bio/mailbox.h>
 
+/**
+ * @defgroup service Service
+ *
+ * Idiomatic coroutine interacton.
+ *
+ * @{
+ */
+
 typedef enum {
 	BIO_CALL_OK,
 	BIO_CALL_CANCELLED,
@@ -87,6 +95,8 @@ typedef struct {
 		bio__should_respond = false, bio_end_response(msg) \
 	)
 
+#ifndef DOXYGEN
+
 void
 bio__service_start(
 	bio_coro_t* coro_ptr,
@@ -119,5 +129,9 @@ bio__service_is_call_cancelled(const bio_service_msg_base_t* msg_base);
 
 bool
 bio__service_begin_response(const bio_service_msg_base_t* msg_base);
+
+#endif
+
+/**@}*/
 
 #endif

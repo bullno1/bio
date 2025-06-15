@@ -1,6 +1,31 @@
 #ifndef BIO_INTERNAL_H
 #define BIO_INTERNAL_H
 
+/**
+ * @defgroup internal Internal details
+ *
+ * For porting to a new platform
+ *
+ * @{
+ */
+
+/// The default number of CLS hash buckets
+#ifndef BIO_DEFAULT_NUM_CLS_BUCKETS
+#	define BIO_DEFAULT_NUM_CLS_BUCKETS 4
+#endif
+
+/// The default number of threads in the async thread pool
+#ifndef BIO_DEFAULT_THREAD_POOL_SIZE
+#	define BIO_DEFAULT_THREAD_POOL_SIZE 2
+#endif
+
+/// The default queue size for the async thread pool
+#ifndef BIO_DEFAULT_THREAD_POOL_QUEUE_SIZE
+#	define BIO_DEFAULT_THREAD_POOL_QUEUE_SIZE 2
+#endif
+
+/**@}*/
+
 #if defined(__linux__)
 #	include "linux/platform.h"
 #elif defined(_WIN32)
@@ -63,8 +88,6 @@
 #else
 #	define BIO_ALIGN_TYPE max_align_t
 #endif
-
-#define BIO_INVALID_HANDLE ((bio_handle_t){ .index = 0 })
 
 typedef struct {
 	const bio_tag_t* tag;
@@ -238,6 +261,76 @@ bio_fmt(bio_fmt_buf_t* buf, const char* fmt, ...) {
 	return num_chars;
 }
 
+/**
+ * @addtogroup internal
+ * @{
+ */
+
+// Platform
+
+/// Initialize the platform layer
+void
+bio_platform_init(void);
+
+/// Cleanup the platform layer
+void
+bio_platform_cleanup(void);
+
+/**
+ * Check on I/O completion status
+ *
+ * @param wait_timeout_ms How much time to wait for I/O completion
+ * @param notifiable Should this wait be notifiable with @ref bio_platform_notify
+ */
+void
+bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable);
+
+/**
+ * Break out of @ref bio_platform_update
+ *
+ * This function will always be called on a different thread.
+ */
+void
+bio_platform_notify(void);
+
+/**
+ * Return the current time in milliseconds
+ *
+ * @see bio_current_time_ms
+ */
+bio_time_t
+bio_platform_current_time_ms(void);
+
+/// Called before the async thread pool is created
+void
+bio_platform_begin_create_thread_pool(void);
+
+/// Called after the async thread pool is created
+void
+bio_platform_end_create_thread_pool(void);
+
+// File
+
+/// Initialize the File I/O subsystem
+void
+bio_fs_init(void);
+
+/// Cleanup the File I/O subsystem
+void
+bio_fs_cleanup(void);
+
+// Net
+
+/// Initialize the Network I/O subsystem
+void
+bio_net_init(void);
+
+/// Cleanup the Network I/O subsystem
+void
+bio_net_cleanup(void);
+
+/**@}*/
+
 // Handle table
 
 void
@@ -289,44 +382,5 @@ bio_logging_init(void);
 
 void
 bio_logging_cleanup(void);
-
-// Platform
-
-void
-bio_platform_init(void);
-
-void
-bio_platform_cleanup(void);
-
-void
-bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable);
-
-void
-bio_platform_notify(void);
-
-bio_time_t
-bio_platform_current_time_ms(void);
-
-void
-bio_platform_begin_create_thread_pool(void);
-
-void
-bio_platform_end_create_thread_pool(void);
-
-// File
-
-void
-bio_fs_init(void);
-
-void
-bio_fs_cleanup(void);
-
-// Net
-
-void
-bio_net_init(void);
-
-void
-bio_net_cleanup(void);
 
 #endif

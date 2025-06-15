@@ -6,6 +6,24 @@
 #include <threads.h>
 #include <signal.h>
 
+/**
+ * @defgroup linux Linux
+ *
+ * Linux implementation details
+ *
+ * @ingroup internal
+ * @{
+ */
+
+/// Default queue size for the io_uring
+#ifndef BIO_LINUX_DEFAULT_QUEUE_SIZE
+#	define BIO_LINUX_DEFAULT_QUEUE_SIZE 64
+#endif
+
+/**@}*/
+
+#ifndef DOXYGEN
+
 typedef struct {
 	struct io_uring ioring;
 
@@ -20,5 +38,7 @@ typedef struct {
 	bool has_op_listen;
 	bool has_op_futex_wait;
 } bio_platform_t;
+
+#endif
 
 #endif

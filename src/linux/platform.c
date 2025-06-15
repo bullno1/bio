@@ -23,7 +23,7 @@ futex(
 void
 bio_platform_init(void) {
 	unsigned int queue_size = bio_ctx.options.linux.io_uring.queue_size;
-	if (queue_size == 0) { queue_size = 64; }
+	if (queue_size == 0) { queue_size = BIO_LINUX_DEFAULT_QUEUE_SIZE; }
 	queue_size = bio_next_pow2(queue_size);
 	bio_ctx.options.linux.io_uring.queue_size = queue_size;
 

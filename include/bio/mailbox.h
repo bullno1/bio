@@ -3,6 +3,16 @@
 
 #include <bio/bio.h>
 
+/**
+ * @defgroup mailbox Mailbox
+ *
+ * Message passing between coroutines
+ *
+ * @{
+ */
+
+#ifndef DOXYGEN
+
 #if __STDC_VERSION__ >= 202311L
 #	define BIO__TYPEOF(EXP) typeof(EXP)
 #elif defined(__clang__) || defined(__GNUC__) || defined(_MSC_VER)
@@ -25,6 +35,8 @@
 // We can't count on user having warnings enabled.
 #	define BIO__TYPECHECK_EXP(LHS, RHS) \
 	((void)sizeof(LHS = RHS), (void)sizeof(char[sizeof(LHS) == sizeof(RHS) ? 1 : -1]))  /* If you get an error here, you have the wrong type */
+#endif
+
 #endif
 
 #define BIO_MAILBOX(T) union { bio_handle_t bio__handle; T* bio__message; }
@@ -70,6 +82,8 @@
 		bio_recv_message(mailbox, &msg); \
 	)
 
+#ifndef DOXYGEN
+
 void
 bio__mailbox_open(bio_handle_t* handle, size_t item_size, uint32_t capacity);
 
@@ -90,5 +104,9 @@ bio__mailbox_can_recv(bio_handle_t handle);
 
 bool
 bio__mailbox_can_send(bio_handle_t handle);
+
+#endif
+
+/**@}*/
 
 #endif

@@ -18,6 +18,10 @@ bio_stdlib_realloc(void* ptr, size_t size, void* ctx) {
 
 void
 bio_init(const bio_options_t* options) {
+	if (options == NULL) {
+		options = &(bio_options_t){ 0 };
+	}
+
 	bio_ctx.options = *options;
 	if (bio_ctx.options.allocator.realloc == NULL) {
 		bio_ctx.options.allocator.realloc = bio_stdlib_realloc;

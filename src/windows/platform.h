@@ -6,6 +6,24 @@
 #include <Windows.h>
 #include <WS2tcpip.h>
 
+/**
+ * @defgroup windows Windows
+ *
+ * Windows implementation details
+ *
+ * @ingroup internal
+ * @{
+ */
+
+/// Default number of items passed to GetQueuedCompletionStatusEx
+#ifdef BIO_WINDOWS_DEFAULT_BATCH_SIZE
+#	define BIO_WINDOWS_DEFAULT_BATCH_SIZE 4
+#endif
+
+/**@}*/
+
+#ifndef DOXYGEN
+
 typedef struct {
 	HANDLE iocp;
 	LARGE_INTEGER perf_counter_freq;
@@ -16,5 +34,7 @@ typedef struct {
 	char* error_msg_buf;
 	WSADATA wsadata;
 } bio_platform_t;
+
+#endif
 
 #endif

@@ -168,10 +168,10 @@ bio_async_worker(void* userdata) {
 void
 bio_thread_init(void) {
 	int num_threads = bio_ctx.options.thread_pool.num_threads;
-	if (num_threads <= 0) { num_threads = 2; }
+	if (num_threads <= 0) { num_threads = BIO_DEFAULT_THREAD_POOL_SIZE; }
 
 	int queue_size = bio_ctx.options.thread_pool.queue_size;
-	if (queue_size <= 0) { queue_size = 2; }
+	if (queue_size <= 0) { queue_size = BIO_DEFAULT_THREAD_POOL_QUEUE_SIZE; }
 	queue_size = bio_next_pow2(queue_size);
 
 	bio_ctx.options.thread_pool.num_threads = num_threads;

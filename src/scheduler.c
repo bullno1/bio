@@ -10,7 +10,7 @@ void
 bio_scheduler_init(void) {
 	bio_ctx.num_coros = 0;
 	if (bio_ctx.options.num_cls_buckets == 0) {
-		bio_ctx.options.num_cls_buckets = 4;
+		bio_ctx.options.num_cls_buckets = BIO_DEFAULT_NUM_CLS_BUCKETS;
 	} else {
 		bio_ctx.options.num_cls_buckets = bio_next_pow2(bio_ctx.options.num_cls_buckets);
 	}

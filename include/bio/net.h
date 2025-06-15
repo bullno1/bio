@@ -3,6 +3,11 @@
 
 #include "bio.h"
 
+/**
+ * @defgroup net Network I/O
+ * @{
+ */
+
 typedef struct {
 	bio_handle_t handle;
 } bio_socket_t;
@@ -147,5 +152,6 @@ bio_net_send_exactly(bio_socket_t socket, const void* buf, size_t size, bio_erro
 	return total_bytes_sent;
 }
 
+/**@}*/
 
 #endif

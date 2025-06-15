@@ -3,12 +3,20 @@
 
 #include "bio.h"
 
+/**
+ * @defgroup file File I/O
+ * @{
+ */
+
 typedef struct {
 	bio_handle_t handle;
 } bio_file_t;
 
+/// Standard input
 extern bio_file_t BIO_STDIN;
+/// Standard output
 extern bio_file_t BIO_STDOUT;
+/// Standard error
 extern bio_file_t BIO_STDERR;
 
 typedef struct {
@@ -101,5 +109,7 @@ bio_fread_exactly(bio_file_t file, void* buf, size_t size, bio_error_t* error) {
 
 	return total_bytes_read;
 }
+
+/**@}*/
 
 #endif
