@@ -199,8 +199,6 @@ typedef enum {
 
 extern bio_ctx_t bio_ctx;
 
-extern const bio_tag_t BIO_PLATFORM_ERROR;
-
 static inline void*
 bio_realloc(void* ptr, size_t size) {
 	return bio_ctx.options.allocator.realloc(ptr, size, bio_ctx.options.allocator.ctx);

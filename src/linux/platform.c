@@ -6,6 +6,8 @@
 #include <linux/futex.h>
 #include <sys/syscall.h>
 
+static const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.linux");
+
 typedef struct {
 	bio_signal_t signal;
 	int32_t res;

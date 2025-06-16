@@ -1,5 +1,7 @@
 #include "common.h"
 
+const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.windows");
+
 static const char BIO_WINDOWS_NOTIFY_KEY = 0;
 
 static ULONG

@@ -4,7 +4,9 @@
 #include "platform.h"
 #include "../internal.h"
 
-typedef struct {	
+extern const bio_tag_t BIO_PLATFORM_ERROR;
+
+typedef struct {
 	OVERLAPPED overlapped;
 	bio_signal_t signal;
 } bio_io_req_t;

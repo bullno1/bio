@@ -357,7 +357,7 @@ typedef struct {
  * Initialization options
  *
  * All fields are optional and have default values.
- * It is possible to call @ref bio_init like this:
+ * It is valid to call @ref bio_init like this:
  *
  * @code{.c}
  * bio_init(&(bio_options_t){ 0 });
@@ -436,6 +436,7 @@ typedef struct {
 /**
  * An error returned from a function.
  *
+ * @ingroup error
  * @see BIO_ERROR_FMT
  */
 typedef struct {
@@ -457,8 +458,8 @@ typedef struct {
 	 * The meaning of the value depends on the @ref bio_error_t::tag.
 	 *
 	 * For example: The error code 5 could have one meaning with the tag
-	 * `bio.error.platform.windows` but a different meaning with
-	 * `bio.error.platform.linux`.
+	 * `bio.error.windows` but a different meaning with
+	 * `bio.error.linux`.
 	 */
 	int code;
 
@@ -781,7 +782,7 @@ bio_wait_for_one_signal(bio_signal_t signal) {
  * A coroutine can be monitored several times and each would result in separate
  * signal delivery.
  *
- * It is possible to pass the same signal to different calls to to `bio_monitor`
+ * It is valid to pass the same signal to different calls to to `bio_monitor`
  * since raising an already raised signal is safe.
  * This would allow the monitoring coroutine to wait for at least one of the
  * monitored coroutine to terminate.
@@ -1201,14 +1202,42 @@ bio_set_min_log_level(bio_logger_t logger, bio_log_level_t level);
 
 /**
  * @defgroup error Error handling
+ *
+ * [GTK](https://docs.gtk.org/glib/error-reporting.html)-inspired error handling.
+ *
+ * By convention, functions in bio will take a @ref bio_error_t when an error
+ * might happen:
+ *
+ * @code
+ * bio_error_t error = { 0 };
+ * if (!bio_fstat(file, &stat, &error)) {
+ *     BIO_ERROR("Error while stat-ing: " BIO_ERROR_FMT, BIO_ERROR_FMT_ARGS(&error));
+ * }
+ * @endcode
+ *
+ * It is valid to pass `NULL` to these functions when there is no interest
+ * for error details.
+ *
  * @{
  */
 
+/// Convenient function to check whether an error was encountered
 static inline bool
 bio_has_error(bio_error_t* error) {
 	return error != NULL && error->tag != NULL;
 }
 
+/**
+ * Convenient function to format an error into a string.
+ *
+ * @remarks
+ *   The exact details are platform-dependent.
+ *   However, a shared buffer is usually involved.
+ *   This means the returned string should be immediately logged or copied
+ *   before this function is called again.
+ *
+ * @see BIO_ERROR_FMT
+ */
 static inline const char*
 bio_strerror(bio_error_t* error) {
 	if (error != NULL && error->tag != NULL) {
@@ -1218,6 +1247,7 @@ bio_strerror(bio_error_t* error) {
 	}
 }
 
+/// Convenient function to clear an error object
 static inline void
 bio_clear_error(bio_error_t* error) {
 	if (error != NULL) { error->tag = NULL; }
@@ -1247,7 +1277,8 @@ bio_clear_error(bio_error_t* error) {
  * This is done using @ref bio_yield so other coroutines still get to run.
  *
  * Internally, bio also uses the async thread pool to convert a potentially
- * blocking syscall to an asynchronous one when there is no async equivalence.
+ * blocking syscall to an asynchronous one when there is no async equivalence
+ * for the runnning platform.
  *
  * @param task Entrypoint of the function
  * @param userdata Arbitrary userdata passed to the function.

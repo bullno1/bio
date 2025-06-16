@@ -3,8 +3,6 @@
 
 bio_ctx_t bio_ctx = { 0 };
 
-const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.platform");
-
 static void*
 bio_stdlib_realloc(void* ptr, size_t size, void* ctx) {
 	(void)ctx;
