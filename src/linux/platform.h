@@ -9,7 +9,16 @@
 /**
  * @defgroup linux Linux
  *
- * Linux implementation details
+ * Linux implementation details.
+ *
+ * bio uses iouring on Linux.
+ *
+ * For network, it detects whether `bind` or `listen` can be submitted through
+ * iouring and fallback to the synchronous version instead as those calls
+ * typically do not block.
+ *
+ * For @ref bio_platform_update, it uses a [futex](https://man7.org/linux/man-pages/man2/futex.2.html) if there is support.
+ * Otherwise an [eventfd](https://man7.org/linux/man-pages/man2/eventfd.2.html) is used instead.
  *
  * @ingroup internal
  * @{
