@@ -16,7 +16,7 @@
  */
 
 /// Default number of items passed to GetQueuedCompletionStatusEx
-#ifdef BIO_WINDOWS_DEFAULT_BATCH_SIZE
+#ifndef BIO_WINDOWS_DEFAULT_BATCH_SIZE
 #	define BIO_WINDOWS_DEFAULT_BATCH_SIZE 4
 #endif
 

@@ -64,7 +64,7 @@ bio_platform_current_time_ms(void) {
 void
 bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 	unsigned int batch_size = bio_ctx.options.windows.iocp.batch_size;
-	if (batch_size == 0) { batch_size = BIO_PLATFORM_WINDOWS_DEFAULT_BATCH_SIZE; }
+	if (batch_size == 0) { batch_size = BIO_WINDOWS_DEFAULT_BATCH_SIZE; }
 
 	if (wait_timeout_ms >= INFINITE) { wait_timeout_ms = INFINITE - 1;  }
 	if (wait_timeout_ms < 0) { wait_timeout_ms = INFINITE;  }
