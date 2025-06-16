@@ -22,7 +22,6 @@
 /**
  * @addtogroup logging
  *
- * @see file_logger
  * @{
  */
 
@@ -90,6 +89,7 @@
 /**
  * Utility macro for initializing a tag.
  *
+ * @ingroup misc
  * @see bio_tag_t
  */
 #define BIO_TAG_INIT(NAME) \
@@ -141,7 +141,7 @@ typedef struct {
 /**
  * Handle to a signal.
  *
- * @ingroup coro
+ * @ingroup signal
  * @see bio_make_signal
  */
 typedef struct {
@@ -271,6 +271,9 @@ typedef struct {
 	 *
 	 * This should behave like stdlib `realloc`.
 	 *
+	 * This will only be called from the main thread so synchronization is not
+	 * necessary.
+	 *
 	 * @param ptr The pointer to reallocate or free.
 	 *   This can be `NULL`.
 	 * @param size The size to (re)allocate.
@@ -298,7 +301,7 @@ typedef struct {
  * Logging options
  *
  * @ingroup logging
- * Typically, it would be use like this:
+ * Typically, it would be used like this:
  *
  * @code{.c}
  * bio_init(&(bio_options_t){
@@ -476,7 +479,7 @@ typedef enum {
 	BIO_CORO_READY,
 	/// The coroutine is the currently running coroutine that called @ref bio_coro_state
 	BIO_CORO_RUNNING,
-	/// The coroutine is waiting for a @ref bio_signal_t "signal"
+	/// The coroutine is waiting for a @ref bio_make_signal "signal"
 	BIO_CORO_WAITING,
 	/// The coroutine has terminated.
 	BIO_CORO_DEAD,
@@ -515,12 +518,18 @@ typedef struct {
 /**
  * A log callback
  *
- * @ingroup logging
+ * This will be called for every message passed to @ref bio_log.
+ *
+ * @remarks
+ *   When @ref bio_remove_logger is called, this will be invoked with @p ctx and
+ *   @p msg set to `NULL` instead.
+ *   The callback should perform cleanup for "flushing" buffered messages.
  *
  * @param userdata Arbitrary user data
  * @param ctx Log context
  * @param msg Log message
  *
+ * @ingroup logging
  * @see bio_add_logger
  */
 typedef void (*bio_log_fn_t)(void* userdata, const bio_log_ctx_t* ctx, const char* msg);
@@ -528,13 +537,7 @@ typedef void (*bio_log_fn_t)(void* userdata, const bio_log_ctx_t* ctx, const cha
 /**
  * @defgroup init Initialization
  *
- * Initialize the framework
- *
- * @{
- */
-
-/**
- * Initialize the library
+ * Initialization and cleanup
  *
  * A typical program looks like this:
  *
@@ -560,7 +563,11 @@ typedef void (*bio_log_fn_t)(void* userdata, const bio_log_ctx_t* ctx, const cha
  *     return 0;
  * }
  * @endcode
+ *
+ * @{
  */
+
+/// Initialize the framework
 void
 bio_init(const bio_options_t* options);
 
@@ -577,7 +584,21 @@ bio_terminate(void);
 /**
  * @defgroup coro Coroutine
  *
- * Cooperative scheduling
+ * Cooperative scheduling.
+ *
+ * At the heart of bio is a cooperative scheduling system.
+ * Coroutines are generally cheaper to spawn and context switch compared to threads.
+ *
+ * Instead of using callbacks, all I/O calls in bio will block the calling coroutine.
+ * A different coroutine will be scheduled to run and the original coroutine will
+ * only resume once the original call return.
+ *
+ * Coroutines can interact with one another through:
+ *
+ * * @ref signal
+ * * @ref monitor
+ * * @ref mailbox
+ * * @ref bio_set_coro_data "Associated data"
  *
  * @{
  */
@@ -614,24 +635,40 @@ void
 bio_yield(void);
 
 /**
- * Create a new signal
+ * @defgroup signal Signal
+ *
+ * Waiting for an event to complete.
  *
  * Signal is the primary synchronization primitive in bio.
  * When a coroutine needs to wait for something to happen, it would:
  *
- * 1. Create a new signal with `bio_make_signal`.
- * 2. Pass the signal to a target through a @ref bio_monitor "function call" or a @ref bio_send_message "message".
+ * 1. Create a new signal with @ref bio_make_signal.
+ * 2. Pass the signal to a target through a @ref bio_monitor "function call" or
+ *   a @ref mailbox "mailbox".
  * 3. @ref bio_wait_for_signals "Wait" for the signal to be raised.
+ *
+ * It is by design that a signal has no associated state like "future" or "promise"
+ * in other languages.
+ * This keeps the implementation simple as signal is only meant to be a notification
+ * mechanism.
+ * To transfer data, use a regular function call with a signal as one of the argument.
+ * In addition, there is also @ref mailbox "mailbox".
  *
  * Internally, all I/O functions use signals to wait for completion.
  *
- * @remark A signal requires some dynamically allocated memory to track its state.
- *   When a signal is created but later deemed unnecessary, it should be
- *   discarded with @ref bio_raise_signal.
- *   Otherwise, it will continue to take some memory.
- *   Signals are bound to the coroutine that created it.
- *   When a coroutine terminates, all signals bound to it are freed and no manual
- *   cleanup is needed.
+ * @{
+ */
+
+/**
+ * Create a new signal
+ *
+ * A signal requires some dynamically allocated memory to track its state.
+ * When a signal is created but later deemed unnecessary, it should be discarded
+ * with @ref bio_raise_signal.
+ * Otherwise, it will continue to take some memory.
+ * Signals are bound to the coroutine that created it.
+ * When a coroutine terminates, all signals bound to it are freed and no manual
+ * cleanup is needed.
  *
  * @see bio_wait_for_signals
  * @see bio_raise_signal
@@ -645,7 +682,7 @@ bio_make_signal(void);
  * A coroutine waiting on the signal will be resumed.
  * A signal can only be raised once.
  * Raising an already raised signal is not an error.
- * Similarly, it is safe to raise a signal from an already termianted coroutine.
+ * Similarly, it is safe to raise a signal from an already terminated coroutine.
  *
  * @see bio_make_signal
  */
@@ -655,10 +692,10 @@ bio_raise_signal(bio_signal_t signal);
 /**
  * Raise a signal after a delay
  *
+ * This is the primary way to create "timers" in bio.
+ *
  * @param signal The signal to raise
  * @param time_ms The delay in milliseconds to raise this signal
- *
- * This is the primary way to create "timers" in bio.
  *
  * @see timer
  *
@@ -726,8 +763,20 @@ bio_wait_for_one_signal(bio_signal_t signal) {
 	bio_wait_for_signals(&signal, 1, true);
 }
 
+/**@}*/
+
+/**
+ * @defgroup monitor Monitor
+ *
+ * Monitor a coroutine for termination
+ *
+ * @{
+ */
+
 /**
  * Monitor a coroutine for termination
+ *
+ * The provided @p signal would be raised when the given @p coro terminates.
  *
  * A coroutine can be monitored several times and each would result in separate
  * signal delivery.
@@ -741,10 +790,8 @@ bio_wait_for_one_signal(bio_signal_t signal) {
  * When a monitoring coroutine is no longer interested in the monitored coroutine,
  * the monitor should be discarded with @ref bio_unmonitor.
  * Otherwise, it will continue to take up memory.
- *
- * A monitor is bound to the coroutine that created it.
- * When the coroutine terminates, all bound monitors are freed and no manual
- * cleanup is needed.
+ * However, when a coroutine terminates, all monitors attached to it will be
+ * automatically freed.
  *
  * @param coro The coroutine to monitor
  * @param signal The signal that would be raised when the coroutine terminates
@@ -784,6 +831,8 @@ bio_join(bio_coro_t coro) {
 	bio_wait_for_one_signal(term_signal);
 }
 
+/**@}*/
+
 /**
  * Associate the calling coroutine with arbitrary data and a tag
  *
@@ -791,9 +840,8 @@ bio_join(bio_coro_t coro) {
  * the same tag to @ref bio_get_coro_data.
  * This allows a coroutine to quickly expose its states to others.
  *
- * This can be used to create "module-private" data.
- * This is done by declaring the tag as a static global variable in a .c/.cpp
- * file.
+ * "Module-private" data can be implemented by declaring the tag as a static
+ * global variable in a .c/.cpp file.
  * Hence, only functions in the same file can call @ref bio_set_coro_data and
  * @ref bio_get_coro_data.
  *
@@ -842,7 +890,7 @@ bio_get_coro_data(bio_coro_t coro, const bio_tag_t* tag);
  * Give a human-readable name to the calling coroutine
  *
  * Using the default logger, this name will be displayed instead of the coroutine
- * handle's numeric representation (e.g: `4:0`).
+ * handle's numeric representation (e.g: `main` instead of `1:0`).
  *
  * It is by design that a coroutine can only name itself, hence the lack of a
  * `coro` argument in this function.
@@ -955,11 +1003,12 @@ bio_get_cls(const bio_cls_t* cls);
  *         // Handle message and maybe message writer for a response
  *     }
  *
- *     // Wait for writer to terminate
- *     bio_join(writer);
- *
  *     // Potential double free but it is safe
+ *     // This will also cause the writer to terminate
  *     bio_net_close(socket, NULL);
+ *
+ *     // Wait for writer to actually terminate
+ *     bio_join(writer);
  * }
  *
  * void writer_entry(void* userdata) {
@@ -977,6 +1026,7 @@ bio_get_cls(const bio_cls_t* cls);
  *     }
  *
  *     // Potential double free but it is safe
+ *     // This also cause the reader to terminate
  *     bio_net_close(socket, NULL);
  * }
  * @endcode
@@ -989,8 +1039,8 @@ bio_get_cls(const bio_cls_t* cls);
  *
  * By making double free safe to execute, user code can be greatly simplified
  * since there is no need to track when a resource was freed.
- * In fact, freeing a resource that another coroutine is waiting on is the way
- * to signal to that coroutine to terminate.
+ * In fact, freeing a resource that another coroutine is waiting on is the idiomatic
+ * way to signal to that coroutine to terminate.
  * For example, in a web server, a route handler can close the listening socket
  * to tell the acceptor coroutine to stop accepting new connections.
  * This can be used to implement a "remote shutdown".
@@ -1061,7 +1111,7 @@ bio_resolve_handle(bio_handle_t handle, const bio_tag_t* tag);
  * This is similar to @ref bio_resolve_handle but it also invalidates the handle.
  *
  * Take note that the associated pointer is also returned so that the calling
- * code can perform clean of the associated data.
+ * code can perform cleanup of the associated data.
  *
  * Just like with @ref bio_resolve_handle, always check for a `NULL` return
  * and make it noop.
@@ -1091,13 +1141,25 @@ bio_handle_compare(bio_handle_t lhs, bio_handle_t rhs) {
 
 /**
  * @defgroup logging Logging
+ *
+ * @brief Write text to console or file
+ *
+ * There are several @ref BIO_LOG "logging macros" that should be used instead of the raw
+ * @ref bio_log function.
+ *
+ * @remarks
+ *   By default, there is no logger configured.
+ *   See @ref file_logger.
+ *
+ * @see bio_options_t::log_options
+ *
  * @{
  */
 
 /**
  * Raw logging function.
  *
- * Use the logging macros instead.
+ * Use the @ref BIO_LOG "logging macros" instead.
  *
  * @ingroup logging
  */
@@ -1115,13 +1177,23 @@ bio_log(
  * Add a new logger
  *
  * @param min_level Minimum log level for this logger
+ * @param log_fn The log function
+ * @param userdata Arbitrary data passed to the log function for every message
+ * @return A logger handle
  */
 bio_logger_t
 bio_add_logger(bio_log_level_t min_level, bio_log_fn_t log_fn, void* userdata);
 
+/**
+ * Remove a previously configured logger
+ *
+ * The log function will be called with `NULL` arguments, except for @p userdata.
+ * This allows it to have a final chance to "flush" all buffered messages.
+ */
 void
 bio_remove_logger(bio_logger_t logger);
 
+/// Change the minimum log level for a given logger
 void
 bio_set_min_log_level(bio_logger_t logger, bio_log_level_t level);
 
