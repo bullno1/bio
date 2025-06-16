@@ -87,3 +87,7 @@ Required software:
 ### Windows
 
 Run `msvc.bat` to create a Visual Studio solution.
+
+### Documentation
+
+Run [doxygen](https://www.doxygen.nl/) at the project root dir or view the online version at: https://bullno1.github.io/bio.
