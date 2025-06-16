@@ -1,0 +1,23 @@
+var searchData=
+[
+  ['bio_5faddr_5fipv4_0',['BIO_ADDR_IPV4',['../group__net.html#ggab3a3677a04e0899942b0f9230f3ab954a5171aa257cde1a063e8c95569cdb8f14',1,'net.h']]],
+  ['bio_5faddr_5fipv6_1',['BIO_ADDR_IPV6',['../group__net.html#ggab3a3677a04e0899942b0f9230f3ab954aef0452c38eac7bb6187d5b23f5a72c43',1,'net.h']]],
+  ['bio_5faddr_5fnamed_2',['BIO_ADDR_NAMED',['../group__net.html#ggab3a3677a04e0899942b0f9230f3ab954a88ffd1fb03c092726a118efdea2ee2c4',1,'net.h']]],
+  ['bio_5fcall_5fcancelled_3',['BIO_CALL_CANCELLED',['../group__service.html#ggaa4b6b490e1bdb2b2eef15deca482ab12a1e5c49aece3542ff126e79a0eab9af7f',1,'service.h']]],
+  ['bio_5fcall_5fok_4',['BIO_CALL_OK',['../group__service.html#ggaa4b6b490e1bdb2b2eef15deca482ab12a4be7a21b90a6c858417778e0218239d4',1,'service.h']]],
+  ['bio_5fcall_5ftarget_5fdead_5',['BIO_CALL_TARGET_DEAD',['../group__service.html#ggaa4b6b490e1bdb2b2eef15deca482ab12a162f386644d2fcd631612a606219a076',1,'service.h']]],
+  ['bio_5fcoro_5fdead_6',['BIO_CORO_DEAD',['../group__coro.html#gga94f6989d9bb01e8af4b14575643ae55ca07f18b2b5552c168a8cba22a9cd46214',1,'bio.h']]],
+  ['bio_5fcoro_5fready_7',['BIO_CORO_READY',['../group__coro.html#gga94f6989d9bb01e8af4b14575643ae55ca4ff0fc51ec5e3fe249b3b82a671843ed',1,'bio.h']]],
+  ['bio_5fcoro_5frunning_8',['BIO_CORO_RUNNING',['../group__coro.html#gga94f6989d9bb01e8af4b14575643ae55ca08ff5cd429f3e0e9839f827825f6b60f',1,'bio.h']]],
+  ['bio_5fcoro_5fwaiting_9',['BIO_CORO_WAITING',['../group__coro.html#gga94f6989d9bb01e8af4b14575643ae55ca10f87df124d884f7d34dfed054def8df',1,'bio.h']]],
+  ['bio_5flog_5flevel_5fdebug_10',['BIO_LOG_LEVEL_DEBUG',['../group__logging.html#ggaf975e08f25fc299efe60b182358f7e4ca7bf7fbfed26595fd51fa96dce1bbe22d',1,'bio.h']]],
+  ['bio_5flog_5flevel_5ferror_11',['BIO_LOG_LEVEL_ERROR',['../group__logging.html#ggaf975e08f25fc299efe60b182358f7e4ca58227e2ed176e165ad4e08cd6c01c203',1,'bio.h']]],
+  ['bio_5flog_5flevel_5ffatal_12',['BIO_LOG_LEVEL_FATAL',['../group__logging.html#ggaf975e08f25fc299efe60b182358f7e4cad7bb83f7adef3508e8a2b6c042d3ca96',1,'bio.h']]],
+  ['bio_5flog_5flevel_5finfo_13',['BIO_LOG_LEVEL_INFO',['../group__logging.html#ggaf975e08f25fc299efe60b182358f7e4ca336bd71ee80d6408763f4b855f623204',1,'bio.h']]],
+  ['bio_5flog_5flevel_5ftrace_14',['BIO_LOG_LEVEL_TRACE',['../group__logging.html#ggaf975e08f25fc299efe60b182358f7e4ca462372f30fea4258f1b696d37a0d66a8',1,'bio.h']]],
+  ['bio_5flog_5flevel_5fwarn_15',['BIO_LOG_LEVEL_WARN',['../group__logging.html#ggaf975e08f25fc299efe60b182358f7e4caeea9a85046a2d3d4248366b653500cb4',1,'bio.h']]],
+  ['bio_5fsocket_5fdatagram_16',['BIO_SOCKET_DATAGRAM',['../group__net.html#ggaf849532312f8f25b5542b55025bd477daaf76680d7d8e9d4e3d25d5ee285ecb9f',1,'net.h']]],
+  ['bio_5fsocket_5fstream_17',['BIO_SOCKET_STREAM',['../group__net.html#ggaf849532312f8f25b5542b55025bd477da9041bb7b57b4bad404d2166a0e1410d7',1,'net.h']]],
+  ['bio_5ftimer_5finterval_18',['BIO_TIMER_INTERVAL',['../group__timer.html#ggad3163a592e750457fcb98203e866f84ea356d488f872cabb1ac713e7789f0f469',1,'timer.h']]],
+  ['bio_5ftimer_5foneshot_19',['BIO_TIMER_ONESHOT',['../group__timer.html#ggad3163a592e750457fcb98203e866f84ea264c84f3de45ec394244e1dab0cae10f',1,'timer.h']]]
+];
