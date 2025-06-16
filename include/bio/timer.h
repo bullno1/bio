@@ -32,7 +32,7 @@ typedef enum {
  *   Otherwise, @ref bio_loop will never terminate.
  *
  * @param type The type of timer
- * @param timeout_ms How often or the delay for the timer in milliseconds
+ * @param timeout_ms The period or the delay for the timer in milliseconds
  * @param fn The function to be called
  * @param userdata Data passed to @p fn
  * @return Handle to a timer
