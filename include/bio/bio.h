@@ -542,28 +542,7 @@ typedef void (*bio_log_fn_t)(void* userdata, const bio_log_ctx_t* ctx, const cha
  *
  * A typical program looks like this:
  *
- * @code{.c}
- * int main(int argc, const char* argv[]) {
- *     // Initialize the library
- *     bio_init(&(bio_options_t){
- *         .log_options = {
- *             .current_filename = __FILE__,
- *             .current_depth_in_project = 1, // If the file is in src/main.c
- *         },
- *     });
- *
- *     // Spawn initial coroutines
- *     bio_spawn(main_coro, data);
- *
- *     // Loop until there is no running coroutines
- *     bio_loop();
- *
- *     // Cleanup
- *     bio_terminate();
- *
- *     return 0;
- * }
- * @endcode
+ * @snippet samples/main.c Entrypoint
  *
  * @{
  */
@@ -917,30 +896,7 @@ bio_get_coro_name(bio_coro_t coro);
  * This is used when something needs to be (lazily) created once in each coroutine.
  * The CLS spec should be a global variable in a .c/.cpp file and passed as a pointer:
  *
- * @code
- * typedef struct {
- *    int foo;
- * } my_cls_t;
- *
- * static void
- * init_my_cls(void* ptr) {
- *     my_cls_t* cls = ptr;
- *     *cls = (my_cls_t){ .foo = 42 };
- * }
- *
- * static const bio_cls_t MY_CLS = {
- *     .size = sizeof(my_cls_t),
- *     .init = &init_my_cls,
- * };
- *
- * static void entrypoint(void* userdata) {
- *     my_cls_t* cls = bio_get_cls(&MY_CLS);
- *     assert(cls.foo == 42);  // Initialized
- *
- *     my_cls_t* cls2 = bio_get_cls(&MY_CLS);
- *     assert(cls == cls2);  // The same object
- * }
- * @endcode
+ * @snippet samples/cls.c CLS
  *
  * The memory for the CLS object will only be allocated the first time a coroutine
  * calls this function.
@@ -984,53 +940,7 @@ bio_get_cls(const bio_cls_t* cls);
  *
  * Handle enables the following pattern:
  *
- * @code{.c}
- * void client_handler(void* userdata) {
- *     bio_socket_t socket;  // Assume we got this somehow
- *
- *     // Spawn a writer, giving it the same socket
- *     bio_writer_t writer = bio_spawn(writer_entry, &socket);
- *
- *     char buf[1024];
- *     bio_error_t error = { 0 };
- *     while (true) {
- *         // Read from the socket
- *         size_t bytes_received = bio_net_recv(socket, buf, sizeof(buf), &error);
- *         if (bio_has_error(&error)) {
- *             // Break out of the loop if there is an error
- *             break;
- *         }
- *
- *         // Handle message and maybe message writer for a response
- *     }
- *
- *     // Potential double free but it is safe
- *     // This will also cause the writer to terminate
- *     bio_net_close(socket, NULL);
- *
- *     // Wait for writer to actually terminate
- *     bio_join(writer);
- * }
- *
- * void writer_entry(void* userdata) {
- *     bio_socket_t socket = *(bio_socket_t*)userdata;
- *
- *     bio_error_t error = { 0 };
- *     while (true) {
- *         // Get a message from some source
- *         // Send it
- *         size_t bytes_sent = bio_net_send(socket, msg, msg_len, &error);
- *         if (bio_has_error(&error)) {
- *             // Break out of the loop if there is an error
- *             break;
- *         }
- *     }
- *
- *     // Potential double free but it is safe
- *     // This also cause the reader to terminate
- *     bio_net_close(socket, NULL);
- * }
- * @endcode
+ * @snippet samples/handle.c Using handle
  *
  * In the above example, as soon as either the reader or the writer coroutine
  * encounters an I/O error, it will break out of the loop and close the socket.
