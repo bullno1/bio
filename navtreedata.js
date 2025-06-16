@@ -25,6 +25,7 @@
 var NAVTREE =
 [
   [ "bio", "index.html", [
+    [ "Asynchronous I/O framework with coroutines", "index.html", "index" ],
     [ "Topics", "topics.html", "topics" ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -43,7 +44,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"structbio__tag__t.html"
+"structbio__socket__t.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

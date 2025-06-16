@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>bio: Main Page</title>
+<title>bio: Asynchronous I/O framework with coroutines</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -94,21 +94,26 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div>
 </div>
 
-<div class="header">
-  <div class="headertitle"><div class="title">bio Documentation</div></div>
+<div><div class="header">
+  <div class="headertitle"><div class="title">Asynchronous I/O framework with coroutines </div></div>
 </div><!--header-->
 <div class="contents">
-<ul><li><a href="index.html"><span>Main&#160;Page</span></a>
-</li><li><a href="topics.html"><span>Topics</span></a>
-</li><li><a href="annotated.html"><span>Data&#160;Structures</span></a>
-<ul><li><a href="annotated.html"><span>Data&#160;Structures</span></a>
-</li><li><a href="classes.html"><span>Data&#160;Structure&#160;Index</span></a>
-</li><li><a href="functions.html"><span>Data&#160;Fields</span></a>
-</li></ul>
-</li><li><a href="files.html"><span>Files</span></a>
-<ul><li><a href="files.html"><span>File&#160;List</span></a>
-</li></ul>
-</li></ul>
+<div class="textblock"><p>This is the documentation for bio, an async I/O framework with coroutines.</p>
+<h1><a class="anchor" id="autotoc_md1"></a>
+General idea</h1>
+<p>With <a href="https://github.com/edubart/minicoro">minicoro</a>, the thread of execution can be suspended on an I/O call. One can just <a class="el" href="group__coro.html">spawn a coroutine</a> for every connection and treat every I/O operation as blocking. The userspace scheduler will take care of waking up coroutines when an I/O request is finished.</p>
+<p>To communicate between coroutines, a <a class="el" href="group__mailbox.html">message passing primitive</a> is introduced. This borrows an idea from <a href="https://www.erlang.org/">Erlang</a>.</p>
+<h1><a class="anchor" id="autotoc_md2"></a>
+Getting started</h1>
+<p>To learn how to use it, first checkout the following sections:</p>
+<ul>
+<li><a class="el" href="group__init.html">Initialization</a>: How to initialize the framework</li>
+<li><a class="el" href="group__coro.html">Coroutine</a>: How to get any work done</li>
+<li><a class="el" href="group__handle.html">Handle</a>: A brief on resource handling and safety</li>
+<li><a class="el" href="group__misc.html#ga9e1d740968b4d69a528306ae4ddf995e">Async thread pool</a>: Avoid blocking the main thread</li>
+</ul>
+<p><a href="./topics.html">Other topics</a> can be discovered as needed. </p>
+</div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
