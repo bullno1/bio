@@ -11,7 +11,7 @@
  *
  * Windows implementation details
  *
- * bio uses uses IOCP on Windows.
+ * bio uses uses [IOCP](https://learn.microsoft.com/en-us/windows/win32/fileio/i-o-completion-ports) on Windows.
  *
  * For network, it transparently handles the differences between named pipes and
  * regular sockets.
@@ -20,6 +20,7 @@
  * This is because [not all file handles](https://stackoverflow.com/questions/55619555/win32-impossible-to-use-iocp-with-stdin-handle) support IOCP.
  * Moreover, async calls [may be converted](https://learn.microsoft.com/en-us/previous-versions/troubleshoot/windows/win32/asynchronous-disk-io-synchronous) to be synchronous.
  * For these reasons, bio will always send file I/O calls to the async thread pool even though it already uses IOCP with those calls.
+ * File I/O heavy applications may need to increase the @ref bio_options_t::num_threads "thread pool size" from the default.
  *
  * @ingroup internal
  * @{

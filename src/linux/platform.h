@@ -11,7 +11,7 @@
  *
  * Linux implementation details.
  *
- * bio uses iouring on Linux.
+ * bio uses [iouring](https://man7.org/linux/man-pages/man7/io_uring.7.html) on Linux.
  *
  * For network, it detects whether `bind` or `listen` can be submitted through
  * iouring and fallback to the synchronous version instead as those calls
