@@ -23,7 +23,7 @@ typedef enum {
 	/// IPv6
 	BIO_ADDR_IPV6,
 	/**
-	 * On Linux platform, this will be a Unix domain socket.
+	 * On Unix platforms, this will be a Unix domain socket.
 	 * On Windows, this will be a named pipe.
 	 */
 	BIO_ADDR_NAMED,
@@ -52,9 +52,10 @@ typedef struct {
 		 * If the path starts with a `@` or `NULL` (`\0`) character, it will
 		 * be treated as an abstract socket.
 		 *
-		 * On Windows, this will always be implemented as a named pipe.
+		 * On Windows, this will always be implemented as a named pipe which is
+		 * similar to an abstract socket in Linux.
 		 * The `@` prefix will be ignored.
-		 * The prefix `\\.\pipe\` is automatically prepended.
+		 * The prefix `\\.\pipe\` will be prepended.
 		 * Forward slashes will be translated into backslashes (`\`)
 		 *
 		 * Therefore, the most cross-platform and consistent name is to use the
