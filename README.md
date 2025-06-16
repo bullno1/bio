@@ -22,13 +22,13 @@ This is a battery.
 ## How?
 
 With [minicoro](https://github.com/edubart/minicoro), the thread of execution can be suspended on an I/O call.
-One can just spawn a coroutine for every connection and treat every I/O operation as blocking.
+One can just [spawn a coroutine](https://bullno1.com/bio/group__coro.html) for every connection and treat every I/O operation as blocking.
 The userspace scheduler will take care of waking up coroutines when an I/O request is finished.
 
 On Windows, [IOCP](https://learn.microsoft.com/en-us/windows/win32/fileio/i-o-completion-ports) makes it extremely simple to have a centralized place to check for I/O completion.
 On Linux, [io_uring](https://unixism.net/loti/index.html) now delivers the same capabilities.
 
-To communicate between coroutines, a [message passing facility](https://github.com/bullno1/bio/blob/master/include/bio/mailbox.h) is introduced.
+To communicate between coroutines, a [message passing primitive](https://bullno1.com/bio/group__mailbox.html) is introduced.
 This borrows an idea from [Erlang](https://www.erlang.org/).
 
 ## Goals

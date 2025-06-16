@@ -2,7 +2,7 @@
 
 ./build || true
 
-inotifywait -r -e CLOSE_WRITE -m include src tests samples | \
+inotifywait -r -e CLOSE_WRITE -m include src tests samples Doxyfile doc-index.md | \
     while read path action file
 	do
 		printf '%*s\n' "$(tput cols)" '' | tr ' ' -

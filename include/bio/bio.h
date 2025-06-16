@@ -1199,6 +1199,8 @@ bio_clear_error(bio_error_t* error) {
  *   Since this function does not return a value, any result should be written to this data instead.
  * @param signal The signal that will be raised when @p task finishes
  *   execution
+ *
+ * @see bio_run_async_and_wait
  */
 void
 bio_run_async(bio_entrypoint_t task, void* userdata, bio_signal_t signal);
