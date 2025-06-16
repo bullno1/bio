@@ -12,14 +12,33 @@
  * @defgroup file_logger File logger
  *
  * A logger that writes messages to a file.
- * Typically this is @ref BIO_STDERR.
+ *
+ * @code{.c}
+ * bio_logger_t logger = bio_add_file_logger(&(bio_file_logger_options_t){
+ *     .file = BIO_STDERR,
+ *     .with_colors = true,
+ * });
+ * BIO_INFO("Started");
+ *
+ * // Main loop
+ * while (running) {
+ *     // ...
+ * }
+ *
+ * // Flush messages and terminate the logger coroutine
+ * bio_remove_logger(logger);
+ * @endcode
  *
  * @{
  */
 
 /// Configuration options
 typedef struct {
-	/// The file to writes to
+	/**
+	 * The file to writes to
+	 *
+	 * Usually, this is @ref BIO_STDERR
+	 */
 	bio_file_t file;
 	/// Whether log messages should be colored based on log level
 	bool with_colors;
