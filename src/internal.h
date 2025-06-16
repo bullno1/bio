@@ -63,6 +63,8 @@
 #	include "linux/platform.h"
 #elif defined(_WIN32)
 #	include "windows/platform.h"
+#elif defined(__FreeBSD__)
+#	include "freebsd/platform.h"
 #else
 #	error "Unsupported platform"
 #endif

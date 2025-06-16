@@ -25,10 +25,15 @@ set(WIN32_SOURCES
 	"windows/net/ws.c"
 	"windows/net/pipe.c"
 )
+set(FREEBSD_SOURCES
+	"freebsd/platform.c"
+)
 if (LINUX)
 	add_library(bio STATIC ${COMMON_SOURCES} ${LINUX_SOURCES})
 elseif (WIN32)
 	add_library(bio STATIC ${COMMON_SOURCES} ${WIN32_SOURCES})
+elseif (BSD STREQUAL "FreeBSD")
+	add_library(bio STATIC ${COMMON_SOURCES} ${FREEBSD_SOURCES})
 else ()
 	message(SEND_ERROR "Unsupported platform")
 endif ()
@@ -43,4 +48,6 @@ if (LINUX)
 	target_link_libraries(bio PRIVATE liburing)
 elseif (WIN32)
 	target_link_libraries(bio PRIVATE "ws2_32.lib")
+elseif (BSD)
+	target_link_libraries(bio PRIVATE "stdthreads")
 endif ()
