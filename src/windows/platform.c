@@ -1,6 +1,6 @@
 #include "common.h"
 
-#define BIO_PLATFORM_WINDOWS_DEFAULT_BATCH_SIZE 4
+const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.windows");
 
 static const char BIO_WINDOWS_NOTIFY_KEY = 0;
 
@@ -34,7 +34,7 @@ bio_platform_init(void) {
 	bio_ctx.platform.iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
 
 	unsigned int batch_size = bio_ctx.options.windows.iocp.batch_size;
-	if (batch_size == 0) { batch_size = BIO_PLATFORM_WINDOWS_DEFAULT_BATCH_SIZE; }
+	if (batch_size == 0) { batch_size = BIO_WINDOWS_DEFAULT_BATCH_SIZE; }
 	bio_ctx.platform.overlapped_entries = bio_malloc(
 		sizeof(OVERLAPPED_ENTRY) * batch_size
 	);
@@ -64,7 +64,7 @@ bio_platform_current_time_ms(void) {
 void
 bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 	unsigned int batch_size = bio_ctx.options.windows.iocp.batch_size;
-	if (batch_size == 0) { batch_size = BIO_PLATFORM_WINDOWS_DEFAULT_BATCH_SIZE; }
+	if (batch_size == 0) { batch_size = BIO_WINDOWS_DEFAULT_BATCH_SIZE; }
 
 	if (wait_timeout_ms >= INFINITE) { wait_timeout_ms = INFINITE - 1;  }
 	if (wait_timeout_ms < 0) { wait_timeout_ms = INFINITE;  }

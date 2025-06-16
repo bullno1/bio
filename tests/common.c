@@ -3,7 +3,7 @@
 
 void
 init_bio(void) {
-	bio_init(&(bio_options_t){ 0 });
+	bio_init(NULL);
 }
 
 void

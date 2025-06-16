@@ -113,12 +113,10 @@ net_test_echo_client(void* userdata) {
 	);
 	CHECK_NO_ERROR(error);
 
-	// TODO: handle short write
 	const char* message = "Hello world";
-	bio_net_send(socket, message, strlen(message), &error);
+	bio_net_send_exactly(socket, message, strlen(message), &error);
 	CHECK_NO_ERROR(error);
 
-	// TODO: handle short read
 	char buf[1024];
 	size_t bytes_received = bio_net_recv(socket, buf, sizeof(buf), &error);
 	CHECK_NO_ERROR(error);

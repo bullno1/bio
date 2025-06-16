@@ -6,6 +6,8 @@
 #include <linux/futex.h>
 #include <sys/syscall.h>
 
+static const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.linux");
+
 typedef struct {
 	bio_signal_t signal;
 	int32_t res;
@@ -23,7 +25,7 @@ futex(
 void
 bio_platform_init(void) {
 	unsigned int queue_size = bio_ctx.options.linux.io_uring.queue_size;
-	if (queue_size == 0) { queue_size = 64; }
+	if (queue_size == 0) { queue_size = BIO_LINUX_DEFAULT_QUEUE_SIZE; }
 	queue_size = bio_next_pow2(queue_size);
 	bio_ctx.options.linux.io_uring.queue_size = queue_size;
 
