@@ -74,7 +74,7 @@ static void
 bio_fs_fopen(void* userdata) {
 	bio_fs_fopen_args_t* args = userdata;
 	int fd = open(args->filename, args->flags, S_IRUSR | S_IWUSR);
-	if (fd != 0) {
+	if (fd < 0) {
 		args->result = -errno;
 		return;
 	}
@@ -123,7 +123,7 @@ bio_fopen(
 	};
 	bio_run_async_and_wait(bio_fs_fopen, &args);
 	if (args.result >= 0) {
-		*file_ptr = bio_file_from_fd(args.result, args.offset, args.offset > 0);
+		*file_ptr = bio_file_from_fd(args.result, args.offset, args.offset >= 0);
 		return true;
 	} else {
 		bio_set_errno(error, -args.result);
@@ -217,8 +217,7 @@ bio_fwrite(
 	bio_file_impl_t* impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
 		if (BIO_LIKELY(impl->aio == NULL)) {
-			bio_signal_t signal = bio_make_signal();
-
+			bio_io_req_t req = bio_prepare_io_req(NULL);
 			struct aiocb aio = {
 				.aio_fildes = impl->fd,
 				.aio_buf = (void*)buf,
@@ -227,7 +226,8 @@ bio_fwrite(
 				.aio_sigevent = {
 					.sigev_notify = SIGEV_KEVENT,
 					.sigev_notify_kqueue = bio_ctx.platform.kqueue,
-					.sigev_value.sival_ptr = &signal,
+					.sigev_notify_kevent_flags = EV_DISPATCH,
+					.sigev_value.sival_ptr = &req,
 				},
 			};
 			impl->aio = &aio;
@@ -235,7 +235,11 @@ bio_fwrite(
 			impl->aio = NULL;
 
 			if (submission_status == 0) {
-				bio_wait_for_one_signal(signal);
+				bio_wait_for_io(&req);
+				if (req.cancelled) {
+					bio_set_errno(error, ECANCELED);
+					return 0;
+				}
 
 				int error_code = aio_error(&aio);
 				if (error_code == 0) {
@@ -254,7 +258,7 @@ bio_fwrite(
 					return 0;
 				}
 			} else {
-				bio_raise_signal(signal);
+				bio_cancel_io(&req);
 				bio_set_errno(error, errno);
 				return 0;
 			}
@@ -278,17 +282,17 @@ bio_fread(
 	bio_file_impl_t* impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
 		if (BIO_LIKELY(impl->aio == NULL)) {
-			bio_signal_t signal = bio_make_signal();
-
+			bio_io_req_t req = bio_prepare_io_req(NULL);
 			struct aiocb aio = {
 				.aio_fildes = impl->fd,
-				.aio_buf = buf,
+				.aio_buf = (void*)buf,
 				.aio_nbytes = size,
 				.aio_offset = impl->offset,
 				.aio_sigevent = {
 					.sigev_notify = SIGEV_KEVENT,
 					.sigev_notify_kqueue = bio_ctx.platform.kqueue,
-					.sigev_value.sival_ptr = &signal,
+					.sigev_notify_kevent_flags = EV_DISPATCH,
+					.sigev_value.sival_ptr = &req,
 				},
 			};
 			impl->aio = &aio;
@@ -296,7 +300,11 @@ bio_fread(
 			impl->aio = NULL;
 
 			if (submission_status == 0) {
-				bio_wait_for_one_signal(signal);
+				bio_wait_for_io(&req);
+				if (req.cancelled) {
+					bio_set_errno(error, ECANCELED);
+					return 0;
+				}
 
 				int error_code = aio_error(&aio);
 				if (error_code == 0) {
@@ -315,7 +323,7 @@ bio_fread(
 					return 0;
 				}
 			} else {
-				bio_raise_signal(signal);
+				bio_cancel_io(&req);
 				bio_set_errno(error, errno);
 				return 0;
 			}

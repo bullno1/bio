@@ -5,13 +5,19 @@
 #include <pthread.h>
 #include <signal.h>
 #include <string.h>
-#include <errno.h>
 
 static const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.freebsd");
 
 void
 bio_platform_init(void) {
 	bio_ctx.platform.kqueue = kqueuex(KQUEUE_CLOEXEC);
+	struct kevent event = {
+		.filter = EVFILT_USER,
+		.flags = EV_ADD | EV_DISPATCH,
+		.fflags = NOTE_FFNOP,
+	};
+	kevent(bio_ctx.platform.kqueue, &event, 1, NULL, 0, NULL);
+
 	if (bio_ctx.options.freebsd.kqueue.batch_size == 0) {
 		bio_ctx.options.freebsd.kqueue.batch_size = BIO_FREEBSD_DEFAULT_BATCH_SIZE;
 	}
@@ -41,8 +47,8 @@ bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 	size_t num_in_events = bio_array_len(bio_ctx.platform.in_events);
 	for (size_t event_index = 0; event_index < num_in_events; ++event_index) {
 		struct kevent event = bio_ctx.platform.in_events[event_index];
-		const struct kevent* proxied_event = event.udata;
-		if (proxied_event->udata != NULL) {
+		bio_io_req_t* req = event.udata;
+		if (!req->cancelled) {
 			bio_ctx.platform.in_events[out_index++] = event;
 		}
 	}
@@ -50,7 +56,7 @@ bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 	if (notifiable) {
 		struct kevent event = {
 			.filter = EVFILT_USER,
-			.flags = EV_ADD | EV_DISPATCH,
+			.flags = EV_ENABLE,
 			.fflags = NOTE_FFNOP,
 		};
 		bio_array_push(bio_ctx.platform.in_events, event);
@@ -64,12 +70,13 @@ bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 	);
 	bio_array_clear(bio_ctx.platform.in_events);
 	for (int i = 0; i < num_events; ++i) {
-		struct kevent* event = &bio_ctx.platform.out_events[i];
-		if (event->udata != NULL) {
-			struct kevent* proxied_event = event->udata;
-			bio_signal_t* signal = proxied_event->udata;
-			*proxied_event = *event;
-			bio_raise_signal(*signal);
+		const struct kevent* event = &bio_ctx.platform.out_events[i];
+		bio_io_req_t* req = event->udata;
+		if (req != NULL) {
+			if (req->result != NULL) {
+				*(req->result) = *event;
+			}
+			bio_raise_signal(req->signal);
 		}
 	}
 }
@@ -109,26 +116,24 @@ bio_platform_end_create_thread_pool(void) {
 	pthread_sigmask(SIG_SETMASK, &bio_ctx.platform.old_sigmask, NULL);
 }
 
-void
-bio_wait_for_event(struct kevent* event) {
-	bio_signal_t signal = bio_make_signal();
-	event->udata = &signal;
 
-	struct kevent proxy_event = *event;
-	proxy_event.udata = event;
-	bio_array_push(bio_ctx.platform.in_events, proxy_event);
-
-	bio_wait_for_one_signal(signal);
-	event->udata = NULL;
+bio_io_req_t
+bio_prepare_io_req(struct kevent* result) {
+	return (bio_io_req_t){
+		.result = result,
+		.signal = bio_make_signal(),
+	};
 }
 
 void
-bio_cancel_event(struct kevent* event) {
-	bio_signal_t* signal = event->udata;
-	event->udata = NULL;
-	event->flags |= EV_ERROR;
-	event->data = ECANCELED;
-	bio_raise_signal(*signal);
+bio_wait_for_io(bio_io_req_t* req) {
+	bio_wait_for_one_signal(req->signal);
+}
+
+void
+bio_cancel_io(bio_io_req_t* req) {
+	req->cancelled = true;
+	bio_raise_signal(req->signal);
 }
 
 static

@@ -153,13 +153,15 @@ bio_net_wait_for_read(bio_socket_t ref, bio_socket_impl_t* impl) {
 			.flags = EV_ADD | EV_DISPATCH | EV_ENABLE,
 			.filter = EVFILT_READ,
 		};
+		bio_io_req_t req = bio_prepare_io_req(&event);
+		event.udata = &req;
+
+		bio_array_push(bio_ctx.platform.in_events, event);
 		impl->read = &event;
-		bio_wait_for_event(&event);
+		bio_wait_for_io(&req);
 		// Resolve again as socket might be closed
 		impl = bio_resolve_handle(ref.handle, &BIO_SOCKET_HANDLE);
-		if (impl != NULL) {
-			impl->read = NULL;
-		}
+		if (impl != NULL) { impl->read = NULL; }
 
 		if ((event.flags & EV_ERROR) > 0) {
 			return event.data;
@@ -179,13 +181,15 @@ bio_net_wait_for_write(bio_socket_t ref, bio_socket_impl_t* impl) {
 			.flags = EV_ADD | EV_DISPATCH | EV_ENABLE,
 			.filter = EVFILT_WRITE,
 		};
+		bio_io_req_t req = bio_prepare_io_req(&event);
+		event.udata = &req;
+
+		bio_array_push(bio_ctx.platform.in_events, event);
 		impl->write = &event;
-		bio_wait_for_event(&event);
+		bio_wait_for_io(&req);
 		// Resolve again as socket might be closed
 		impl = bio_resolve_handle(ref.handle, &BIO_SOCKET_HANDLE);
-		if (impl != NULL) {
-			impl->write = NULL;
-		}
+		if (impl != NULL) { impl->write = NULL; }
 
 		if ((event.flags & EV_ERROR) > 0) {
 			return event.data;
@@ -316,10 +320,15 @@ bio_net_connect(
 		if (errno == EINPROGRESS) {
 			struct kevent event = {
 				.ident = fd,
-				.flags = EV_ADD | EV_DISPATCH,
+				.flags = EV_ADD | EV_DISPATCH | EV_ENABLE,
 				.filter = EVFILT_WRITE,
 			};
-			bio_wait_for_event(&event);
+			bio_io_req_t req = bio_prepare_io_req(NULL);
+			event.udata = &req;
+
+			bio_array_push(bio_ctx.platform.in_events, event);
+			bio_wait_for_io(&req);
+
 			if ((event.flags & EV_ERROR) > 0) {
 				close(fd);
 				bio_set_errno(error, event.data);
@@ -424,11 +433,11 @@ bio_net_close(bio_socket_t socket, bio_error_t* error) {
 	bio_socket_impl_t* impl = bio_close_handle(socket.handle, &BIO_SOCKET_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
 		if (impl->read != NULL) {
-			bio_cancel_event(impl->read);
+			bio_cancel_io(impl->read->udata);
 		}
 
 		if (impl->write != NULL) {
-			bio_cancel_event(impl->write);
+			bio_cancel_io(impl->read->udata);
 		}
 
 		int fd = impl->fd;
