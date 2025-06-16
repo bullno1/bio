@@ -1,6 +1,7 @@
 #include "common.h"
 #include <bio/file.h>
 #include <sys/stat.h>
+#include <sys/event.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>

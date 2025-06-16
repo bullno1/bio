@@ -28,6 +28,7 @@ set(WIN32_SOURCES
 set(FREEBSD_SOURCES
 	"freebsd/platform.c"
 	"freebsd/file.c"
+	"freebsd/net.c"
 )
 if (LINUX)
 	add_library(bio STATIC ${COMMON_SOURCES} ${LINUX_SOURCES})

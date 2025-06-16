@@ -11,4 +11,10 @@ bio_set_errno(bio_error_t* error, int code, const char* file, int line);
 
 #define BIO_CHECK_VARIABLE(VAR) (sizeof(&VAR)) // This will fail if VAR is a function call
 
+void
+bio_wait_for_event(struct kevent* event);
+
+void
+bio_cancel_event(struct kevent* event);
+
 #endif

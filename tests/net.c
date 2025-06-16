@@ -2,6 +2,10 @@
 #include <bio/net.h>
 #include <string.h>
 
+#ifdef __FreeBSD__
+#include <unistd.h>
+#endif
+
 static suite_t net = {
 	.name = "net",
 	.init_per_test = init_bio,
@@ -40,10 +44,17 @@ net_test_listen_ipv6(void* userdata) {
 	bio_net_close(socket, &error);
 }
 
-#define SOCKET_PATH "@bio/test"
+#ifdef __FreeBSD__
+#	define SOCKET_PATH "/tmp/bio_test"
+#else
+#	define SOCKET_PATH "@bio/test"
+#endif
 
 static void
 net_test_listen_named(void* userdata) {
+#ifdef __FreeBSD__
+	unlink(SOCKET_PATH);
+#endif
 	bio_addr_t address = {
 		.type = BIO_ADDR_NAMED,
 		.named = {
@@ -84,10 +95,10 @@ typedef struct {
 	bio_socket_t socket;
 } echo_handler_args_t;
 
-#ifdef __linux__
-#define ECHO_SOCKET_PATH "@bio/test/echo"
+#ifdef __FreeBSD__
+#define ECHO_SOCKET_PATH "/tmp/bio-test-echo"
 #else
-#define ECHO_SOCKET_PATH "bio/test/echo"
+#define ECHO_SOCKET_PATH "@bio/test/echo"
 #endif
 
 static void
@@ -165,6 +176,9 @@ net_test_echo_handler(void* userdata) {
 
 static void
 net_test_echo_server(void* userdata) {
+#ifdef __FreeBSD__
+	unlink(ECHO_SOCKET_PATH);
+#endif
 	echo_fixture_t* fixture = userdata;
 
 	bio_addr_t address = {
