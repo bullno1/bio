@@ -1,4 +1,7 @@
 # bio
+
+[![Build status](https://github.com/bullno1/bio/actions/workflows/build.yml/badge.svg)](https://github.com/bullno1/bio/actions/workflows/build.yml)
+
 ## What?
 
 Async I/O framework with coroutines.
@@ -61,6 +64,11 @@ This borrows an idea from [Erlang](https://www.erlang.org/).
     The message buffer is owned by the mailbox.
     Senders and receivers just read/write into that buffer.
   * Variable-length buffers would require considerations from the user but techniques such as [arena](https://www.rfleury.com/p/untangling-lifetimes-the-arena-allocator) could be used.
+
+## Supported platforms
+
+* Windows: Using IOCP
+* Linux: Using iouring
 
 ## Build instructions
 ### Linux
