@@ -258,6 +258,19 @@ typedef struct {
 } bio_windows_options_t;
 
 /**
+ * Initialization options for FreeBSD
+ *
+ * @ingroup init
+ * @see bio_init
+ */
+typedef struct {
+	/// Options for [kqueue](https://man.freebsd.org/cgi/man.cgi?kqueue)
+	struct {
+		unsigned int batch_size;
+	} kqueue;
+} bio_freebsd_options_t;
+
+/**
  * Custom memory allocator
  *
  * @ingroup init
@@ -431,6 +444,9 @@ typedef struct {
 
 	/// Windows-specific options, ignored on other platforms.
 	bio_windows_options_t windows;
+
+	/// FreeBSD-specific options, ignored on other platforms.
+	bio_freebsd_options_t freebsd;
 } bio_options_t;
 
 /**
