@@ -32,16 +32,18 @@ bio_file_from_fd(int fd, int64_t offset, bool seekable) {
 	};
 }
 
-typedef struct {
-	off64_t result;
-	int fd;
-	int whence;
-} bio_fs_test_lseek_args_t;
+void
+bio_fs_init(void) {
+	BIO_STDIN = bio_file_from_fd(0, -1, false);
+	BIO_STDOUT = bio_file_from_fd(1, -1, false);
+	BIO_STDERR = bio_file_from_fd(2, -1, false);
+}
 
-static void
-bio_fs_test_lseek(void* userdata) {
-	bio_fs_test_lseek_args_t* args = userdata;
-	args->result = lseek(args->fd, 0, args->whence);
+void
+bio_fs_cleanup(void) {
+	bio_free(bio_close_handle(BIO_STDIN.handle, &BIO_FILE_HANDLE));
+	bio_free(bio_close_handle(BIO_STDOUT.handle, &BIO_FILE_HANDLE));
+	bio_free(bio_close_handle(BIO_STDERR.handle, &BIO_FILE_HANDLE));
 }
 
 bool
@@ -59,6 +61,31 @@ bio_funwrap(bio_file_t file) {
 		return (uintptr_t)(-1);
 	}
 }
+
+typedef struct {
+	const char* filename;
+	int flags;
+	int result;
+	int64_t offset;
+} bio_fs_fopen_args_t;
+
+static void
+bio_fs_fopen(void* userdata) {
+	bio_fs_fopen_args_t* args = userdata;
+	int fd = open(args->filename, args->flags, S_IRUSR | S_IWUSR);
+	if (fd != 0) {
+		args->result = -errno;
+		return;
+	}
+
+	args->result = fd;
+	if ((args->flags & O_APPEND) > 0) {
+		args->offset = lseek(fd, 0, SEEK_END);
+	} else {
+		args->offset = lseek(fd, 0, SEEK_CUR);
+	}
+}
+
 
 bool
 bio_fopen(
@@ -89,17 +116,16 @@ bio_fopen(
 		return false;
 	}
 
-	int fd = open(filename, flags | O_CLOEXEC | O_NONBLOCK, S_IRUSR | S_IWUSR);
-	if (fd >= 0) {
-		bio_fs_test_lseek_args_t args = {
-			.fd = fd,
-			.whence = (flags & O_APPEND) > 0 ? SEEK_END : SEEK_CUR,
-		};
-		bio_run_async_and_wait(bio_fs_test_lseek, &args);
-		*file_ptr = bio_file_from_fd(fd, args.result, args.result >= 0);
+	bio_fs_fopen_args_t args = {
+		.filename = filename,
+		.flags = flags | O_CLOEXEC | O_NONBLOCK,
+	};
+	bio_run_async_and_wait(bio_fs_fopen, &args);
+	if (args.result >= 0) {
+		*file_ptr = bio_file_from_fd(args.result, args.offset, args.offset > 0);
 		return true;
 	} else {
-		bio_set_errno(error, errno);
+		bio_set_errno(error, -args.result);
 		return false;
 	}
 }
