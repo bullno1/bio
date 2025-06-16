@@ -6,6 +6,39 @@
  *
  * For porting to a new platform
  *
+ * For each platform, bio makes use of its specific async I/O API.
+ * To port to a new platform, all of the functions mentioned here must be
+ * implemented in addition to all @ref file and @ref net functions.
+ *
+ * The @ref bio_loop "event loop" and the @ref bio_run_async "async thread pool"
+ * are largely platform-agnostic.
+ * All the platform-dependent details are abstracted into @ref bio_platform_update
+ * and @ref bio_platform_notify.
+ *
+ * The I/O functions are usually implemented like this:
+ *
+ * * Create a new @ref bio_make_signal "signal"
+ * * Submit an async I/O request using the platform's API, along with the signal
+ *   as "userdata".
+ * * Call @ref bio_wait_for_one_signal
+ *
+ * This would suspend the calling coroutine.
+ *
+ * Later on, when all existing coroutines have yielded or suspended, bio will
+ * call @ref bio_platform_update.
+ * The implementation should check for completed I/O requests there.
+ * Through the "userdata" feature often found in async I/O APIs, it will call
+ * @ref bio_raise_signal to resume coroutines whose I/O requests have completed.
+ *
+ * The async thread pool is handled through @ref bio_platform_notify.
+ * Whenever a task has finished execution, bio will call @ref bio_platform_notify
+ * from the **worker thread**, not the main thread.
+ * The implementation must have a way to make @ref bio_platform_update return
+ * when signalled from a different thread regardless of whether an I/O event
+ * has occured.
+ * Async I/O APIs often have some sort of "user event" that can be
+ * posted from another thread for this purpose.
+ *
  * @{
  */
 
@@ -277,16 +310,32 @@ bio_platform_cleanup(void);
 /**
  * Check on I/O completion status
  *
- * @param wait_timeout_ms How much time to wait for I/O completion
- * @param notifiable Should this wait be notifiable with @ref bio_platform_notify
+ * The event loop will call this function whenever all coroutines have yielded
+ * or suspended.
+ * This function should use the platform's polling API to check for completion
+ * status and raise the relevant I/O wait signals.
+ *
+ * @param wait_timeout_ms How much time to wait for I/O completion.
+ *   This should be followed as closely as possible since bio relies on it for
+ *   @ref bio_raise_signal_after "timing".
+ *   If this is 0, the function should return as soon as there is no more pending
+ *   I/O event.
+ *   If this is -1, the function should wait indefinitely until there is at least
+ *   one I/O event.
+ * @param notifiable Should this wait be notifiable with @ref bio_platform_notify.
+ *   When this is `false`, this function was called at a time when there is no
+ *   pending async task.
+ *   It may choose to execute in a more efficient code path.
  */
 void
 bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable);
 
 /**
- * Break out of @ref bio_platform_update
+ * Make @ref bio_platform_update return
  *
- * This function will always be called on a different thread.
+ * This function will always be called from the async thread pool.
+ * It must signal to @ref bio_platform_update in the main thread to return
+ * regardless of I/O completion status.
  */
 void
 bio_platform_notify(void);

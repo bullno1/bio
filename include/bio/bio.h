@@ -1140,6 +1140,9 @@ bio_has_error(bio_error_t* error) {
 /**
  * Convenient function to format an error into a string.
  *
+ * The returned buffer is managed by bio.
+ * It is guaranteed to be valid until another call to @ref bio_strerror is made.
+ *
  * @remarks
  *   The exact details are platform-dependent.
  *   However, a shared buffer is usually involved.
