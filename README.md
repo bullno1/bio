@@ -3,7 +3,12 @@
 
 Async I/O framework with coroutines.
 
-Still WIP.
+It is now being used extensively in the development of:
+
+* https://github.com/bullno1/buxn-ls: A language server for uxntal
+* https://github.com/bullno1/buxn-dbg: A step debugger for uxntal
+
+The documentation can be viewed at: https://bullno1.github.io/bio.
 
 ## Why?
 
@@ -56,3 +61,21 @@ This borrows an idea from [Erlang](https://www.erlang.org/).
     The message buffer is owned by the mailbox.
     Senders and receivers just read/write into that buffer.
   * Variable-length buffers would require considerations from the user but techniques such as [arena](https://www.rfleury.com/p/untangling-lifetimes-the-arena-allocator) could be used.
+
+## Build instructions
+### Linux
+
+Run `./build`.
+
+Required software:
+
+* CMake
+* ninja
+* Clang
+* mold linker
+
+`./watch` can be used during development to automatically rebuild and run tests on file changes.
+
+### Windows
+
+Run `msvc.bat` to create a Visual Studio solution.
