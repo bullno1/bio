@@ -17,6 +17,7 @@ BIO_TEST(file_, read_write) {
 	const char* message = "hello";
 	bio_fwrite(file, message, 1, &error);
 	bio_fwrite(file, message + 1, strlen(message) - 1, &error);
+	bio_fflush(file, &error);
 	CHECK_NO_ERROR(error);
 
 	bio_fseek(file, 0, SEEK_SET, &error);
