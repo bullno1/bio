@@ -9,6 +9,12 @@
 
 static const bio_tag_t BIO_FILE_HANDLE = BIO_TAG_INIT("bio.handle.file");
 
+typedef enum {
+	BIO_AIO_SUPPORT_UNKNOWN = 0,
+	BIO_AIO_SUPPORT_ENABLED,
+	BIO_AIO_SUPPORT_DISABLED,
+} bio_aio_support_t;
+
 bio_file_t BIO_STDIN;
 bio_file_t BIO_STDOUT;
 bio_file_t BIO_STDERR;
@@ -17,6 +23,7 @@ typedef struct {
 	int fd;
 	int64_t offset;
 	bool seekable;
+	bio_aio_support_t aio_support;
 	struct aiocb* aio;
 } bio_file_impl_t;
 
@@ -207,6 +214,242 @@ bio_ftell(
 	}
 }
 
+typedef struct {
+	int fd;
+	void* buf;
+	size_t size;
+	ssize_t result;
+} bio_fs_io_args_t;
+
+static void
+bio_fs_write(void* userdata) {
+	bio_fs_io_args_t* args = userdata;
+	ssize_t result = write(args->fd, args->buf, args->size);
+	if (result >= 0) {
+		args->result = result;
+	} else {
+		args->result = -errno;
+	}
+}
+
+static void
+bio_fs_read(void* userdata) {
+	bio_fs_io_args_t* args = userdata;
+	ssize_t result = read(args->fd, args->buf, args->size);
+	if (result >= 0) {
+		args->result = result;
+	} else {
+		args->result = -errno;
+	}
+}
+
+static void
+bio_fs_fsync(void* userdata) {
+	bio_fs_io_args_t* args = userdata;
+	ssize_t result = fsync(args->fd);
+	if (result >= 0) {
+		args->result = result;
+	} else {
+		args->result = -errno;
+	}
+}
+
+static size_t
+bio_fwrite_in_async_thread(
+	bio_file_impl_t* impl,
+	const void* buf,
+	size_t size,
+	bio_error_t* error
+) {
+	bio_fs_io_args_t args = {
+		.fd = impl->fd,
+		.buf = (void*)buf,
+		.size = size,
+	};
+	bio_run_async_and_wait(bio_fs_write, &args);
+	if (args.result >= 0) {
+		return (size_t)args.result;
+	} else {
+		bio_set_errno(error, -args.result);
+		return 0;
+	}
+}
+
+static size_t
+bio_fread_in_async_thread(
+	bio_file_impl_t* impl,
+	void* buf,
+	size_t size,
+	bio_error_t* error
+) {
+	bio_fs_io_args_t args = {
+		.fd = impl->fd,
+		.buf = buf,
+		.size = size,
+	};
+	bio_run_async_and_wait(bio_fs_read, &args);
+	if (args.result >= 0) {
+		return (size_t)args.result;
+	} else {
+		bio_set_errno(error, -args.result);
+		return 0;
+	}
+}
+
+static bool
+bio_fsync_in_async_thread(bio_file_impl_t* impl, bio_error_t* error) {
+	bio_fs_io_args_t args = { .fd = impl->fd };
+	bio_run_async_and_wait(bio_fs_fsync, &args);
+	if (args.result >= 0) {
+		return true;
+	} else {
+		bio_set_errno(error, -args.result);
+		return false;
+	}
+}
+
+static ssize_t
+bio_fwrite_aio(
+	bio_file_t file,
+	bio_file_impl_t* impl,
+	const void* buf,
+	size_t size
+) {
+	if (impl->aio != NULL) {
+		return -EBUSY;
+	}
+
+	bio_io_req_t req = bio_prepare_io_req(NULL);
+	struct aiocb aio = {
+		.aio_fildes = impl->fd,
+		.aio_buf = (void*)buf,
+		.aio_nbytes = size,
+		.aio_offset = impl->offset,
+		.aio_sigevent = {
+			.sigev_notify = SIGEV_KEVENT,
+			.sigev_notify_kqueue = bio_ctx.platform.kqueue,
+			.sigev_notify_kevent_flags = EV_DISPATCH,
+			.sigev_value.sival_ptr = &req,
+		},
+	};
+	int submission_status = aio_write(&aio);
+	if (submission_status != 0) {
+		return -errno;
+	}
+
+	impl->aio = &aio;
+	bio_wait_for_io(&req);
+	impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
+	if (impl != NULL) { impl->aio = NULL; }
+	if (req.cancelled) { return -ECANCELED; }
+
+	int error_code = aio_error(&aio);
+	if (error_code != 0) {
+		return -error_code;
+	}
+
+	ssize_t result = aio_return(&aio);
+	if (result < 0) {
+		return -errno;
+	}
+
+	if (impl->seekable) {
+		impl->offset += (size_t)result;
+	}
+	return result;
+}
+
+static ssize_t
+bio_fread_aio(
+	bio_file_t file,
+	bio_file_impl_t* impl,
+	void* buf,
+	size_t size
+) {
+	if (impl->aio != NULL) {
+		return -EBUSY;
+	}
+
+	bio_io_req_t req = bio_prepare_io_req(NULL);
+	struct aiocb aio = {
+		.aio_fildes = impl->fd,
+		.aio_buf = (void*)buf,
+		.aio_nbytes = size,
+		.aio_offset = impl->offset,
+		.aio_sigevent = {
+			.sigev_notify = SIGEV_KEVENT,
+			.sigev_notify_kqueue = bio_ctx.platform.kqueue,
+			.sigev_notify_kevent_flags = EV_DISPATCH,
+			.sigev_value.sival_ptr = &req,
+		},
+	};
+	int submission_status = aio_read(&aio);
+	if (submission_status != 0) {
+		return -errno;
+	}
+
+	impl->aio = &aio;
+	bio_wait_for_io(&req);
+	impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
+	if (impl != NULL) { impl->aio = NULL; }
+	if (req.cancelled) { return -ECANCELED; }
+
+	int error_code = aio_error(&aio);
+	if (error_code != 0) {
+		return -error_code;
+	}
+
+	ssize_t result = aio_return(&aio);
+	if (result < 0) {
+		return -errno;
+	}
+
+	if (impl->seekable) {
+		impl->offset += (size_t)result;
+	}
+	return result;
+}
+
+static ssize_t
+bio_fsync_aio(bio_file_t file, bio_file_impl_t* impl) {
+	if (impl->aio != NULL) {
+		return -EBUSY;
+	}
+
+	bio_io_req_t req = bio_prepare_io_req(NULL);
+	struct aiocb aio = {
+		.aio_fildes = impl->fd,
+		.aio_sigevent = {
+			.sigev_notify = SIGEV_KEVENT,
+			.sigev_notify_kqueue = bio_ctx.platform.kqueue,
+			.sigev_notify_kevent_flags = EV_DISPATCH,
+			.sigev_value.sival_ptr = &req,
+		},
+	};
+	int submission_status = aio_fsync(O_SYNC, &aio);
+	if (submission_status != 0) {
+		return -errno;
+	}
+
+	impl->aio = &aio;
+	bio_wait_for_io(&req);
+	impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
+	if (impl != NULL) { impl->aio = NULL; }
+	if (req.cancelled) { return -ECANCELED; }
+
+	int error_code = aio_error(&aio);
+	if (error_code != 0) {
+		return -error_code;
+	}
+
+	ssize_t result = aio_return(&aio);
+	if (result < 0) {
+		return -errno;
+	}
+
+	return result;
+}
+
 size_t
 bio_fwrite(
 	bio_file_t file,
@@ -216,55 +459,31 @@ bio_fwrite(
 ) {
 	bio_file_impl_t* impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
-		if (BIO_LIKELY(impl->aio == NULL)) {
-			bio_io_req_t req = bio_prepare_io_req(NULL);
-			struct aiocb aio = {
-				.aio_fildes = impl->fd,
-				.aio_buf = (void*)buf,
-				.aio_nbytes = size,
-				.aio_offset = impl->offset,
-				.aio_sigevent = {
-					.sigev_notify = SIGEV_KEVENT,
-					.sigev_notify_kqueue = bio_ctx.platform.kqueue,
-					.sigev_notify_kevent_flags = EV_DISPATCH,
-					.sigev_value.sival_ptr = &req,
-				},
-			};
-			impl->aio = &aio;
-			int submission_status = aio_write(&aio);
-			impl->aio = NULL;
-
-			if (submission_status == 0) {
-				bio_wait_for_io(&req);
-				if (req.cancelled) {
-					bio_set_errno(error, ECANCELED);
-					return 0;
-				}
-
-				int error_code = aio_error(&aio);
-				if (error_code == 0) {
-					ssize_t result = aio_return(&aio);
-					if (result >= 0) {
-						if (impl->seekable) {
-							impl->offset += (size_t)result;
-						}
-						return (size_t)result;
-					} else {
-						bio_set_errno(error, errno);
-						return 0;
-					}
+		switch (impl->aio_support) {
+			case BIO_AIO_SUPPORT_UNKNOWN: {
+				ssize_t result = bio_fwrite_aio(file, impl, buf, size);
+				if (result >= 0) {
+					impl->aio_support = BIO_AIO_SUPPORT_ENABLED;
+					return result;
+				} else if (result == -EOPNOTSUPP) {
+					impl->aio_support = BIO_AIO_SUPPORT_DISABLED;
+					return bio_fwrite_in_async_thread(impl, buf, size, error);
 				} else {
-					bio_set_errno(error, error_code);
+					bio_set_errno(error, -result);
 					return 0;
 				}
-			} else {
-				bio_cancel_io(&req);
-				bio_set_errno(error, errno);
-				return 0;
-			}
-		} else {
-			bio_set_errno(error, EBUSY);
-			return 0;
+			} break;
+			case BIO_AIO_SUPPORT_ENABLED: {
+				ssize_t result = bio_fwrite_aio(file, impl, buf, size);
+				if (result >= 0) {
+					return result;
+				} else {
+					bio_set_errno(error, -result);
+					return 0;
+				}
+			} break;
+			case BIO_AIO_SUPPORT_DISABLED:
+				return bio_fwrite_in_async_thread(impl, buf, size, error);
 		}
 	} else {
 		bio_set_errno(error, EINVAL);
@@ -281,59 +500,71 @@ bio_fread(
 ) {
 	bio_file_impl_t* impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
-		if (BIO_LIKELY(impl->aio == NULL)) {
-			bio_io_req_t req = bio_prepare_io_req(NULL);
-			struct aiocb aio = {
-				.aio_fildes = impl->fd,
-				.aio_buf = (void*)buf,
-				.aio_nbytes = size,
-				.aio_offset = impl->offset,
-				.aio_sigevent = {
-					.sigev_notify = SIGEV_KEVENT,
-					.sigev_notify_kqueue = bio_ctx.platform.kqueue,
-					.sigev_notify_kevent_flags = EV_DISPATCH,
-					.sigev_value.sival_ptr = &req,
-				},
-			};
-			impl->aio = &aio;
-			int submission_status = aio_read(&aio);
-			impl->aio = NULL;
-
-			if (submission_status == 0) {
-				bio_wait_for_io(&req);
-				if (req.cancelled) {
-					bio_set_errno(error, ECANCELED);
-					return 0;
-				}
-
-				int error_code = aio_error(&aio);
-				if (error_code == 0) {
-					ssize_t result = aio_return(&aio);
-					if (result >= 0) {
-						if (impl->seekable) {
-							impl->offset += (size_t)result;
-						}
-						return (size_t)result;
-					} else {
-						bio_set_errno(error, errno);
-						return 0;
-					}
+		switch (impl->aio_support) {
+			case BIO_AIO_SUPPORT_UNKNOWN: {
+				ssize_t result = bio_fread_aio(file, impl, buf, size);
+				if (result >= 0) {
+					impl->aio_support = BIO_AIO_SUPPORT_ENABLED;
+					return result;
+				} else if (result == -EOPNOTSUPP) {
+					impl->aio_support = BIO_AIO_SUPPORT_DISABLED;
+					return bio_fread_in_async_thread(impl, buf, size, error);
 				} else {
-					bio_set_errno(error, error_code);
+					bio_set_errno(error, -result);
 					return 0;
 				}
-			} else {
-				bio_cancel_io(&req);
-				bio_set_errno(error, errno);
-				return 0;
-			}
-		} else {
-			bio_set_errno(error, EBUSY);
-			return 0;
+			} break;
+			case BIO_AIO_SUPPORT_ENABLED: {
+				ssize_t result = bio_fread_aio(file, impl, buf, size);
+				if (result >= 0) {
+					return result;
+				} else {
+					bio_set_errno(error, -result);
+					return 0;
+				}
+			} break;
+			case BIO_AIO_SUPPORT_DISABLED:
+				return bio_fread_in_async_thread(impl, buf, size, error);
 		}
 	} else {
 		bio_set_errno(error, EINVAL);
 		return 0;
+	}
+}
+
+bool
+bio_fflush(bio_file_t file, bio_error_t* error) {
+	bio_file_impl_t* impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
+	if (BIO_LIKELY(impl != NULL)) {
+		switch (impl->aio_support) {
+			case BIO_AIO_SUPPORT_UNKNOWN: {
+				ssize_t result = bio_fsync_aio(file, impl);
+				if (result >= 0) {
+					impl->aio_support = BIO_AIO_SUPPORT_ENABLED;
+					return true;
+				} else if (result == -EOPNOTSUPP) {
+					impl->aio_support = BIO_AIO_SUPPORT_DISABLED;
+					return bio_fsync_in_async_thread(impl, error);
+				} else {
+					bio_set_errno(error, -result);
+					return false;
+				}
+			} break;
+			case BIO_AIO_SUPPORT_ENABLED: {
+				ssize_t result = bio_fsync_aio(file, impl);
+				if (result >= 0) {
+					return true;
+				} else {
+					bio_set_errno(error, -result);
+					return false;
+				}
+			} break;
+			case BIO_AIO_SUPPORT_DISABLED:
+				return bio_fsync_in_async_thread(impl, error);
+		}
+	} else {
+		bio_set_errno(error, EINVAL);
+		return false;
 	}
 }
 
@@ -368,60 +599,6 @@ bio_fstat(bio_file_t file, bio_stat_t* stat, bio_error_t* error) {
 			return true;
 		} else {
 			bio_set_errno(error, args.result);
-			return false;
-		}
-	} else {
-		bio_set_errno(error, EINVAL);
-		return false;
-	}
-}
-
-bool
-bio_fflush(bio_file_t file, bio_error_t* error) {
-	bio_file_impl_t* impl = bio_resolve_handle(file.handle, &BIO_FILE_HANDLE);
-	if (BIO_LIKELY(impl != NULL)) {
-		if (BIO_LIKELY(impl->aio == NULL)) {
-			bio_io_req_t req = bio_prepare_io_req(NULL);
-			struct aiocb aio = {
-				.aio_fildes = impl->fd,
-				.aio_sigevent = {
-					.sigev_notify = SIGEV_KEVENT,
-					.sigev_notify_kqueue = bio_ctx.platform.kqueue,
-					.sigev_notify_kevent_flags = EV_DISPATCH,
-					.sigev_value.sival_ptr = &req,
-				},
-			};
-			impl->aio = &aio;
-			int submission_status = aio_fsync(O_SYNC, &aio);
-			impl->aio = NULL;
-
-			if (submission_status == 0) {
-				bio_wait_for_io(&req);
-				if (req.cancelled) {
-					bio_set_errno(error, ECANCELED);
-					return false;
-				}
-
-				int error_code = aio_error(&aio);
-				if (error_code == 0) {
-					ssize_t result = aio_return(&aio);
-					if (result >= 0) {
-						return true;
-					} else {
-						bio_set_errno(error, errno);
-						return false;
-					}
-				} else {
-					bio_set_errno(error, error_code);
-					return false;
-				}
-			} else {
-				bio_cancel_io(&req);
-				bio_set_errno(error, errno);
-				return false;
-			}
-		} else {
-			bio_set_errno(error, EBUSY);
 			return false;
 		}
 	} else {

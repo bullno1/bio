@@ -1,7 +1,6 @@
 #include "../internal.h"
 #include <bio/logging/file.h>
 #include <bio/mailbox.h>
-#include <stdio.h>
 #include <string.h>
 
 typedef struct {
