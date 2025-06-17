@@ -35,6 +35,20 @@ bio_platform_cleanup(void) {
 	close(bio_ctx.platform.kqueue);
 }
 
+static void
+bio_platform_dispatch_events(struct kevent* events, int num_events) {
+	for (int i = 0; i < num_events; ++i) {
+		const struct kevent* event = &events[i];
+		bio_io_req_t* req = event->udata;
+		if (req != NULL) {
+			if (req->result != NULL) {
+				*(req->result) = *event;
+			}
+			bio_raise_signal(req->signal);
+		}
+	}
+}
+
 void
 bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 	struct timespec timespec = {
@@ -60,15 +74,17 @@ bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 		wait_timeout_ms >= 0 ? &timespec : NULL
 	);
 	bio_array_clear(bio_ctx.platform.in_events);
-	for (int i = 0; i < num_events; ++i) {
-		const struct kevent* event = &bio_ctx.platform.out_events[i];
-		bio_io_req_t* req = event->udata;
-		if (req != NULL) {
-			if (req->result != NULL) {
-				*(req->result) = *event;
-			}
-			bio_raise_signal(req->signal);
-		}
+	bio_platform_dispatch_events(bio_ctx.platform.out_events, num_events);
+
+	while (num_events == (int)bio_ctx.options.freebsd.kqueue.batch_size) {
+		struct timespec no_wait = { 0 };
+		num_events = kevent(
+			bio_ctx.platform.kqueue,
+			NULL, 0,
+			bio_ctx.platform.out_events, bio_ctx.options.freebsd.kqueue.batch_size,
+			&no_wait
+		);
+		bio_platform_dispatch_events(bio_ctx.platform.out_events, num_events);
 	}
 }
 
