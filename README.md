@@ -85,6 +85,11 @@ Required software:
 
 `./watch` can be used during development to automatically rebuild and run tests on file changes.
 
+### FreeBSD
+
+Same as above.
+It also uses llvm20 by default.
+
 ### Windows
 
 Run `msvc.bat` to create a Visual Studio solution.
