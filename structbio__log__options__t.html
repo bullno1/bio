@@ -125,7 +125,7 @@ Data Fields</h2></td></tr>
 <div class="line">    },</div>
 <div class="line">});</div>
 <div class="ttc" id="agroup__init_html_ga264ca2e23caaa8e47cbed9ca63ffdebb"><div class="ttname"><a href="group__init.html#ga264ca2e23caaa8e47cbed9ca63ffdebb">bio_init</a></div><div class="ttdeci">void bio_init(const bio_options_t *options)</div><div class="ttdoc">Initialize the framework.</div></div>
-<div class="ttc" id="astructbio__options__t_html"><div class="ttname"><a href="structbio__options__t.html">bio_options_t</a></div><div class="ttdoc">Initialization options.</div><div class="ttdef"><b>Definition</b> bio.h:385</div></div>
+<div class="ttc" id="astructbio__options__t_html"><div class="ttname"><a href="structbio__options__t.html">bio_options_t</a></div><div class="ttdoc">Initialization options.</div><div class="ttdef"><b>Definition</b> bio.h:408</div></div>
 </div><!-- fragment --><p>This helps the logging system to shorten the paths in log messages. The <a class="el" href="group__logging.html#gaec99fd14e7f5562738c51ce095fe3e9d">logging macros</a> use the preprocessor variables <code>__FILE__</code> and <code>__LINE__</code> to give more context to each message. However, <code>__FILE__</code> would typically expands into an absolute path (e.g: <code>/home/username/projects/project_name/src/file.c</code>). This gives the log messages an extremely long and superflous prefix:</p>
 <div class="fragment"><div class="line">[INFO ][/home/username/projects/project_name/src/file.c:41]: Log message</div>
 </div><!-- fragment --><p>By passing these info to the log system, the above message will be just:</p>

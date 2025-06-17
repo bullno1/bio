@@ -11,6 +11,7 @@ var annotated_dup =
     [ "bio_file_logger_options_t", "structbio__file__logger__options__t.html", "structbio__file__logger__options__t" ],
     [ "bio_file_t", "structbio__file__t.html", null ],
     [ "bio_fmt_buf_t", "structbio__fmt__buf__t.html", null ],
+    [ "bio_freebsd_options_t", "structbio__freebsd__options__t.html", "structbio__freebsd__options__t" ],
     [ "bio_handle_slot_t", "structbio__handle__slot__t.html", null ],
     [ "bio_handle_t", "structbio__handle__t.html", "structbio__handle__t" ],
     [ "bio_linux_options_t", "structbio__linux__options__t.html", "structbio__linux__options__t" ],

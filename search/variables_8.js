@@ -1,4 +1,7 @@
 var searchData=
 [
-  ['queue_5fsize_0',['queue_size',['../structbio__linux__options__t.html#a6217864450d5fc99712117e3f403a284',1,'bio_linux_options_t::queue_size'],['../structbio__options__t.html#aa17073bd62761e93131e974c45ccb642',1,'bio_options_t::queue_size']]]
+  ['name_0',['name',['../structbio__tag__t.html#a50c5453a4becfe86f5afc360db374658',1,'bio_tag_t']]],
+  ['named_1',['named',['../structbio__addr__t.html#a01d066eb44ca6444d6fdf33668576771',1,'bio_addr_t']]],
+  ['num_5fcls_5fbuckets_2',['num_cls_buckets',['../structbio__options__t.html#a6ddcc7550a0daeca43666496f6dbf270',1,'bio_options_t']]],
+  ['num_5fthreads_3',['num_threads',['../structbio__options__t.html#a18e7bef468ea4839dcab578965dcc7d8',1,'bio_options_t']]]
 ];

@@ -4,5 +4,6 @@ var searchData=
   ['file_20i_20o_1',['File I/O',['../group__file.html',1,'']]],
   ['file_20logger_2',['File logger',['../group__file__logger.html',1,'']]],
   ['framework_20with_20coroutines_3',['Asynchronous I/O framework with coroutines',['../index.html',1,'']]],
-  ['functions_4',['Miscellaneous functions',['../group__misc.html',1,'']]]
+  ['freebsd_4',['freebsd',['../structbio__options__t.html#acfb04983e84baaa459d3c745009b9eda',1,'bio_options_t']]],
+  ['functions_5',['Miscellaneous functions',['../group__misc.html',1,'']]]
 ];

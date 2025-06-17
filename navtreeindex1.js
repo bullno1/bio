@@ -1,5 +1,9 @@
 var NAVTREEINDEX1 =
 {
+"structbio__options__t.html#acfb04983e84baaa459d3c745009b9eda":[1,0,4,1],
+"structbio__service__msg__base__t.html":[1,9,0],
+"structbio__signal__impl__t.html":[2,0,22],
+"structbio__signal__t.html":[1,1,0,0],
 "structbio__socket__t.html":[1,8,0],
 "structbio__stat__t.html":[1,6,1],
 "structbio__stat__t.html#a148c773b7c519355f96e349ffa9d0a4d":[1,6,1,0],
@@ -7,7 +11,7 @@ var NAVTREEINDEX1 =
 "structbio__tag__t.html#a50c5453a4becfe86f5afc360db374658":[1,5,0,2],
 "structbio__tag__t.html#a556cd71cafbbc03e6d264a49959b5d3b":[1,5,0,0],
 "structbio__tag__t.html#a8f673d28018985e8f2c383558b7ffd0e":[1,5,0,1],
-"structbio__timer__entry__t.html":[2,0,26],
+"structbio__timer__entry__t.html":[2,0,27],
 "structbio__timer__t.html":[1,10,0],
 "structbio__windows__options__t.html":[1,0,1],
 "structbio__windows__options__t.html#aa9914423611fa516de5de6485134d461":[1,0,1,1],

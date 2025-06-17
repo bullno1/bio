@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['queue_5fsize_0',['queue_size',['../structbio__linux__options__t.html#a6217864450d5fc99712117e3f403a284',1,'bio_linux_options_t::queue_size'],['../structbio__options__t.html#aa17073bd62761e93131e974c45ccb642',1,'bio_options_t::queue_size']]]
+  ['o_0',['o',['../group__file.html',1,'File I/O'],['../group__net.html',1,'Network I/O']]],
+  ['o_20framework_20with_20coroutines_1',['Asynchronous I/O framework with coroutines',['../index.html',1,'']]]
 ];
