@@ -13,7 +13,7 @@ bio_platform_init(void) {
 	bio_ctx.platform.kqueue = kqueuex(KQUEUE_CLOEXEC);
 	struct kevent event = {
 		.filter = EVFILT_USER,
-		.flags = EV_ADD | EV_DISPATCH,
+		.flags = EV_ADD | EV_CLEAR,
 		.fflags = NOTE_FFNOP,
 	};
 	kevent(bio_ctx.platform.kqueue, &event, 1, NULL, 0, NULL);
@@ -53,18 +53,9 @@ bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 		}
 	}
 
-	if (notifiable) {
-		struct kevent event = {
-			.filter = EVFILT_USER,
-			.flags = EV_ENABLE,
-			.fflags = NOTE_FFNOP,
-		};
-		bio_array_push(bio_ctx.platform.in_events, event);
-	}
-
 	int num_events = kevent(
 		bio_ctx.platform.kqueue,
-		bio_ctx.platform.in_events, out_index,
+		bio_ctx.platform.in_events, (int)out_index,
 		bio_ctx.platform.out_events, bio_ctx.options.freebsd.kqueue.batch_size,
 		wait_timeout_ms >= 0 ? &timespec : NULL
 	);
