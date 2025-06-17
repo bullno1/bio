@@ -1113,6 +1113,8 @@ bio_log(
 /**
  * Add a new logger
  *
+ * The logger will run in its own coroutine.
+ *
  * @param min_level Minimum log level for this logger
  * @param log_fn The log function
  * @param userdata Arbitrary data passed to the log function for every message

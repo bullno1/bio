@@ -1,17 +1,41 @@
 #include "internal.h"
 #include <string.h>
-#include <stdio.h>
+#include <bio/service.h>
 
 static const bio_tag_t BIO_LOGGER_HANDLE = BIO_TAG_INIT("bio.handle.logger");
+
+typedef struct {
+	bio_log_ctx_t ctx;
+	char* msg;
+} bio_log_service_msg_t;
+
+typedef struct {
+	bio_log_fn_t log_fn;
+	void* userdata;
+} bio_log_service_args_t;
+
+typedef BIO_SERVICE(bio_log_service_msg_t) bio_log_service_t;
 
 typedef struct {
 	bio_logger_link_t link;
 	bio_handle_t handle;
 
 	bio_log_level_t min_level;
-	bio_log_fn_t log_fn;
-	void* userdata;
+	bio_log_service_t service;
 } bio_logger_impl_t;
+
+static void
+bio_log_service_entry(void* userdata) {
+	bio_log_service_args_t args;
+	BIO_MAILBOX(bio_log_service_msg_t) mailbox;
+	bio_get_service_info(userdata, &mailbox, &args);
+
+	bio_foreach_message(msg, mailbox) {
+		args.log_fn(args.userdata, &msg.ctx, msg.msg);
+		bio_free(msg.msg);
+		if (msg.msg == NULL) { break; }
+	}
+}
 
 void
 bio_logging_init(void) {
@@ -53,10 +77,15 @@ bio_logging_cleanup(void) {
 bio_logger_t
 bio_add_logger(bio_log_level_t min_level, bio_log_fn_t log_fn, void* userdata) {
 	bio_logger_impl_t* impl = bio_malloc(sizeof(bio_logger_impl_t));
-	*impl = (bio_logger_impl_t){
-		.min_level = min_level,
+	bio_log_service_t service;
+	bio_log_service_args_t service_args = {
 		.log_fn = log_fn,
 		.userdata = userdata,
+	};
+	bio_start_service(&service, bio_log_service_entry, service_args, 16);
+	*impl = (bio_logger_impl_t){
+		.min_level = min_level,
+		.service = service,
 	};
 
 	impl->handle = bio_make_handle(impl, &BIO_LOGGER_HANDLE);
@@ -65,16 +94,12 @@ bio_add_logger(bio_log_level_t min_level, bio_log_fn_t log_fn, void* userdata) {
 	return (bio_logger_t) { .handle = impl->handle };
 }
 
-static void
-bio_finalize_logger(bio_logger_impl_t* logger) {
-	logger->log_fn(logger->userdata, NULL, NULL);
-}
 
 void
 bio_remove_logger(bio_logger_t logger) {
 	bio_logger_impl_t* impl = bio_close_handle(logger.handle, &BIO_LOGGER_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
-		bio_finalize_logger(impl);
+		bio_stop_service(impl->service);
 		BIO_LIST_REMOVE(&impl->link);
 		bio_free(impl);
 	}
@@ -138,6 +163,7 @@ bio_log(
 	};
 
 	const char* msg = NULL;
+	int msg_len = 0;
 	for (
 		bio_logger_link_t* itr = bio_ctx.loggers.next;
 		itr != &bio_ctx.loggers;
@@ -151,13 +177,21 @@ bio_log(
 				bio_logging_cls_t* cls = bio_get_cls(&bio_logging_cls);
 				va_list args;
 				va_start(args, fmt);
-				int msg_len = bio_vfmt(&cls->log_msg_buf, fmt, args);
+				msg_len = bio_vfmt(&cls->log_msg_buf, fmt, args);
 				va_end(args);
 				if (msg_len < 0) { return; }
 				msg = cls->log_msg_buf.ptr;
 			}
 
-			logger->log_fn(logger->userdata, &ctx, msg);
+			if (bio_service_state(logger->service) != BIO_CORO_DEAD) {
+				char* msg_copy = bio_malloc(msg_len + 1);
+				memcpy(msg_copy, msg, msg_len + 1);
+				bio_log_service_msg_t service_msg = {
+					.ctx = ctx,
+					.msg = msg_copy,
+				};
+				bio_notify_service(logger->service, service_msg, true);
+			}
 		}
 
 		itr = next;
