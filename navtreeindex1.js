@@ -1,8 +1,13 @@
 var NAVTREEINDEX1 =
 {
+"structbio__options__t.html#a66cf86a6ec9a9bc271488a4c79959721":[1,0,4,2],
+"structbio__options__t.html#a6ddcc7550a0daeca43666496f6dbf270":[1,0,4,4],
+"structbio__options__t.html#a7565927466667e28a3cbdcfad6614615":[1,0,4,7],
+"structbio__options__t.html#aa17073bd62761e93131e974c45ccb642":[1,0,4,6],
 "structbio__options__t.html#acfb04983e84baaa459d3c745009b9eda":[1,0,4,1],
+"structbio__platform__t.html":[2,0,21],
 "structbio__service__msg__base__t.html":[1,9,0],
-"structbio__signal__impl__t.html":[2,0,22],
+"structbio__signal__impl__t.html":[2,0,23],
 "structbio__signal__t.html":[1,1,0,0],
 "structbio__socket__t.html":[1,8,0],
 "structbio__stat__t.html":[1,6,1],
@@ -11,12 +16,12 @@ var NAVTREEINDEX1 =
 "structbio__tag__t.html#a50c5453a4becfe86f5afc360db374658":[1,5,0,2],
 "structbio__tag__t.html#a556cd71cafbbc03e6d264a49959b5d3b":[1,5,0,0],
 "structbio__tag__t.html#a8f673d28018985e8f2c383558b7ffd0e":[1,5,0,1],
-"structbio__timer__entry__t.html":[2,0,27],
+"structbio__timer__entry__t.html":[2,0,28],
 "structbio__timer__t.html":[1,10,0],
 "structbio__windows__options__t.html":[1,0,1],
 "structbio__windows__options__t.html#aa9914423611fa516de5de6485134d461":[1,0,1,1],
 "structbio__windows__options__t.html#af2b688c1f10d0c17c0d3c9814234dfc1":[1,0,1,0],
 "timer_8h_source.html":[3,0,0,0,6],
 "topics.html":[1],
-"windows_2platform_8h_source.html":[3,0,1,1,0]
+"windows_2platform_8h_source.html":[3,0,1,2,0]
 };

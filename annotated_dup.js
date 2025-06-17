@@ -21,6 +21,7 @@ var annotated_dup =
     [ "bio_monitor_impl_t", "structbio__monitor__impl__t.html", null ],
     [ "bio_monitor_t", "structbio__monitor__t.html", null ],
     [ "bio_options_t", "structbio__options__t.html", "structbio__options__t" ],
+    [ "bio_platform_t", "structbio__platform__t.html", null ],
     [ "bio_service_msg_base_t", "structbio__service__msg__base__t.html", null ],
     [ "bio_signal_impl_t", "structbio__signal__impl__t.html", null ],
     [ "bio_signal_t", "structbio__signal__t.html", null ],

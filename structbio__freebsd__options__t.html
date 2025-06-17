@@ -134,7 +134,7 @@ Data Fields</h2></td></tr>
 </div><div class="memdoc">
 
 <p>The size of the eventlist that will be passed to <a href="https://man.freebsd.org/cgi/man.cgi?query=kqueue&amp;apropos=0&amp;sektion=2&amp;manpath=FreeBSD+15.0-CURRENT&amp;arch=default&amp;format=html">kevent</a> </p>
-<p>Defaults to BIO_FREEBSD_DEFAULT_BATCH_SIZE if not set.</p>
+<p>Defaults to <a class="el" href="group__freebsd.html#gaa0d98f395dede7bb74c7a1b157e585c6">BIO_FREEBSD_DEFAULT_BATCH_SIZE</a> if not set.</p>
 <p>A bigger value will consume more memory upfront but more events will be dequeued in a single call. Take note that the library will always try to drain all pending events if possible. </p>
 
 </div>

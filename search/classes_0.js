@@ -21,13 +21,14 @@ var searchData=
   ['bio_5fmonitor_5fimpl_5ft_18',['bio_monitor_impl_t',['../structbio__monitor__impl__t.html',1,'']]],
   ['bio_5fmonitor_5ft_19',['bio_monitor_t',['../structbio__monitor__t.html',1,'']]],
   ['bio_5foptions_5ft_20',['bio_options_t',['../structbio__options__t.html',1,'']]],
-  ['bio_5fservice_5fmsg_5fbase_5ft_21',['bio_service_msg_base_t',['../structbio__service__msg__base__t.html',1,'']]],
-  ['bio_5fsignal_5fimpl_5ft_22',['bio_signal_impl_t',['../structbio__signal__impl__t.html',1,'']]],
-  ['bio_5fsignal_5ft_23',['bio_signal_t',['../structbio__signal__t.html',1,'']]],
-  ['bio_5fsocket_5ft_24',['bio_socket_t',['../structbio__socket__t.html',1,'']]],
-  ['bio_5fstat_5ft_25',['bio_stat_t',['../structbio__stat__t.html',1,'']]],
-  ['bio_5ftag_5ft_26',['bio_tag_t',['../structbio__tag__t.html',1,'']]],
-  ['bio_5ftimer_5fentry_5ft_27',['bio_timer_entry_t',['../structbio__timer__entry__t.html',1,'']]],
-  ['bio_5ftimer_5ft_28',['bio_timer_t',['../structbio__timer__t.html',1,'']]],
-  ['bio_5fwindows_5foptions_5ft_29',['bio_windows_options_t',['../structbio__windows__options__t.html',1,'']]]
+  ['bio_5fplatform_5ft_21',['bio_platform_t',['../structbio__platform__t.html',1,'']]],
+  ['bio_5fservice_5fmsg_5fbase_5ft_22',['bio_service_msg_base_t',['../structbio__service__msg__base__t.html',1,'']]],
+  ['bio_5fsignal_5fimpl_5ft_23',['bio_signal_impl_t',['../structbio__signal__impl__t.html',1,'']]],
+  ['bio_5fsignal_5ft_24',['bio_signal_t',['../structbio__signal__t.html',1,'']]],
+  ['bio_5fsocket_5ft_25',['bio_socket_t',['../structbio__socket__t.html',1,'']]],
+  ['bio_5fstat_5ft_26',['bio_stat_t',['../structbio__stat__t.html',1,'']]],
+  ['bio_5ftag_5ft_27',['bio_tag_t',['../structbio__tag__t.html',1,'']]],
+  ['bio_5ftimer_5fentry_5ft_28',['bio_timer_entry_t',['../structbio__timer__entry__t.html',1,'']]],
+  ['bio_5ftimer_5ft_29',['bio_timer_t',['../structbio__timer__t.html',1,'']]],
+  ['bio_5fwindows_5foptions_5ft_30',['bio_windows_options_t',['../structbio__windows__options__t.html',1,'']]]
 ];
