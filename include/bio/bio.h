@@ -266,6 +266,16 @@ typedef struct {
 typedef struct {
 	/// Options for [kqueue](https://man.freebsd.org/cgi/man.cgi?kqueue)
 	struct {
+		/**
+		 * The size of the eventlist that will be passed to [kevent](https://man.freebsd.org/cgi/man.cgi?query=kqueue&apropos=0&sektion=2&manpath=FreeBSD+15.0-CURRENT&arch=default&format=html)
+		 *
+		 * Defaults to @ref BIO_FREEBSD_DEFAULT_BATCH_SIZE if not set.
+		 *
+		 * A bigger value will consume more memory upfront but more events will
+		 * be dequeued in a single call.
+		 * Take note that the library will always try to drain all pending
+		 * events if possible.
+		 */
 		unsigned int batch_size;
 	} kqueue;
 } bio_freebsd_options_t;

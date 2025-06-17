@@ -69,6 +69,7 @@ This borrows an idea from [Erlang](https://www.erlang.org/).
 
 * Windows: Using IOCP
 * Linux: Using iouring
+* FreeBSD: Using kqueue and aio
 
 ## Build instructions
 ### Linux
