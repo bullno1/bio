@@ -286,8 +286,8 @@ Functions</h2></td></tr>
 <div class="line">    ((error)-&gt;code), \</div>
 <div class="line">    ((error)-&gt;file ? (error)-&gt;file : <span class="stringliteral">&quot;&lt;no source info&gt;&quot;</span>), \</div>
 <div class="line">    ((error)-&gt;line)</div>
-<div class="ttc" id="agroup__error_html_ga24fa8b46751397836b40e5f442c2b34c"><div class="ttname"><a href="group__error.html#ga24fa8b46751397836b40e5f442c2b34c">bio_has_error</a></div><div class="ttdeci">static bool bio_has_error(bio_error_t *error)</div><div class="ttdoc">Convenient function to check whether an error was encountered.</div><div class="ttdef"><b>Definition</b> bio.h:1162</div></div>
-<div class="ttc" id="agroup__error_html_ga95d800595d87604c70de5a6818c0211e"><div class="ttname"><a href="group__error.html#ga95d800595d87604c70de5a6818c0211e">bio_strerror</a></div><div class="ttdeci">static const char * bio_strerror(bio_error_t *error)</div><div class="ttdoc">Convenient function to format an error into a string.</div><div class="ttdef"><b>Definition</b> bio.h:1181</div></div>
+<div class="ttc" id="agroup__error_html_ga24fa8b46751397836b40e5f442c2b34c"><div class="ttname"><a href="group__error.html#ga24fa8b46751397836b40e5f442c2b34c">bio_has_error</a></div><div class="ttdeci">static bool bio_has_error(bio_error_t *error)</div><div class="ttdoc">Convenient function to check whether an error was encountered.</div><div class="ttdef"><b>Definition</b> bio.h:1164</div></div>
+<div class="ttc" id="agroup__error_html_ga95d800595d87604c70de5a6818c0211e"><div class="ttname"><a href="group__error.html#ga95d800595d87604c70de5a6818c0211e">bio_strerror</a></div><div class="ttdeci">static const char * bio_strerror(bio_error_t *error)</div><div class="ttdoc">Convenient function to format an error into a string.</div><div class="ttdef"><b>Definition</b> bio.h:1183</div></div>
 </div><!-- fragment -->
 <p>Helper for logging a <a class="el" href="structbio__error__t.html">bio_error_t</a>. </p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__logging.html#ga8abbd34554f363d69d174fe8d0fd41b3" title="Helper for logging a bio_error_t.">BIO_ERROR_FMT</a> </dd></dl>
@@ -507,6 +507,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Add a new logger. </p>
+<p>The logger will run in its own coroutine.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">min_level</td><td>Minimum log level for this logger </td></tr>
