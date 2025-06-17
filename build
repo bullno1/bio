@@ -7,6 +7,13 @@ BUILD_DIR="${BUILD_TYPE}"
 mkdir -p .build
 cd .build
 
+if [ "$(uname)" = "FreeBSD" ] && [ -z "$CI" ]
+then
+	export PATH=/usr/local/llvm20/bin:$PATH
+	export CC=$(which clang)
+	export CXX=$(which clang++)
+fi
+
 if [ ! -f "${BUILD_DIR}/build.ninja" ]
 then
 	cmake \
