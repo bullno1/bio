@@ -31,9 +31,13 @@ bio_log_service_entry(void* userdata) {
 	bio_get_service_info(userdata, &mailbox, &args);
 
 	bio_foreach_message(msg, mailbox) {
-		args.log_fn(args.userdata, &msg.ctx, msg.msg);
-		bio_free(msg.msg);
+		args.log_fn(
+			args.userdata,
+			msg.msg != NULL ? &msg.ctx : NULL,
+			msg.msg
+		);
 		if (msg.msg == NULL) { break; }
+		bio_free(msg.msg);
 	}
 }
 
@@ -99,7 +103,8 @@ void
 bio_remove_logger(bio_logger_t logger) {
 	bio_logger_impl_t* impl = bio_close_handle(logger.handle, &BIO_LOGGER_HANDLE);
 	if (BIO_LIKELY(impl != NULL)) {
-		bio_stop_service(impl->service);
+		bio_log_service_msg_t service_msg = { 0 };
+		bio_notify_service(impl->service, service_msg, true);
 		BIO_LIST_REMOVE(&impl->link);
 		bio_free(impl);
 	}
