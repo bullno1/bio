@@ -32,7 +32,7 @@ bio_file_from_fd(int fd, int64_t offset, bool seekable) {
 	bio_file_impl_t* file_impl = bio_malloc(sizeof(bio_file_impl_t));
 	*file_impl = (bio_file_impl_t){
 		.fd = fd,
-		.offset = seekable ? offset : -1,
+		.offset = seekable ? offset : 0,
 		.seekable = seekable,
 	};
 	return (bio_file_t){
@@ -42,9 +42,9 @@ bio_file_from_fd(int fd, int64_t offset, bool seekable) {
 
 void
 bio_fs_init(void) {
-	BIO_STDIN = bio_file_from_fd(0, -1, false);
-	BIO_STDOUT = bio_file_from_fd(1, -1, false);
-	BIO_STDERR = bio_file_from_fd(2, -1, false);
+	BIO_STDIN = bio_file_from_fd(0, 0, false);
+	BIO_STDOUT = bio_file_from_fd(1, 0, false);
+	BIO_STDERR = bio_file_from_fd(2, 0, false);
 }
 
 void
