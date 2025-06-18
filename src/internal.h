@@ -203,7 +203,7 @@ typedef struct {
 typedef struct {
 	bio_options_t options;
 	bool is_terminating;
-	bio_exit_info_t* exit_handler;
+	BIO_ARRAY(bio_exit_info_t*) exit_handlers;
 
 	// Handle table
 	bio_handle_slot_t* handle_slots;
@@ -373,24 +373,25 @@ void
 bio_platform_end_create_thread_pool(void);
 
 /**
- * Set the signal to be raised when the OS requests that the program exits
+ * Block exit signals from the OS
  *
- * When this is not set, the program should follow the default action without
- * any handling.
- * Typically, this means exiting without cleanup.
- *
- * If this is set a second time, replace the old signal without triggering it.
+ * Whenever a signal is received, instead, the implementation would call
+ * @ref bio_handle_exit_signal from @ref bio_platform_update.
  */
 void
-bio_platform_set_exit_signal(bio_signal_t signal);
+bio_platform_block_exit_signal(void);
 
 /**
- * Clear the previously set exit signal
+ * Unblock exit signals from the OS
  *
- * The program should revert to its previous signal handling behaviour.
+ * Whenever a signal is received, exits without cleanup by default.
  */
 void
-bio_platform_clear_exit_signal(void);
+bio_platform_unblock_exit_signal(void);
+
+/// Callback for a platform implementation to notify bio of exit signal
+void
+bio_handle_exit_signal(void);
 
 // File
 

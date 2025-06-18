@@ -520,8 +520,6 @@ typedef enum {
 typedef enum {
 	/// The OS has requested that the program exits
 	BIO_EXIT_OS_REQUEST,
-	/// Another coroutine has called @ref bio_wait_for_exit
-	BIO_EXIT_HANDLER_REPLACED,
 	/// @ref bio_terminate has been called
 	BIO_EXIT_TERMINATE,
 } bio_exit_reason_t;
@@ -1381,9 +1379,6 @@ bio_current_time_ms(void);
  * upon calling this function.
  * If no exit signal was sent by the OS and the program terminates on its own,
  * this function will return @ref BIO_EXIT_TERMINATE.
- *
- * Only one coroutine can wait on this function at a time.
- * When a new coroutine calls this function, the call will return @ref BIO_EXIT_HANDLER_REPLACED.
  *
  * @remarks
  *   If no coroutine has called this function and the OS sends an exit signal,

@@ -34,12 +34,6 @@
 
 #ifndef DOXYGEN
 
-typedef enum {
-	BIO_SIGNAL_UNBLOCKED,
-	BIO_SIGNAL_BLOCKED,
-	BIO_SIGNAL_WAITED,
-} bio_signal_state_t;
-
 typedef struct {
 	bio_signal_t signal;
 	int32_t res;
@@ -50,11 +44,9 @@ typedef struct {
 	struct io_uring ioring;
 
 	// Signal handling
-	bio_io_req_t signal_fd_req;
 	struct signalfd_siginfo siginfo;
 	sigset_t old_sigmask;
 	int signalfd;
-	bio_signal_state_t signal_state;
 
 	// Notification from thread pool
 	int eventfd;

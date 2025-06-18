@@ -32,6 +32,20 @@ bio_core_strerror(int code) {
 	return "Unknown error";
 }
 
+static void
+bio_dispatch_exit_signal(bio_exit_reason_t reason) {
+	size_t num_handlers = bio_array_len(bio_ctx.exit_handlers);
+	for (size_t i = 0; i < num_handlers; ++i) {
+		bio_ctx.exit_handlers[i]->reason = reason;
+		bio_raise_signal(bio_ctx.exit_handlers[i]->signal);
+	}
+	bio_array_clear(bio_ctx.exit_handlers);
+
+	if (num_handlers > 0) {
+		bio_platform_unblock_exit_signal();
+	}
+}
+
 void
 bio_init(const bio_options_t* options) {
 	if (options == NULL) {
@@ -60,11 +74,7 @@ void
 bio_terminate(void) {
 	bio_ctx.is_terminating = true;
 
-	if (bio_ctx.exit_handler != NULL) {
-		bio_ctx.exit_handler->reason = BIO_EXIT_TERMINATE;
-		bio_raise_signal(bio_ctx.exit_handler->signal);
-		bio_platform_clear_exit_signal();
-	}
+	bio_dispatch_exit_signal(BIO_EXIT_TERMINATE);
 
 	// Logging uses daemon coroutines
 	bio_logging_cleanup();
@@ -77,6 +87,7 @@ bio_terminate(void) {
 	bio_timer_cleanup();
 	bio_handle_table_cleanup();
 	bio_platform_cleanup();
+	bio_array_free(bio_ctx.exit_handlers);
 }
 
 bool
@@ -92,17 +103,15 @@ bio_current_time_ms(void) {
 bio_exit_reason_t
 bio_wait_for_exit(void) {
 	mco_coro* impl = mco_running();
-	if (BIO_LIKELY(impl)) {
-		// Replace the previous handler
-		if (bio_ctx.exit_handler != NULL) {
-			bio_ctx.exit_handler->reason = BIO_EXIT_HANDLER_REPLACED;
-			bio_raise_signal(bio_ctx.exit_handler->signal);
+	if (BIO_LIKELY(impl != NULL && !bio_ctx.is_terminating)) {
+		if (bio_array_len(bio_ctx.exit_handlers) == 0) {
+			bio_platform_block_exit_signal();
 		}
 
 		// Set new handler
 		bio_signal_t signal = bio_make_signal();
 		bio_exit_info_t exit_info = { .signal = signal };
-		bio_ctx.exit_handler = &exit_info;
+		bio_array_push(bio_ctx.exit_handlers, &exit_info);
 
 		// Daemonize
 		bio_coro_impl_t* coro = impl->user_data;
@@ -112,16 +121,16 @@ bio_wait_for_exit(void) {
 		}
 
 		// Wait
-		bio_platform_set_exit_signal(signal);
 		bio_wait_for_one_signal(signal);
-		if (exit_info.reason != BIO_EXIT_HANDLER_REPLACED) {
-			bio_platform_clear_exit_signal();
-			bio_ctx.exit_handler = NULL;
-		}
 		return exit_info.reason;
 	} else {
-		return BIO_EXIT_HANDLER_REPLACED;
+		return BIO_EXIT_TERMINATE;
 	}
+}
+
+void
+bio_handle_exit_signal(void) {
+	bio_dispatch_exit_signal(BIO_EXIT_OS_REQUEST);
 }
 
 void
