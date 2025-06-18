@@ -7,6 +7,7 @@ set(COMMON_SOURCES
 	"net.c"
 	"logging.c"
 	"logging/file.c"
+	"buffering.c"
 	"thread.c"
 	"service.c"
 	"timer.c"
