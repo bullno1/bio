@@ -84,9 +84,16 @@ bio_destroy_buffer(bio_io_buffer_t buffer);
 bio_io_buffer_t
 bio_make_file_read_buffer(bio_file_t file, size_t size);
 
-/// Create a write buffer for a file
+/**
+ * Create a write buffer for a file
+ *
+ * @param file A file
+ * @param size Buffer size
+ * @param fflush Whether to call fflush on flush
+ * @return A new io buffer
+ */
 bio_io_buffer_t
-bio_make_file_write_buffer(bio_file_t file, size_t size);
+bio_make_file_write_buffer(bio_file_t file, size_t size, bool fflush);
 
 /// Create a read buffer for a socket
 bio_io_buffer_t

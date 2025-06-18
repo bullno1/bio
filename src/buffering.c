@@ -72,11 +72,11 @@ bio_flush_file_buffered(bio_io_buffer_ctx_t ctx, bio_error_t* error) {
 }
 
 bio_io_buffer_t
-bio_make_file_write_buffer(bio_file_t file, size_t size) {
+bio_make_file_write_buffer(bio_file_t file, size_t size, bool fflush) {
 	return bio_make_buffer(&(bio_buffer_options_t){
 		.ctx.handle = file.handle,
 		.write_fn = bio_write_file_buffered,
-		.flush_fn = bio_flush_file_buffered,
+		.flush_fn = fflush ? bio_flush_file_buffered : NULL,
 		.size = size,
 	});
 }
