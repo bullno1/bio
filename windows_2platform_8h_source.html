@@ -102,31 +102,36 @@ $(document).ready(function(){initNavTree('windows_2platform_8h_source.html','');
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define BIO_WINDOW_PLATFORM_H</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#define WIN32_LEAN_AND_MEAN</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;Windows.h&gt;</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &lt;WS2tcpip.h&gt;</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="preprocessor">#ifndef BIO_WINDOWS_DEFAULT_BATCH_SIZE</span></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno"><a class="line" href="group__windows.html#gac374305733c57f091d0cb4f304e17a16">   31</a></span><span class="preprocessor">#   define BIO_WINDOWS_DEFAULT_BATCH_SIZE 4</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="preprocessor">#ifndef DOXYGEN</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    HANDLE iocp;</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    LARGE_INTEGER perf_counter_freq;</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    LARGE_INTEGER start_time;</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    OVERLAPPED_ENTRY* overlapped_entries;</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    DWORD error_msg_buf_size;</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">char</span>* error_msg_buf;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    WSADATA wsadata;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>} <a class="code hl_struct" href="structbio__platform__t.html">bio_platform_t</a>;</div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;bio/bio.h&gt;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#define WIN32_LEAN_AND_MEAN</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &lt;Windows.h&gt;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;WS2tcpip.h&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#ifndef BIO_WINDOWS_DEFAULT_BATCH_SIZE</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno"><a class="line" href="group__windows.html#gac374305733c57f091d0cb4f304e17a16">   32</a></span><span class="preprocessor">#   define BIO_WINDOWS_DEFAULT_BATCH_SIZE 4</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="preprocessor">#ifndef DOXYGEN</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    HANDLE iocp;</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    LARGE_INTEGER perf_counter_freq;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    LARGE_INTEGER start_time;</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    OVERLAPPED_ENTRY* overlapped_entries;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    DWORD error_msg_buf_size;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">char</span>* error_msg_buf;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    WSADATA wsadata;</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordtype">bool</span> signal_blocked;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <a class="code hl_struct" href="structbio__signal__t.html">bio_signal_t</a> exit_signal;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>} <a class="code hl_struct" href="structbio__platform__t.html">bio_platform_t</a>;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="astructbio__platform__t_html"><div class="ttname"><a href="structbio__platform__t.html">bio_platform_t</a></div><div class="ttdef"><b>Definition</b> platform.h:47</div></div>
+<div class="ttc" id="astructbio__signal__t_html"><div class="ttname"><a href="structbio__signal__t.html">bio_signal_t</a></div><div class="ttdoc">Handle to a signal.</div><div class="ttdef"><b>Definition</b> bio.h:147</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
