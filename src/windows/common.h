@@ -1,7 +1,6 @@
 #ifndef BIO_WINDOWS_COMMON_H
 #define BIO_WINDOWS_COMMON_H
 
-#include "platform.h"
 #include "../internal.h"
 
 extern const bio_tag_t BIO_PLATFORM_ERROR;

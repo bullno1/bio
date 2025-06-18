@@ -2,6 +2,7 @@
 #define BIO_WINDOW_PLATFORM_H
 
 #include <stddef.h>
+#include <bio/bio.h>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <WS2tcpip.h>
@@ -44,6 +45,9 @@ typedef struct {
 	DWORD error_msg_buf_size;
 	char* error_msg_buf;
 	WSADATA wsadata;
+
+	bool signal_blocked;
+	bio_signal_t exit_signal;
 } bio_platform_t;
 
 #endif

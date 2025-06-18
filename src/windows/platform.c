@@ -3,6 +3,7 @@
 const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.windows");
 
 static const char BIO_WINDOWS_NOTIFY_KEY = 0;
+static const char BIO_WINDOWS_EXIT_SIGNAL_KEY = 0;
 
 static ULONG
 bio_platform_process_events(DWORD timeout_ms, DWORD batch_size) {
@@ -17,13 +18,21 @@ bio_platform_process_events(DWORD timeout_ms, DWORD batch_size) {
 
 	for (ULONG entry_index = 0; entry_index < num_entries; ++entry_index) {
 		OVERLAPPED_ENTRY* entry = &bio_ctx.platform.overlapped_entries[entry_index];
-		if (entry->lpCompletionKey != (uintptr_t)&BIO_WINDOWS_NOTIFY_KEY) {
+		if (entry->lpCompletionKey == (uintptr_t)&BIO_WINDOWS_EXIT_SIGNAL_KEY) {
+			bio_raise_signal(bio_ctx.platform.exit_signal);
+		} else if (entry->lpCompletionKey != (uintptr_t)&BIO_WINDOWS_NOTIFY_KEY) {
 			bio_io_req_t* req = BIO_CONTAINER_OF(entry->lpOverlapped, bio_io_req_t, overlapped);
 			bio_raise_signal(req->signal);
 		}
 	}
 
 	return num_entries;
+}
+
+static BOOL WINAPI
+bio_on_exit_signal(DWORD type) {
+	PostQueuedCompletionStatus(bio_ctx.platform.iocp, 0, (uintptr_t)&BIO_WINDOWS_EXIT_SIGNAL_KEY, NULL);
+	return TRUE;
 }
 
 void
@@ -152,5 +161,23 @@ void
 		error->strerror = bio_format_error;
 		error->file = file;
 		error->line = line;
+	}
+}
+
+void
+bio_platform_set_exit_signal(bio_signal_t signal) {
+	bio_ctx.platform.exit_signal = signal;
+	if (!bio_ctx.platform.signal_blocked) {
+		SetConsoleCtrlHandler(bio_on_exit_signal, TRUE);
+		bio_ctx.platform.signal_blocked = true;
+	}
+}
+
+void
+bio_platform_clear_exit_signal(void) {
+	bio_ctx.platform.exit_signal.handle = BIO_INVALID_HANDLE;
+	if (bio_ctx.platform.signal_blocked) {
+		SetConsoleCtrlHandler(NULL, FALSE);
+		bio_ctx.platform.signal_blocked = false;
 	}
 }
