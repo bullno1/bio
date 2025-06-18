@@ -99,6 +99,7 @@ $(document).ready(function(){initNavTree('group__misc.html',''); initResizable()
 <a href="#nested-classes">Data Structures</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">Miscellaneous functions</div></div>
 </div><!--header-->
@@ -122,6 +123,15 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:ga2731c29427c64b1067a9ef8ed3f95fca"><td class="mdescLeft">&#160;</td><td class="mdescRight">A timestamp.  <br /></td></tr>
 <tr class="separator:ga2731c29427c64b1067a9ef8ed3f95fca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:ga109390316345b832bcfe797fe9628bbf" id="r_ga109390316345b832bcfe797fe9628bbf"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__misc.html#ga109390316345b832bcfe797fe9628bbf">bio_exit_reason_t</a> { <a class="el" href="group__misc.html#gga109390316345b832bcfe797fe9628bbfa8c11bda63a0fe4b96e5bce268e48beac">BIO_EXIT_OS_REQUEST</a>
+, <a class="el" href="group__misc.html#gga109390316345b832bcfe797fe9628bbfa6455048785dfe41c5d11051e2ffca92e">BIO_EXIT_HANDLER_REPLACED</a>
+, <a class="el" href="group__misc.html#gga109390316345b832bcfe797fe9628bbfa9d76340be89c156e1ab47eed17bd27b9">BIO_EXIT_TERMINATE</a>
+ }</td></tr>
+<tr class="memdesc:ga109390316345b832bcfe797fe9628bbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Result for <a class="el" href="group__misc.html#ga59568cf958677e078da9193390e412cb">bio_wait_for_exit</a>.  <a href="group__misc.html#ga109390316345b832bcfe797fe9628bbf">More...</a><br /></td></tr>
+<tr class="separator:ga109390316345b832bcfe797fe9628bbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ga9e1d740968b4d69a528306ae4ddf995e" id="r_ga9e1d740968b4d69a528306ae4ddf995e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__misc.html#ga9e1d740968b4d69a528306ae4ddf995e">bio_run_async</a> (<a class="el" href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a> task, void *userdata, <a class="el" href="structbio__signal__t.html">bio_signal_t</a> signal)</td></tr>
@@ -133,6 +143,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga1e1cc40660a06792f0512bab1a96cd3a" id="r_ga1e1cc40660a06792f0512bab1a96cd3a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__misc.html#ga1e1cc40660a06792f0512bab1a96cd3a">bio_current_time_ms</a> (void)</td></tr>
 <tr class="memdesc:ga1e1cc40660a06792f0512bab1a96cd3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the current time in milliseconds.  <br /></td></tr>
 <tr class="separator:ga1e1cc40660a06792f0512bab1a96cd3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga59568cf958677e078da9193390e412cb" id="r_ga59568cf958677e078da9193390e412cb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__misc.html#ga109390316345b832bcfe797fe9628bbf">bio_exit_reason_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__misc.html#ga59568cf958677e078da9193390e412cb">bio_wait_for_exit</a> (void)</td></tr>
+<tr class="memdesc:ga59568cf958677e078da9193390e412cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wait for an exit signal to be delivered by the OS.  <br /></td></tr>
+<tr class="separator:ga59568cf958677e078da9193390e412cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <h2 class="groupheader">Macro Definition Documentation</h2>
@@ -179,6 +192,31 @@ Functions</h2></td></tr>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__signal.html#ga9ebb8779379b5455f238c652a8937617" title="Raise a signal after a delay.">bio_raise_signal_after</a> </dd>
 <dd>
 <a class="el" href="group__misc.html#ga1e1cc40660a06792f0512bab1a96cd3a" title="Return the current time in milliseconds.">bio_current_time_ms</a> </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="ga109390316345b832bcfe797fe9628bbf" name="ga109390316345b832bcfe797fe9628bbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga109390316345b832bcfe797fe9628bbf">&#9670;&#160;</a></span>bio_exit_reason_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__misc.html#ga109390316345b832bcfe797fe9628bbf">bio_exit_reason_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Result for <a class="el" href="group__misc.html#ga59568cf958677e078da9193390e412cb">bio_wait_for_exit</a>. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga109390316345b832bcfe797fe9628bbfa8c11bda63a0fe4b96e5bce268e48beac" name="gga109390316345b832bcfe797fe9628bbfa8c11bda63a0fe4b96e5bce268e48beac"></a>BIO_EXIT_OS_REQUEST&#160;</td><td class="fielddoc"><p>The OS has requested that the program exits. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga109390316345b832bcfe797fe9628bbfa6455048785dfe41c5d11051e2ffca92e" name="gga109390316345b832bcfe797fe9628bbfa6455048785dfe41c5d11051e2ffca92e"></a>BIO_EXIT_HANDLER_REPLACED&#160;</td><td class="fielddoc"><p>Another coroutine has called <a class="el" href="group__misc.html#ga59568cf958677e078da9193390e412cb">bio_wait_for_exit</a>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga109390316345b832bcfe797fe9628bbfa9d76340be89c156e1ab47eed17bd27b9" name="gga109390316345b832bcfe797fe9628bbfa9d76340be89c156e1ab47eed17bd27b9"></a>BIO_EXIT_TERMINATE&#160;</td><td class="fielddoc"><p><a class="el" href="group__init.html#gae1239670e86e7371c488355f3d7411ef">bio_terminate</a> has been called </p>
+</td></tr>
+</table>
 
 </div>
 </div>
@@ -289,6 +327,31 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Convenient function to start an async task and wait for it to complete. </p>
+
+</div>
+</div>
+<a id="ga59568cf958677e078da9193390e412cb" name="ga59568cf958677e078da9193390e412cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga59568cf958677e078da9193390e412cb">&#9670;&#160;</a></span>bio_wait_for_exit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__misc.html#ga109390316345b832bcfe797fe9628bbf">bio_exit_reason_t</a> bio_wait_for_exit </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Wait for an exit signal to be delivered by the OS. </p>
+<p>This typically happens when the user presses Ctrl+C or shuts down the machine. The calling coroutine will be suspended until that happens. This function will return <a class="el" href="group__misc.html#gga109390316345b832bcfe797fe9628bbfa8c11bda63a0fe4b96e5bce268e48beac">BIO_EXIT_OS_REQUEST</a>.</p>
+<p>The calling coroutine will also be turned into a <a class="el" href="structbio__coro__options__t.html#a35b23d6a02070b6e46ad8ad135dc1561">daemon</a> upon calling this function. If no exit signal was sent by the OS and the program terminates on its own, this function will return <a class="el" href="group__misc.html#gga109390316345b832bcfe797fe9628bbfa9d76340be89c156e1ab47eed17bd27b9">BIO_EXIT_TERMINATE</a>.</p>
+<p>Only one coroutine can wait on this function at a time. When a new coroutine calls this function, the call will return <a class="el" href="group__misc.html#gga109390316345b832bcfe797fe9628bbfa6455048785dfe41c5d11051e2ffca92e">BIO_EXIT_HANDLER_REPLACED</a>.</p>
+<dl class="section remark"><dt>Remarks</dt><dd>If no coroutine has called this function and the OS sends an exit signal, the default platform-specific action will be taken. Usually, it just means exiting without cleanup.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The exit reason </dd></dl>
 
 </div>
 </div>

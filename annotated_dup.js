@@ -9,6 +9,7 @@ var annotated_dup =
     [ "bio_coro_t", "structbio__coro__t.html", null ],
     [ "bio_ctx_t", "structbio__ctx__t.html", null ],
     [ "bio_error_t", "structbio__error__t.html", "structbio__error__t" ],
+    [ "bio_exit_info_t", "structbio__exit__info__t.html", null ],
     [ "bio_file_logger_options_t", "structbio__file__logger__options__t.html", "structbio__file__logger__options__t" ],
     [ "bio_file_t", "structbio__file__t.html", null ],
     [ "bio_fmt_buf_t", "structbio__fmt__buf__t.html", null ],
