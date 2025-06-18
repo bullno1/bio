@@ -47,7 +47,6 @@ typedef struct {
 	WSADATA wsadata;
 
 	bool signal_blocked;
-	bio_signal_t exit_signal;
 } bio_platform_t;
 
 #endif

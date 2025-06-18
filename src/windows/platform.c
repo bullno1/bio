@@ -19,7 +19,7 @@ bio_platform_process_events(DWORD timeout_ms, DWORD batch_size) {
 	for (ULONG entry_index = 0; entry_index < num_entries; ++entry_index) {
 		OVERLAPPED_ENTRY* entry = &bio_ctx.platform.overlapped_entries[entry_index];
 		if (entry->lpCompletionKey == (uintptr_t)&BIO_WINDOWS_EXIT_SIGNAL_KEY) {
-			bio_raise_signal(bio_ctx.platform.exit_signal);
+			bio_handle_exit_signal();
 		} else if (entry->lpCompletionKey != (uintptr_t)&BIO_WINDOWS_NOTIFY_KEY) {
 			bio_io_req_t* req = BIO_CONTAINER_OF(entry->lpOverlapped, bio_io_req_t, overlapped);
 			bio_raise_signal(req->signal);
@@ -165,8 +165,7 @@ void
 }
 
 void
-bio_platform_set_exit_signal(bio_signal_t signal) {
-	bio_ctx.platform.exit_signal = signal;
+bio_platform_block_exit_signal(void) {
 	if (!bio_ctx.platform.signal_blocked) {
 		SetConsoleCtrlHandler(bio_on_exit_signal, TRUE);
 		bio_ctx.platform.signal_blocked = true;
@@ -174,8 +173,7 @@ bio_platform_set_exit_signal(bio_signal_t signal) {
 }
 
 void
-bio_platform_clear_exit_signal(void) {
-	bio_ctx.platform.exit_signal.handle = BIO_INVALID_HANDLE;
+bio_platform_unblock_exit_signal(void) {
 	if (bio_ctx.platform.signal_blocked) {
 		SetConsoleCtrlHandler(NULL, FALSE);
 		bio_ctx.platform.signal_blocked = false;
