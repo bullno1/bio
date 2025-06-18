@@ -4,7 +4,8 @@
 #define _GNU_SOURCE
 #include <liburing.h>
 #include <threads.h>
-#include <signal.h>
+#include <sys/signalfd.h>
+#include <bio/bio.h>
 
 /**
  * @defgroup linux Linux
@@ -33,14 +34,32 @@
 
 #ifndef DOXYGEN
 
+typedef enum {
+	BIO_SIGNAL_UNBLOCKED,
+	BIO_SIGNAL_BLOCKED,
+	BIO_SIGNAL_WAITED,
+} bio_signal_state_t;
+
+typedef struct {
+	bio_signal_t signal;
+	int32_t res;
+	uint32_t flags;
+} bio_io_req_t;
+
 typedef struct {
 	struct io_uring ioring;
+
+	// Signal handling
+	bio_io_req_t signal_fd_req;
+	struct signalfd_siginfo siginfo;
+	sigset_t old_sigmask;
+	int signalfd;
+	bio_signal_state_t signal_state;
 
 	// Notification from thread pool
 	int eventfd;
 	atomic_uint notification_counter;
 	unsigned int ack_counter;
-	sigset_t old_sigmask;
 
 	// Compatibility
 	bool has_op_bind;

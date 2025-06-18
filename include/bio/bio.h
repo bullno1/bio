@@ -513,6 +513,20 @@ typedef enum {
 } bio_coro_state_t;
 
 /**
+ * Result for @ref bio_wait_for_exit
+ *
+ * @ingroup misc
+ */
+typedef enum {
+	/// The OS has requested that the program exits
+	BIO_EXIT_OS_REQUEST,
+	/// Another coroutine has called @ref bio_wait_for_exit
+	BIO_EXIT_HANDLER_REPLACED,
+	/// @ref bio_terminate has been called
+	BIO_EXIT_TERMINATE,
+} bio_exit_reason_t;
+
+/**
  * Coroutine spawn options
  *
  * All fields are optional and have defaults.
@@ -1332,6 +1346,31 @@ bio_run_async_and_wait(bio_entrypoint_t task, void* userdata) {
  */
 bio_time_t
 bio_current_time_ms(void);
+
+/**
+ * Wait for an exit signal to be delivered by the OS
+ *
+ * This typically happens when the user presses Ctrl+C or shuts down the machine.
+ * The calling coroutine will be suspended until that happens.
+ * This function will return @ref BIO_EXIT_OS_REQUEST.
+ *
+ * The calling coroutine will also be turned into a @ref bio_coro_options_t::daemon "daemon"
+ * upon calling this function.
+ * If no exit signal was sent by the OS and the program terminates on its own,
+ * this function will return @ref BIO_EXIT_TERMINATE.
+ *
+ * Only one coroutine can wait on this function at a time.
+ * When a new coroutine calls this function, the call will return @ref BIO_EXIT_HANDLER_REPLACED.
+ *
+ * @remarks
+ *   If no coroutine has called this function and the OS sends an exit signal,
+ *   the default platform-specific action will be taken.
+ *   Usually, it just means exiting without cleanup.
+ *
+ * @return The exit reason
+ */
+bio_exit_reason_t
+bio_wait_for_exit(void);
 
 /**@}*/
 

@@ -157,6 +157,11 @@ typedef struct {
 	_Alignas(BIO_ALIGN_TYPE) char data[];
 } bio_cls_entry_t;
 
+typedef struct {
+	bio_signal_t signal;
+	bio_exit_reason_t reason;
+} bio_exit_info_t;
+
 struct bio_coro_impl_s {
 	mco_coro* impl;
 	bio_entrypoint_t entrypoint;
@@ -198,6 +203,7 @@ typedef struct {
 typedef struct {
 	bio_options_t options;
 	bool is_terminating;
+	bio_exit_info_t* exit_handler;
 
 	// Handle table
 	bio_handle_slot_t* handle_slots;
@@ -360,6 +366,26 @@ bio_platform_begin_create_thread_pool(void);
 /// Called after the async thread pool is created
 void
 bio_platform_end_create_thread_pool(void);
+
+/**
+ * Set the signal to be raised when the OS requests that the program exits
+ *
+ * When this is not set, the program should follow the default action without
+ * any handling.
+ * Typically, this means exiting without cleanup.
+ *
+ * If this is set a second time, replace the old signal without triggering it.
+ */
+void
+bio_platform_set_exit_signal(bio_signal_t signal);
+
+/**
+ * Clear the previously set exit signal
+ *
+ * The program should revert to its previous signal handling behaviour.
+ */
+void
+bio_platform_clear_exit_signal(void);
 
 // File
 

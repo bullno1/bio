@@ -8,12 +8,6 @@
 
 static const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.linux");
 
-typedef struct {
-	bio_signal_t signal;
-	int32_t res;
-	uint32_t flags;
-} bio_io_req_t;
-
 static inline int
 futex(
 	uint32_t* uaddr, int futex_op, uint32_t val,
@@ -28,6 +22,14 @@ bio_platform_init(void) {
 	if (queue_size == 0) { queue_size = BIO_LINUX_DEFAULT_QUEUE_SIZE; }
 	queue_size = bio_next_pow2(queue_size);
 	bio_ctx.options.linux.io_uring.queue_size = queue_size;
+
+	sigset_t sigset = { 0 };
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGTERM);
+	sigaddset(&sigset, SIGINT);
+	bio_ctx.platform.signalfd = signalfd(-1, &sigset, SFD_CLOEXEC);
+	bio_ctx.platform.signal_state = BIO_SIGNAL_UNBLOCKED;
+	bio_ctx.platform.signal_fd_req.signal.handle = BIO_INVALID_HANDLE;
 
 	int flags = 0
 		| IORING_SETUP_SUBMIT_ALL
@@ -67,6 +69,8 @@ bio_platform_cleanup(void) {
 	}
 
 	io_uring_queue_exit(&bio_ctx.platform.ioring);
+
+	close(bio_ctx.platform.signalfd);
 }
 
 static void
@@ -82,6 +86,10 @@ bio_drain_io_completions(void) {
 			request->flags = cqe->flags;
 			if (BIO_LIKELY(bio_handle_compare(request->signal.handle, BIO_INVALID_HANDLE) != 0)) {
 				bio_raise_signal(request->signal);
+
+				if (request == &bio_ctx.platform.signal_fd_req) {
+					bio_ctx.platform.signal_state = BIO_SIGNAL_BLOCKED;
+				}
 			}
 		}
 
@@ -256,4 +264,41 @@ bio_io_close(int fd) {
 	struct io_uring_sqe* sqe = bio_acquire_io_req();
 	io_uring_prep_close(sqe, fd);
 	return bio_submit_io_req(sqe, NULL);
+}
+
+void
+bio_platform_set_exit_signal(bio_signal_t signal) {
+	bio_ctx.platform.signal_fd_req.signal = signal;
+
+	switch (bio_ctx.platform.signal_state) {
+		case BIO_SIGNAL_UNBLOCKED: {
+			sigset_t sigset = { 0 };
+			sigemptyset(&sigset);
+			sigaddset(&sigset, SIGTERM);
+			sigaddset(&sigset, SIGINT);
+			pthread_sigmask(SIG_BLOCK, &sigset, &bio_ctx.platform.old_sigmask);
+		}
+		// fallthrough
+		case BIO_SIGNAL_BLOCKED: {
+			struct io_uring_sqe* sqe = bio_acquire_io_req();
+			io_uring_prep_read(
+				sqe, bio_ctx.platform.signalfd,
+				&bio_ctx.platform.siginfo, sizeof(bio_ctx.platform.siginfo),
+				0
+			);
+			io_uring_sqe_set_data(sqe, &bio_ctx.platform.signal_fd_req);
+			bio_ctx.platform.signal_state = BIO_SIGNAL_WAITED;
+		} break;
+		case BIO_SIGNAL_WAITED:
+			break;
+	}
+}
+
+void
+bio_platform_clear_exit_signal(void) {
+	bio_ctx.platform.signal_fd_req.signal.handle = BIO_INVALID_HANDLE;
+	if (bio_ctx.platform.signal_state != BIO_SIGNAL_UNBLOCKED) {
+		pthread_sigmask(SIG_SETMASK, &bio_ctx.platform.old_sigmask, NULL);
+	}
+	bio_ctx.platform.signal_state = BIO_SIGNAL_UNBLOCKED;
 }

@@ -6,6 +6,8 @@
 #include <bio/net.h>
 #include <bio/logging/file.h>
 
+static bool exit_received = false;
+
 static void*
 stdlib_realloc(void* ptr, size_t size, void* ctx) {
 	(void)ctx;
@@ -15,6 +17,15 @@ stdlib_realloc(void* ptr, size_t size, void* ctx) {
 	} else {
 		return realloc(ptr, size);
 	}
+}
+
+static void
+exit_handler(void* userdata) {
+	// Copy to local stack so it's safe even when the caller has terminated
+	bio_socket_t socket = *(bio_socket_t*)userdata;
+	bio_wait_for_exit();
+	exit_received = true;
+	bio_net_close(socket, NULL);
 }
 
 static void
@@ -84,12 +95,15 @@ echo_server(void* userdata) {
 		return;
 	}
 	BIO_INFO("Started server");
+	bio_spawn(exit_handler, &server_socket);
 
 	while (true) {
 		bio_socket_t client;
 
 		if (!bio_net_accept(server_socket, &client, &error)) {
-			BIO_ERROR(BIO_ERROR_FMT, BIO_ERROR_FMT_ARGS(&error));
+			if (!exit_received) {
+				BIO_ERROR(BIO_ERROR_FMT, BIO_ERROR_FMT_ARGS(&error));
+			}
 			break;
 		}
 
@@ -99,10 +113,9 @@ echo_server(void* userdata) {
 		bio_spawn(echo_handler, (void*)ptr);
 	}
 
-	bio_clear_error(&error);
-	if (!bio_net_close(server_socket, &error)) {
-		BIO_WARN(BIO_ERROR_FMT, BIO_ERROR_FMT_ARGS(&error));
-	}
+	bio_net_close(server_socket, NULL);
+
+	BIO_INFO("Stopping server");
 }
 
 int
