@@ -10,6 +10,12 @@
  *
  * Avoid making a lot of syscalls.
  *
+ * This is useful for delimitor-based protocols such as HTTP.
+ * Program code can just read character by character from the buffer until a
+ * delimitor is encountered.
+ * Data will get pulled as a block into the buffer as needed instead of single
+ * bytes.
+ *
  * @{
  */
 
