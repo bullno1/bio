@@ -109,7 +109,7 @@ var searchData=
   ['bio_5fjoin_106',['bio_join',['../group__monitor.html#gaad31289fdd025143344b12e35da52d92',1,'bio.h']]],
   ['bio_5flinux_5fdefault_5fqueue_5fsize_107',['BIO_LINUX_DEFAULT_QUEUE_SIZE',['../group__linux.html#gac7d78ad5514230755f094ee104c1c5b2',1,'platform.h']]],
   ['bio_5flinux_5foptions_5ft_108',['bio_linux_options_t',['../structbio__linux__options__t.html',1,'']]],
-  ['bio_5flog_109',['bio_log',['../group__logging.html#gabbe21ed003674067e1de1799aafa72c0',1,'bio_log(bio_log_level_t level, const char *file, int line, const char *fmt,...):&#160;bio.h'],['../group__logging.html#gaec99fd14e7f5562738c51ce095fe3e9d',1,'BIO_LOG:&#160;bio.h']]],
+  ['bio_5flog_109',['bio_log',['../group__logging.html#gaec99fd14e7f5562738c51ce095fe3e9d',1,'BIO_LOG:&#160;bio.h'],['../group__logging.html#gabbe21ed003674067e1de1799aafa72c0',1,'bio_log(bio_log_level_t level, const char *file, int line, const char *fmt,...):&#160;bio.h']]],
   ['bio_5flog_5fctx_5ft_110',['bio_log_ctx_t',['../structbio__log__ctx__t.html',1,'']]],
   ['bio_5flog_5ffn_5ft_111',['bio_log_fn_t',['../group__logging.html#gaae0be0e5c35cd06945de52815b04c846',1,'bio.h']]],
   ['bio_5flog_5flevel_5fdebug_112',['BIO_LOG_LEVEL_DEBUG',['../group__logging.html#ggaf975e08f25fc299efe60b182358f7e4ca7bf7fbfed26595fd51fa96dce1bbe22d',1,'bio.h']]],
