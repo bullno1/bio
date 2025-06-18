@@ -23,7 +23,7 @@ var group__buffering =
     [ "bio_flush_buffer", "group__buffering.html#gaa759ba74a12f63eedab2639011db33f3", null ],
     [ "bio_make_buffer", "group__buffering.html#ga47ac3a78fae69174a7fe08863d64fda0", null ],
     [ "bio_make_file_read_buffer", "group__buffering.html#ga6f7d0c41f95ef0d367cf8af953ee6324", null ],
-    [ "bio_make_file_write_buffer", "group__buffering.html#gafb6562c7caa610ab0835bf0c9b494c37", null ],
+    [ "bio_make_file_write_buffer", "group__buffering.html#gaefbaf2531797f56f0e16aca70ad47943", null ],
     [ "bio_make_socket_read_buffer", "group__buffering.html#gad94affcdc1ed774fd3c7d57c2cb33c4d", null ],
     [ "bio_make_socket_write_buffer", "group__buffering.html#ga52148ff4cafeb450fbdb9dcc5818f532", null ]
 ];

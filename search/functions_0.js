@@ -44,7 +44,7 @@ var searchData=
   ['bio_5floop_41',['bio_loop',['../group__init.html#ga75aa8151c7d2cb5d9440e6dfeea5f553',1,'bio.h']]],
   ['bio_5fmake_5fbuffer_42',['bio_make_buffer',['../group__buffering.html#ga47ac3a78fae69174a7fe08863d64fda0',1,'buffering.h']]],
   ['bio_5fmake_5ffile_5fread_5fbuffer_43',['bio_make_file_read_buffer',['../group__buffering.html#ga6f7d0c41f95ef0d367cf8af953ee6324',1,'buffering.h']]],
-  ['bio_5fmake_5ffile_5fwrite_5fbuffer_44',['bio_make_file_write_buffer',['../group__buffering.html#gafb6562c7caa610ab0835bf0c9b494c37',1,'buffering.h']]],
+  ['bio_5fmake_5ffile_5fwrite_5fbuffer_44',['bio_make_file_write_buffer',['../group__buffering.html#gaefbaf2531797f56f0e16aca70ad47943',1,'buffering.h']]],
   ['bio_5fmake_5fhandle_45',['bio_make_handle',['../group__handle.html#ga3986012b7a5a5394524897db1fa85071',1,'bio.h']]],
   ['bio_5fmake_5fsignal_46',['bio_make_signal',['../group__signal.html#ga38cd6e3e58864cbf19fc86ff352bb44a',1,'bio.h']]],
   ['bio_5fmake_5fsocket_5fread_5fbuffer_47',['bio_make_socket_read_buffer',['../group__buffering.html#gad94affcdc1ed774fd3c7d57c2cb33c4d',1,'buffering.h']]],
