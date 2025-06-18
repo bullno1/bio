@@ -9,6 +9,7 @@ set(SOURCES
 	"timer.c"
 	"service.c"
 	"thread.c"
+	"logging.c"
 )
 add_executable(tests ${SOURCES})
 target_link_libraries(tests PRIVATE bio blibs)

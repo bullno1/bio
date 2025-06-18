@@ -28,11 +28,18 @@ bio__service_start(
 	bio_coro_t* coro_ptr,
 	bio_handle_t* mailbox_ptr,
 	size_t mailbox_msg_size,
-	uint32_t mailbox_capacity,
+	const bio_service_options_t* service_options,
 	bio_entrypoint_t entry,
 	const void* args,
 	size_t args_size
 ) {
+	if (service_options == NULL) {
+		service_options = &(bio_service_options_t) { 0 };
+	}
+
+	uint32_t mailbox_capacity = service_options->mailbox_capacity > 0
+		? service_options->mailbox_capacity
+		: 4;
 	bio__mailbox_open(mailbox_ptr, mailbox_msg_size, mailbox_capacity);
 	bio_signal_t ready_signal = bio_make_signal();
 	bio_service_data_t service_data = {
@@ -42,7 +49,10 @@ bio__service_start(
 		.args = args,
 		.args_size = args_size,
 	};
-	*coro_ptr = bio_spawn(bio_service_wrapper, &service_data);
+	*coro_ptr = bio_spawn_ex(
+		bio_service_wrapper, &service_data,
+		&service_options->coro_options
+	);
 	bio_wait_for_one_signal(ready_signal);
 }
 

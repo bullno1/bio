@@ -57,6 +57,26 @@ typedef struct {
 } bio_service_msg_base_t;
 
 /**
+ * Options for service.
+ *
+ * All fields are optionals and have defaults.
+ */
+typedef struct {
+	/**
+	 * Coroutine options
+	 *
+	 * @see bio_spawn_ex
+	 */
+	bio_coro_options_t coro_options;
+	/**
+	 * Capacity of the service's mailbox
+	 *
+	 * Default to 4 if not provided
+	 */
+	uint32_t mailbox_capacity;
+} bio_service_options_t;
+
+/**
  * A service reference struct.
  *
  * This is a combination of a @ref bio_coro_t handle and a @ref BIO_MAILBOX handle
@@ -73,24 +93,36 @@ typedef struct {
 /**
  * Start a service coroutine
  *
+ * @param ptr Pointer to a variable of type @ref BIO_SERVICE
+ * @param entry Entrypoint to the service (@ref bio_entrypoint_t)
+ * @param arg Start argument to be passed to the service
+ *
+ * @see bio_start_service_ex
+ */
+#define bio_start_service(ptr, entry, args) \
+	bio_start_service_ex(ptr, entry, args, NULL)
+
+/**
+ * Start a service coroutine
+ *
  * The caller will suspend until the service has called @ref bio_get_service_info.
  * This ensures that the stack allocated @p args has been copied from the caller's
  * stack into the service's stack.
  *
  * @param ptr Pointer to a variable of type @ref BIO_SERVICE
- * @param entry Entrypoint to the service
+ * @param entry Entrypoint to the service (@ref bio_entrypoint_t)
  * @param arg Start argument to be passed to the service
- * @param mailbox_capacity Mailbox capacity of the service
+ * @param options Options for the service (@ref bio_service_options_t "const bio_service_options_t*"), can be `NULL`
  *
  * @see bio_stop_service
  * @see bio_call_service
  */
-#define bio_start_service(ptr, entry, args, mailbox_capacity) \
+#define bio_start_service_ex(ptr, entry, args, options) \
 	bio__service_start(\
 		&(ptr)->coro, \
 		&(ptr)->mailbox.bio__handle, \
 		sizeof(*((ptr)->mailbox.bio__message)), \
-		mailbox_capacity, \
+		options, \
 		entry, \
 		&args, \
 		sizeof(args) \
@@ -301,7 +333,7 @@ bio__service_start(
 	bio_coro_t* coro_ptr,
 	bio_handle_t* mailbox_ptr,
 	size_t mailbox_msg_size,
-	uint32_t mailbox_capacity,
+	const bio_service_options_t* service_options,
 	bio_entrypoint_t entry,
 	const void* args,
 	size_t args_size

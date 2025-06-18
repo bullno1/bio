@@ -66,7 +66,7 @@ end:;
 BIO_TEST(service_, call) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
-	bio_start_service(&service, service_entry, start_arg, 4);
+	bio_start_service(&service, service_entry, start_arg);
 
 	int saved_start_arg;
 	service_msg_t info = {
@@ -108,7 +108,7 @@ canceller(void* userdata) {
 BIO_TEST(service_, cancel) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
-	bio_start_service(&service, service_entry, start_arg, 4);
+	bio_start_service(&service, service_entry, start_arg);
 
 	int saved_start_arg = 0;
 	service_msg_t info = {
@@ -144,7 +144,7 @@ BIO_TEST(service_, cancel) {
 BIO_TEST(service_, target_dies_during_call) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
-	bio_start_service(&service, service_entry, start_arg, 4);
+	bio_start_service(&service, service_entry, start_arg);
 
 	service_msg_t die = {
 		.type = DIE,
@@ -159,7 +159,7 @@ BIO_TEST(service_, target_dies_during_call) {
 BIO_TEST(service_, target_already_dead) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
-	bio_start_service(&service, service_entry, start_arg, 4);
+	bio_start_service(&service, service_entry, start_arg);
 	bio_stop_service(service);
 
 	service_msg_t die = {
@@ -184,7 +184,7 @@ kill_service(void* userdata) {
 BIO_TEST(service_, target_stops_during_call) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
-	bio_start_service(&service, service_entry, start_arg, 4);
+	bio_start_service(&service, service_entry, start_arg);
 
 	service_msg_t die = {
 		.type = DROP,
@@ -198,7 +198,7 @@ BIO_TEST(service_, target_stops_during_call) {
 BIO_TEST(service_, notify) {
 	BIO_SERVICE(service_msg_t) service;
 	int start_arg = 42;
-	bio_start_service(&service, service_entry, start_arg, 4);
+	bio_start_service(&service, service_entry, start_arg);
 	int result = 0;
 	service_msg_t msg = {
 		.type = INFO,
@@ -236,7 +236,7 @@ self_stop_service(void* userdata) {
 BIO_TEST(service_, self_stop) {
 	BIO_SERVICE(int) service;
 	int start_arg = 42;
-	bio_start_service(&service, self_stop_service, start_arg, 4);
+	bio_start_service(&service, self_stop_service, start_arg);
 	bio_wait_and_send_message(true, service.mailbox, start_arg);
 	bio_join(service.coro);
 }

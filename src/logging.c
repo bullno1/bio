@@ -86,7 +86,15 @@ bio_add_logger(bio_log_level_t min_level, bio_log_fn_t log_fn, void* userdata) {
 		.log_fn = log_fn,
 		.userdata = userdata,
 	};
-	bio_start_service(&service, bio_log_service_entry, service_args, 16);
+	bio_service_options_t service_options = {
+		.mailbox_capacity = 16,
+		.coro_options.daemon = true,
+	};
+	bio_start_service_ex(
+		&service,
+		bio_log_service_entry, service_args,
+		&service_options
+	);
 	*impl = (bio_logger_impl_t){
 		.min_level = min_level,
 		.service = service,

@@ -30,7 +30,7 @@ void use_service(void) {
 	BIO_SERVICE(msg_t) adder;
 	// Start argument is stack-allocated
 	int start_arg = 42;
-	bio_start_service(&adder, service_entry, start_arg, 4);
+	bio_start_service(&adder, service_entry, start_arg);
 
 	bio_signal_t no_cancel = { 0 };
 	int result;
