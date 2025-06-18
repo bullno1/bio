@@ -25,6 +25,8 @@ bio_init(const bio_options_t* options) {
 		bio_ctx.options.allocator.realloc = bio_stdlib_realloc;
 	}
 
+	bio_ctx.is_terminating = false;
+
 	bio_platform_init();
 	bio_handle_table_init();
 	bio_timer_init();
@@ -37,7 +39,12 @@ bio_init(const bio_options_t* options) {
 
 void
 bio_terminate(void) {
+	bio_ctx.is_terminating = true;
+
+	// Logging uses daemon coroutines
 	bio_logging_cleanup();
+	if (bio_ctx.num_daemons > 0) { bio_loop(); }
+
 	bio_net_cleanup();
 	bio_fs_cleanup();
 	bio_thread_cleanup();
@@ -45,6 +52,11 @@ bio_terminate(void) {
 	bio_timer_cleanup();
 	bio_handle_table_cleanup();
 	bio_platform_cleanup();
+}
+
+bool
+bio_is_terminating(void) {
+	return bio_ctx.is_terminating;
 }
 
 bio_time_t

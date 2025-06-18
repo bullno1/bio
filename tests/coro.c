@@ -262,3 +262,17 @@ BIO_TEST(coro, data) {
 	bio_join(data_holder_coro);
 	BTEST_EXPECT(bio_get_coro_data(data_holder_coro, &TAG1) == NULL);
 }
+
+static void
+daemon(void* userdata) {
+	// Busy loop while we are not terminating
+	while (!bio_is_terminating()) {
+		bio_yield();
+	}
+}
+
+BIO_TEST(coro, daemon) {
+	bio_spawn_ex(daemon, NULL, &(bio_coro_options_t){
+		.daemon = true,
+	});
+}

@@ -513,6 +513,41 @@ typedef enum {
 } bio_coro_state_t;
 
 /**
+ * Coroutine spawn options
+ *
+ * All fields are optional and have defaults.
+ *
+ * @ingroup coro
+ * @see bio_spawn_ex
+ */
+typedef struct {
+	/**
+	 * Whether this coroutine will be a daemon
+	 *
+	 * A daemon coroutine does not block @ref bio_loop from returning.
+	 * Daemon coroutines will have a chance to cleanup in @ref bio_terminate.
+	 *
+	 * The application is responsible for signalling daemon coroutines when to
+	 * terminate.
+	 * Otherwise, @ref bio_terminate may hang indefinitely.
+	 *
+	 * Daemon coroutines may also check @ref bio_is_terminating.
+	 */
+	bool daemon;
+
+	/**
+	 * Stack size for the coroutine
+	 *
+	 * This should not be changed from the default unless you know what you are doing.
+	 * A small size can easily lead to stack overflow.
+	 *
+	 * minicoro (bio's coroutine backend) uses a [virtual memory allocator](https://github.com/edubart/minicoro?tab=readme-ov-file#virtual-memory-backed-allocator)
+	 * so physical memory will only be committed as needed.
+	 */
+	size_t stack_size;
+} bio_coro_options_t;
+
+/**
  * Log levels
  * @ingroup logging
  */
@@ -550,7 +585,7 @@ typedef struct {
  * @remarks
  *   When @ref bio_remove_logger is called, this will be invoked with @p ctx and
  *   @p msg set to `NULL` instead.
- *   The callback should perform cleanup for "flushing" buffered messages.
+ *   The callback should perform cleanup or "flush" buffered messages.
  *
  * @param userdata Arbitrary user data
  * @param ctx Log context
@@ -581,9 +616,21 @@ bio_init(const bio_options_t* options);
 void
 bio_loop(void);
 
-/// Cleanup
+/**
+ * Cleanup
+ *
+ * @see bio_coro_options_t::daemon
+ */
 void
 bio_terminate(void);
+
+/**
+ * Check whether the calling coroutine is executing inside @ref bio_terminate
+ *
+ * @see bio_coro_options_t::daemon
+ */
+bool
+bio_is_terminating(void);
 
 /**@}*/
 
@@ -614,10 +661,33 @@ bio_terminate(void);
  *
  * @param entrypoint The entrypoint for the coroutine.
  * @param userdata Data to pass to the entrypoint.
+ * @param options Option for the new coroutine, can be `NULL`.
  * @return A new coroutine handle.
  */
 bio_coro_t
-bio_spawn(bio_entrypoint_t entrypoint, void* userdata);
+bio_spawn_ex(
+	bio_entrypoint_t entrypoint,
+	void* userdata,
+	const bio_coro_options_t* options
+);
+
+/**
+ * Spawn a new coroutine.
+ *
+ * This is equivalent to:
+ *
+ * @code{.c}
+ * bio_spawn_ex(entrypoint, userdata, NULL);
+ * @endcode
+ *
+ * @param entrypoint The entrypoint for the coroutine.
+ * @param userdata Data to pass to the entrypoint.
+ * @return A new coroutine handle.
+ */
+static inline bio_coro_t
+bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
+	return bio_spawn_ex(entrypoint, userdata, NULL);
+}
 
 /// Check the state of a coroutine
 bio_coro_state_t
@@ -1113,7 +1183,11 @@ bio_log(
 /**
  * Add a new logger
  *
- * The logger will run in its own coroutine.
+ * The logger will run in its own @ref bio_coro_options_t::daemon "daemon" coroutine.
+ *
+ * bio will automatically call @ref bio_remove_logger on all loggers when
+ * @ref bio_terminate is called.
+ * This will terminate the daemon coroutine.
  *
  * @param min_level Minimum log level for this logger
  * @param log_fn The log function

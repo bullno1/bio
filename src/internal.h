@@ -160,6 +160,7 @@ typedef struct {
 struct bio_coro_impl_s {
 	mco_coro* impl;
 	bio_entrypoint_t entrypoint;
+	bool daemon;
 	void* userdata;
 	void* extra_data;
 	const bio_tag_t* extra_data_tag;
@@ -196,6 +197,7 @@ typedef struct {
 
 typedef struct {
 	bio_options_t options;
+	bool is_terminating;
 
 	// Handle table
 	bio_handle_slot_t* handle_slots;
@@ -213,6 +215,7 @@ typedef struct {
 	BIO_ARRAY(bio_coro_impl_t*) current_ready_coros;
 	BIO_ARRAY(bio_coro_impl_t*) next_ready_coros;
 	int32_t num_coros;
+	int32_t num_daemons;
 
 	// Logging
 	bio_logger_link_t loggers;

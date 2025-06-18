@@ -61,7 +61,7 @@ echo_handler(void* userdata) {
 
 static void
 echo_server(void* userdata) {
-	bio_logger_t logger = bio_add_file_logger(
+	bio_add_file_logger(
 		BIO_LOG_LEVEL_TRACE,
 			&(bio_file_logger_options_t){
 			.file = BIO_STDERR,
@@ -81,7 +81,6 @@ echo_server(void* userdata) {
 		&error
 	)) {
 		BIO_FATAL(BIO_ERROR_FMT, BIO_ERROR_FMT_ARGS(&error));
-		bio_remove_logger(logger);
 		return;
 	}
 	BIO_INFO("Started server");
@@ -104,8 +103,6 @@ echo_server(void* userdata) {
 	if (!bio_net_close(server_socket, &error)) {
 		BIO_WARN(BIO_ERROR_FMT, BIO_ERROR_FMT_ARGS(&error));
 	}
-
-	bio_remove_logger(logger);
 }
 
 int

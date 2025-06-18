@@ -24,9 +24,6 @@
  * while (running) {
  *     // ...
  * }
- *
- * // Flush messages and terminate the logger coroutine
- * bio_remove_logger(logger);
  * @endcode
  *
  * @{
@@ -46,12 +43,6 @@ typedef struct {
 
 /**
  * Register the logger
- *
- * @remark
- *   This will spawn a coroutine to handle writing and avoid making the calling
- *   coroutine context switch due to I/O.
- *   The returned `bio_logger_t` should be removed with @ref bio_remove_logger
- *   at the end of a program to ensure that @ref bio_loop will terminate.
  */
 bio_logger_t
 bio_add_file_logger(bio_log_level_t min_level, const bio_file_logger_options_t* options);

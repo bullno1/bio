@@ -9,6 +9,7 @@ static const bio_tag_t BIO_MONITOR_HANDLE = BIO_TAG_INIT("bio.handle.monitor");
 void
 bio_scheduler_init(void) {
 	bio_ctx.num_coros = 0;
+	bio_ctx.num_daemons = 0;
 	if (bio_ctx.options.num_cls_buckets == 0) {
 		bio_ctx.options.num_cls_buckets = BIO_DEFAULT_NUM_CLS_BUCKETS;
 	} else {
@@ -94,13 +95,21 @@ bio_loop(void) {
 				// Destroy the coroutine
 				mco_destroy(coro->impl);
 				bio_close_handle(coro->handle, &BIO_CORO_HANDLE);
-				bio_free(coro);
 				--bio_ctx.num_coros;
+				if (coro->daemon) {
+					--bio_ctx.num_daemons;
+				}
+				bio_free(coro);
 			}
 		}
 		bio_array_clear(bio_ctx.current_ready_coros);
 
-		if (bio_ctx.num_coros == 0) { break; }
+		bool should_terminate = bio_ctx.is_terminating
+			// During termination, run until there is no coroutines
+			? bio_ctx.num_coros == 0
+			// During normal operation, run until there is no non-daemon coroutines
+			: bio_ctx.num_coros == bio_ctx.num_daemons;
+		if (should_terminate) { break; }
 
 		// Poll async jobs
 		bio_thread_update();
@@ -135,17 +144,26 @@ bio_coro_entry_wrapper(mco_coro* co) {
 }
 
 bio_coro_t
-bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
+bio_spawn_ex(
+	bio_entrypoint_t entrypoint,
+	void* userdata,
+	const bio_coro_options_t* options
+) {
+	if (options == NULL) {
+		options = &(bio_coro_options_t){ 0 };
+	}
+
 	bio_coro_impl_t* coro = bio_malloc(sizeof(bio_coro_impl_t));
 	*coro = (bio_coro_impl_t){
 		.entrypoint = entrypoint,
 		.userdata = userdata,
 		.state = BIO_CORO_READY,
+		.daemon = options->daemon,
 	};
 	BIO_LIST_INIT(&coro->pending_signals);
 	BIO_LIST_INIT(&coro->monitors);
 
-	mco_desc desc = mco_desc_init(bio_coro_entry_wrapper, 0);
+	mco_desc desc = mco_desc_init(bio_coro_entry_wrapper, options->stack_size);
 	desc.user_data = coro;
 	mco_create(&coro->impl, &desc);
 
@@ -154,6 +172,9 @@ bio_spawn(bio_entrypoint_t entrypoint, void* userdata) {
 	bio_array_push(bio_ctx.next_ready_coros, coro);
 	if (++bio_ctx.num_coros == 1) {
 		bio_timer_update();
+	}
+	if (options->daemon) {
+		++bio_ctx.num_daemons;
 	}
 
 	return (bio_coro_t){ .handle = coro->handle };
