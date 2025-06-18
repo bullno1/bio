@@ -123,13 +123,13 @@ $(document).ready(function(){initNavTree('linux_2platform_8h_source.html',''); i
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <a class="code hl_struct" href="structbio__signal__t.html">bio_signal_t</a> signal;</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    int32_t res;</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    uint32_t flags;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>} bio_io_req_t;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>} <a class="code hl_struct" href="structbio__io__req__t.html">bio_io_req_t</a>;</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">struct </span>io_uring ioring;</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    <span class="comment">// Signal handling</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    bio_io_req_t signal_fd_req;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <a class="code hl_struct" href="structbio__io__req__t.html">bio_io_req_t</a> signal_fd_req;</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keyword">struct </span>signalfd_siginfo siginfo;</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    sigset_t old_sigmask;</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keywordtype">int</span> signalfd;</div>
@@ -149,7 +149,8 @@ $(document).ready(function(){initNavTree('linux_2platform_8h_source.html',''); i
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="astructbio__platform__t_html"><div class="ttname"><a href="structbio__platform__t.html">bio_platform_t</a></div><div class="ttdef"><b>Definition</b> platform.h:34</div></div>
+<div class="ttc" id="astructbio__io__req__t_html"><div class="ttname"><a href="structbio__io__req__t.html">bio_io_req_t</a></div><div class="ttdef"><b>Definition</b> platform.h:35</div></div>
+<div class="ttc" id="astructbio__platform__t_html"><div class="ttname"><a href="structbio__platform__t.html">bio_platform_t</a></div><div class="ttdef"><b>Definition</b> platform.h:47</div></div>
 <div class="ttc" id="astructbio__signal__t_html"><div class="ttname"><a href="structbio__signal__t.html">bio_signal_t</a></div><div class="ttdoc">Handle to a signal.</div><div class="ttdef"><b>Definition</b> bio.h:147</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

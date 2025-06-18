@@ -245,9 +245,9 @@ var NAVTREEINDEX0 =
 "structbio__handle__t.html":[1,2,0],
 "structbio__handle__t.html#a931cbde7e979bbc3288ff8e6b53a38d2":[1,2,0,1],
 "structbio__handle__t.html#aaa16bca387dcf906e80537dad31667bd":[1,2,0,0],
+"structbio__io__req__t.html":[2,0,16],
 "structbio__linux__options__t.html":[1,0,0],
 "structbio__linux__options__t.html#a55a1156640508f0ed1359544c08b743e":[1,0,0,0],
 "structbio__linux__options__t.html#a6217864450d5fc99712117e3f403a284":[1,0,0,1],
-"structbio__log__ctx__t.html":[1,3,3],
-"structbio__log__ctx__t.html#a1d15a715cc2eddd98c7bafe84bcaf076":[1,3,3,0]
+"structbio__log__ctx__t.html":[1,3,3]
 };
