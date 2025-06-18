@@ -120,7 +120,7 @@ bio_fopen(
 			flags = O_RDWR | O_CREAT | O_APPEND;
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 
@@ -160,7 +160,7 @@ bio_fclose(bio_file_t file, bio_error_t* error) {
 			}
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 }
@@ -190,7 +190,7 @@ bio_fseek(
 			return false;
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 }
@@ -209,7 +209,7 @@ bio_ftell(
 			return -1;
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return -1;
 	}
 }
@@ -486,7 +486,7 @@ bio_fwrite(
 				return bio_fwrite_in_async_thread(impl, buf, size, error);
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return 0;
 	}
 }
@@ -527,7 +527,7 @@ bio_fread(
 				return bio_fread_in_async_thread(impl, buf, size, error);
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return 0;
 	}
 }
@@ -563,7 +563,7 @@ bio_fflush(bio_file_t file, bio_error_t* error) {
 				return bio_fsync_in_async_thread(impl, error);
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 }
@@ -602,7 +602,7 @@ bio_fstat(bio_file_t file, bio_stat_t* stat, bio_error_t* error) {
 			return false;
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 }

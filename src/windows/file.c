@@ -286,7 +286,7 @@ bio_fwrite(
 			return 0;
 		}
 	} else {
-		bio_set_error(error, ERROR_INVALID_HANDLE);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return 0;
 	}
 }
@@ -330,7 +330,7 @@ bio_fread(
 			return 0;
 		}
 	} else {
-		bio_set_error(error, ERROR_INVALID_HANDLE);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return 0;
 	}
 }
@@ -355,11 +355,11 @@ bio_fseek(
 				bio_set_error(error, ERROR_NOT_SUPPORTED);
 				return false;
 			default:
-				bio_set_error(error, ERROR_INVALID_PARAMETER);
+				bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 				return false;
 		}
 	} else {
-		bio_set_error(error, ERROR_INVALID_HANDLE);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 }

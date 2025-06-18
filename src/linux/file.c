@@ -97,7 +97,7 @@ bio_fopen(
 			flags = O_RDWR | O_CREAT | O_APPEND;
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 
@@ -137,7 +137,7 @@ bio_fwrite(
 		}
 		return bytes_written;
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return 0;
 	}
 }
@@ -161,7 +161,7 @@ bio_fread(
 		}
 		return bytes_read;
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return 0;
 	}
 }
@@ -175,7 +175,7 @@ bio_fflush(bio_file_t file, bio_error_t* error) {
 		int result = bio_submit_io_req(sqe, NULL);
 		return bio_result_to_bool(result, error);
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 }
@@ -189,7 +189,7 @@ bio_fclose(bio_file_t file, bio_error_t* error) {
 		int result = bio_io_close(fd);
 		return bio_result_to_bool(result, error);
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 }
@@ -219,7 +219,7 @@ bio_fseek(
 			return false;
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 }
@@ -238,7 +238,7 @@ bio_ftell(
 			return -1;
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return -1;
 	}
 }
@@ -258,7 +258,7 @@ bio_fstat(bio_file_t file, bio_stat_t* stat, bio_error_t* error) {
 			return bio_result_to_bool(result, error);
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return -1;
 	}
 }

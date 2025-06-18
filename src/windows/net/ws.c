@@ -72,7 +72,7 @@ bio_net_ws_listen(
 			type = SOCK_DGRAM;
 			break;
 		default:
-			bio_set_error(error, ERROR_INVALID_PARAMETER);
+			bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 			return false;
 	}
 
@@ -238,7 +238,7 @@ bio_net_ws_connect(
 			type = SOCK_DGRAM;
 			break;
 		default:
-			bio_set_error(error, ERROR_INVALID_PARAMETER);
+			bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 			return false;
 	}
 

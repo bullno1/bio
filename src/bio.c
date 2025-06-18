@@ -5,6 +5,8 @@
 
 bio_ctx_t bio_ctx = { 0 };
 
+const bio_tag_t BIO_CORE_ERROR = BIO_TAG_INIT("bio.error.core");
+
 static void*
 bio_stdlib_realloc(void* ptr, size_t size, void* ctx) {
 	(void)ctx;
@@ -14,6 +16,20 @@ bio_stdlib_realloc(void* ptr, size_t size, void* ctx) {
 	} else {
 		return realloc(ptr, size);
 	}
+}
+
+static const char*
+bio_core_strerror(int code) {
+	switch ((bio_core_error_code_t)code) {
+		case BIO_NO_ERROR:
+			return "No error";
+		case BIO_ERROR_INVALID_ARGUMENT:
+			return "Invalid argument";
+		case BIO_ERROR_NOT_SUPPORTED:
+			return "Operation is not supported";
+	}
+
+	return "Unknown error";
 }
 
 void
@@ -105,5 +121,16 @@ bio_wait_for_exit(void) {
 		return exit_info.reason;
 	} else {
 		return BIO_EXIT_HANDLER_REPLACED;
+	}
+}
+
+void
+(bio_set_core_error)(bio_error_t* error, bio_core_error_code_t code, const char* file, int line) {
+	if (error != NULL) {
+		error->tag = &BIO_CORE_ERROR;
+		error->code = (int)code;
+		error->strerror = bio_core_strerror;
+		error->file = file;
+		error->line = line;
 	}
 }

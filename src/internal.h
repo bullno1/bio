@@ -303,6 +303,11 @@ bio_fmt(bio_fmt_buf_t* buf, const char* fmt, ...) {
 	return num_chars;
 }
 
+void
+bio_set_core_error(bio_error_t* error, bio_core_error_code_t code, const char* file, int line);
+
+#define bio_set_core_error(error, code) bio_set_core_error(error, code, __FILE__, __LINE__)
+
 /**
  * @addtogroup internal
  * @{

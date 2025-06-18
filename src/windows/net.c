@@ -67,7 +67,7 @@ bio_translate_address(
 					result->should_bind = true;
 					return true;
 				} else {
-					bio_set_error(error, ERROR_INVALID_PARAMETER);
+					bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 					return false;
 				}
 			}
@@ -76,7 +76,7 @@ bio_translate_address(
 			return true;
 	}
 
-	bio_set_error(error, ERROR_INVALID_PARAMETER);
+	bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 	return false;
 }
 

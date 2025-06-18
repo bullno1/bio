@@ -74,7 +74,7 @@ bio_translate_address(
 					result->should_bind = true;
 					return true;
 				} else {
-					bio_set_errno(error, EINVAL);
+					bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 					return false;
 				}
 			}
@@ -83,7 +83,7 @@ bio_translate_address(
 			return true;
 	}
 
-	bio_set_errno(error, EINVAL);
+	bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 	return false;
 }
 
@@ -237,7 +237,7 @@ bio_net_accept(
 			return false;
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return 0;
 	}
 }
@@ -293,7 +293,7 @@ bio_net_close(bio_socket_t socket, bio_error_t* error) {
 			return true;
 		}
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return false;
 	}
 }
@@ -312,7 +312,7 @@ bio_net_send(
 		int result = bio_submit_io_req(sqe, NULL);
 		return bio_result_to_size(result, error);
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return 0;
 	}
 }
@@ -331,7 +331,7 @@ bio_net_recv(
 		int result = bio_submit_io_req(sqe, NULL);
 		return bio_result_to_size(result, error);
 	} else {
-		bio_set_errno(error, EINVAL);
+		bio_set_core_error(error, BIO_ERROR_INVALID_ARGUMENT);
 		return 0;
 	}
 }

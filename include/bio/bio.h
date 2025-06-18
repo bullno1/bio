@@ -611,6 +611,29 @@ typedef struct {
 typedef void (*bio_log_fn_t)(void* userdata, const bio_log_ctx_t* ctx, const char* msg);
 
 /**
+ * Core error codes
+ *
+ * @ingroup error
+ */
+typedef enum {
+	/// There is no error
+	BIO_NO_ERROR,
+	/// An invalid argument was provided
+	BIO_ERROR_INVALID_ARGUMENT,
+	/// The operation is not supported
+	BIO_ERROR_NOT_SUPPORTED,
+} bio_core_error_code_t;
+
+/**
+ * A tag for core errors.
+ *
+ * The @ref bio_error_t::code "error code" will be one of the values in @ref bio_core_error_code_t
+ *
+ * @ingroup error
+ */
+extern const bio_tag_t BIO_CORE_ERROR;
+
+/**
  * @defgroup init Initialization
  *
  * Initialization and cleanup
