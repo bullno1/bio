@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['linux_0',['Linux',['../group__linux.html',1,'']]],
-  ['logger_1',['File logger',['../group__file__logger.html',1,'']]],
-  ['logging_2',['Logging',['../group__logging.html',1,'']]]
+  ['i_20o_0',['i o',['../group__file.html',1,'File I/O'],['../group__net.html',1,'Network I/O']]],
+  ['initialization_1',['Initialization',['../group__init.html',1,'']]],
+  ['internal_20details_2',['Internal details',['../group__internal.html',1,'']]]
 ];

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['timer_0',['Timer',['../group__timer.html',1,'']]]
+  ['service_0',['Service',['../group__service.html',1,'']]],
+  ['signal_1',['Signal',['../group__signal.html',1,'']]]
 ];

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['tag_0',['tag',['../structbio__error__t.html#a55de26da1a6371e4a906e150291b17fd',1,'bio_error_t']]],
-  ['thread_5fpool_1',['thread_pool',['../structbio__options__t.html#a7565927466667e28a3cbdcfad6614615',1,'bio_options_t']]],
-  ['type_2',['type',['../structbio__addr__t.html#acbb8c2a3ab67a827d34db6e53d874490',1,'bio_addr_t']]]
+  ['read_5ffn_0',['read_fn',['../structbio__buffer__options__t.html#af8f754c188e2da8c36dbd011fb3e4e85',1,'bio_buffer_options_t']]],
+  ['realloc_1',['realloc',['../structbio__allocator__t.html#a6920b7adc9c800e742931b2c44875660',1,'bio_allocator_t']]]
 ];

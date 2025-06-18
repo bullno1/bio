@@ -6,7 +6,7 @@ var searchData=
   ['coro_5foptions_3',['coro_options',['../structbio__service__options__t.html#a7058b6b03d153da2fd881f2a7cae3297',1,'bio_service_options_t']]],
   ['coroutine_4',['Coroutine',['../group__coro.html',1,'']]],
   ['coroutines_5',['Asynchronous I/O framework with coroutines',['../index.html',1,'']]],
-  ['ctx_6',['ctx',['../structbio__allocator__t.html#a7018f6efd7e0cc67ee6721957d8e0a45',1,'bio_allocator_t']]],
+  ['ctx_6',['ctx',['../structbio__allocator__t.html#a7018f6efd7e0cc67ee6721957d8e0a45',1,'bio_allocator_t::ctx'],['../structbio__buffer__options__t.html#a54d6711d25ca7167a786153ed0bfe05e',1,'bio_buffer_options_t::ctx']]],
   ['current_5fdepth_5fin_5fproject_7',['current_depth_in_project',['../structbio__log__options__t.html#a7c5cf9cb5f45fcb31de5d882dc2e33de',1,'bio_log_options_t']]],
   ['current_5ffilename_8',['current_filename',['../structbio__log__options__t.html#a1f8de2add269ebc8c8dea9500c0f3176',1,'bio_log_options_t']]]
 ];

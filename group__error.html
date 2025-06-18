@@ -97,7 +97,9 @@ $(document).ready(function(){initNavTree('group__error.html',''); initResizable(
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Data Structures</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">Error handling</div></div>
 </div><!--header-->
 <div class="contents">
@@ -111,6 +113,15 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An error returned from a function.  <a href="structbio__error__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:gaa29ab673a31c4c0524df6a318814136d" id="r_gaa29ab673a31c4c0524df6a318814136d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__error.html#gaa29ab673a31c4c0524df6a318814136d">bio_core_error_code_t</a> { <a class="el" href="group__error.html#ggaa29ab673a31c4c0524df6a318814136dad9e2c93a70ca54ec36f2860b6a4dcc03">BIO_NO_ERROR</a>
+, <a class="el" href="group__error.html#ggaa29ab673a31c4c0524df6a318814136da076c9c4278dda028092beca613f31a4a">BIO_ERROR_INVALID_ARGUMENT</a>
+, <a class="el" href="group__error.html#ggaa29ab673a31c4c0524df6a318814136da14e3478ee5733455ea2c361856df47f7">BIO_ERROR_NOT_SUPPORTED</a>
+ }</td></tr>
+<tr class="memdesc:gaa29ab673a31c4c0524df6a318814136d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Core error codes.  <a href="group__error.html#gaa29ab673a31c4c0524df6a318814136d">More...</a><br /></td></tr>
+<tr class="separator:gaa29ab673a31c4c0524df6a318814136d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:ga24fa8b46751397836b40e5f442c2b34c" id="r_ga24fa8b46751397836b40e5f442c2b34c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__error.html#ga24fa8b46751397836b40e5f442c2b34c">bio_has_error</a> (<a class="el" href="structbio__error__t.html">bio_error_t</a> *error)</td></tr>
@@ -122,6 +133,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ga059804171e0e288da2f41ad7ce4d573b" id="r_ga059804171e0e288da2f41ad7ce4d573b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__error.html#ga059804171e0e288da2f41ad7ce4d573b">bio_clear_error</a> (<a class="el" href="structbio__error__t.html">bio_error_t</a> *error)</td></tr>
 <tr class="memdesc:ga059804171e0e288da2f41ad7ce4d573b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenient function to clear an error object.  <br /></td></tr>
 <tr class="separator:ga059804171e0e288da2f41ad7ce4d573b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:ga3377cd90aa1c940fcc26ebdbc21b3c56" id="r_ga3377cd90aa1c940fcc26ebdbc21b3c56"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structbio__tag__t.html">bio_tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__error.html#ga3377cd90aa1c940fcc26ebdbc21b3c56">BIO_CORE_ERROR</a></td></tr>
+<tr class="memdesc:ga3377cd90aa1c940fcc26ebdbc21b3c56"><td class="mdescLeft">&#160;</td><td class="mdescRight">A tag for core errors.  <br /></td></tr>
+<tr class="separator:ga3377cd90aa1c940fcc26ebdbc21b3c56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p><a href="https://docs.gtk.org/glib/error-reporting.html">GTK</a>-inspired error handling. </p>
@@ -136,6 +153,31 @@ Functions</h2></td></tr>
 <div class="ttc" id="agroup__logging_html_ga8abbd34554f363d69d174fe8d0fd41b3"><div class="ttname"><a href="group__logging.html#ga8abbd34554f363d69d174fe8d0fd41b3">BIO_ERROR_FMT</a></div><div class="ttdeci">#define BIO_ERROR_FMT</div><div class="ttdoc">Helper for logging a bio_error_t.</div><div class="ttdef"><b>Definition</b> bio.h:73</div></div>
 <div class="ttc" id="astructbio__error__t_html"><div class="ttname"><a href="structbio__error__t.html">bio_error_t</a></div><div class="ttdoc">An error returned from a function.</div><div class="ttdef"><b>Definition</b> bio.h:468</div></div>
 </div><!-- fragment --><p>It is valid to pass <code>NULL</code> to these functions when there is no interest for error details. </p>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="gaa29ab673a31c4c0524df6a318814136d" name="gaa29ab673a31c4c0524df6a318814136d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa29ab673a31c4c0524df6a318814136d">&#9670;&#160;</a></span>bio_core_error_code_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__error.html#gaa29ab673a31c4c0524df6a318814136d">bio_core_error_code_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Core error codes. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaa29ab673a31c4c0524df6a318814136dad9e2c93a70ca54ec36f2860b6a4dcc03" name="ggaa29ab673a31c4c0524df6a318814136dad9e2c93a70ca54ec36f2860b6a4dcc03"></a>BIO_NO_ERROR&#160;</td><td class="fielddoc"><p>There is no error. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa29ab673a31c4c0524df6a318814136da076c9c4278dda028092beca613f31a4a" name="ggaa29ab673a31c4c0524df6a318814136da076c9c4278dda028092beca613f31a4a"></a>BIO_ERROR_INVALID_ARGUMENT&#160;</td><td class="fielddoc"><p>An invalid argument was provided. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaa29ab673a31c4c0524df6a318814136da14e3478ee5733455ea2c361856df47f7" name="ggaa29ab673a31c4c0524df6a318814136da14e3478ee5733455ea2c361856df47f7"></a>BIO_ERROR_NOT_SUPPORTED&#160;</td><td class="fielddoc"><p>The operation is not supported. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ga059804171e0e288da2f41ad7ce4d573b" name="ga059804171e0e288da2f41ad7ce4d573b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga059804171e0e288da2f41ad7ce4d573b">&#9670;&#160;</a></span>bio_clear_error()</h2>
@@ -221,6 +263,32 @@ Functions</h2></td></tr>
 <p>The returned buffer is managed by bio. It is guaranteed to be valid until another call to <a class="el" href="group__error.html#ga95d800595d87604c70de5a6818c0211e">bio_strerror</a> is made.</p>
 <dl class="section remark"><dt>Remarks</dt><dd>The exact details are platform-dependent. However, a shared buffer is usually involved. This means the returned string should be immediately logged or copied before this function is called again.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__logging.html#ga8abbd34554f363d69d174fe8d0fd41b3" title="Helper for logging a bio_error_t.">BIO_ERROR_FMT</a> </dd></dl>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="ga3377cd90aa1c940fcc26ebdbc21b3c56" name="ga3377cd90aa1c940fcc26ebdbc21b3c56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3377cd90aa1c940fcc26ebdbc21b3c56">&#9670;&#160;</a></span>BIO_CORE_ERROR</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structbio__tag__t.html">bio_tag_t</a> BIO_CORE_ERROR</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>A tag for core errors. </p>
+<p>The <a class="el" href="structbio__error__t.html#a25ccad683d79eb56d5ad29ddde1ba157">error code</a> will be one of the values in <a class="el" href="group__error.html#gaa29ab673a31c4c0524df6a318814136d">bio_core_error_code_t</a> </p>
 
 </div>
 </div>

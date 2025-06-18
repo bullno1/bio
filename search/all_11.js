@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['tag_0',['tag',['../structbio__error__t.html#a55de26da1a6371e4a906e150291b17fd',1,'bio_error_t']]],
-  ['thread_5fpool_1',['thread_pool',['../structbio__options__t.html#a7565927466667e28a3cbdcfad6614615',1,'bio_options_t']]],
-  ['timer_2',['Timer',['../group__timer.html',1,'']]],
-  ['type_3',['type',['../structbio__addr__t.html#acbb8c2a3ab67a827d34db6e53d874490',1,'bio_addr_t']]]
+  ['service_0',['Service',['../group__service.html',1,'']]],
+  ['signal_1',['Signal',['../group__signal.html',1,'']]],
+  ['size_2',['size',['../structbio__cls__t.html#a8c3a76782a12d10b720976e42b2d6dd8',1,'bio_cls_t::size'],['../structbio__buffer__options__t.html#a15471d9644c41d6e553e727637276ef3',1,'bio_buffer_options_t::size'],['../structbio__stat__t.html#a148c773b7c519355f96e349ffa9d0a4d',1,'bio_stat_t::size']]],
+  ['stack_5fsize_3',['stack_size',['../structbio__coro__options__t.html#a5b86d71fa8432c53c561e165a7a48018',1,'bio_coro_options_t']]],
+  ['started_4',['Getting started',['../index.html#autotoc_md2',1,'']]],
+  ['strerror_5',['strerror',['../structbio__error__t.html#a258a076c36bdf4aab51288b0853509c8',1,'bio_error_t']]]
 ];

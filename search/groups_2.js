@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['error_20handling_0',['Error handling',['../group__error.html',1,'']]]
+  ['details_0',['Internal details',['../group__internal.html',1,'']]]
 ];

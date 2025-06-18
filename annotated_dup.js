@@ -2,6 +2,7 @@ var annotated_dup =
 [
     [ "bio_addr_t", "structbio__addr__t.html", "structbio__addr__t" ],
     [ "bio_allocator_t", "structbio__allocator__t.html", "structbio__allocator__t" ],
+    [ "bio_buffer_options_t", "structbio__buffer__options__t.html", "structbio__buffer__options__t" ],
     [ "bio_cls_entry_t", "structbio__cls__entry__t.html", null ],
     [ "bio_cls_t", "structbio__cls__t.html", "structbio__cls__t" ],
     [ "bio_coro_impl_s", "structbio__coro__impl__s.html", null ],
@@ -16,6 +17,8 @@ var annotated_dup =
     [ "bio_freebsd_options_t", "structbio__freebsd__options__t.html", "structbio__freebsd__options__t" ],
     [ "bio_handle_slot_t", "structbio__handle__slot__t.html", null ],
     [ "bio_handle_t", "structbio__handle__t.html", "structbio__handle__t" ],
+    [ "bio_io_buffer_ctx_t", "unionbio__io__buffer__ctx__t.html", "unionbio__io__buffer__ctx__t" ],
+    [ "bio_io_buffer_t", "structbio__io__buffer__t.html", null ],
     [ "bio_io_req_t", "structbio__io__req__t.html", null ],
     [ "bio_linux_options_t", "structbio__linux__options__t.html", "structbio__linux__options__t" ],
     [ "bio_log_ctx_t", "structbio__log__ctx__t.html", "structbio__log__ctx__t" ],

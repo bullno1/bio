@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['details_0',['Internal details',['../group__internal.html',1,'']]]
+  ['coroutine_0',['Coroutine',['../group__coro.html',1,'']]]
 ];
