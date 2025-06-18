@@ -9,7 +9,6 @@ var group__misc =
     [ "bio_time_t", "group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca", null ],
     [ "bio_exit_reason_t", "group__misc.html#ga109390316345b832bcfe797fe9628bbf", [
       [ "BIO_EXIT_OS_REQUEST", "group__misc.html#gga109390316345b832bcfe797fe9628bbfa8c11bda63a0fe4b96e5bce268e48beac", null ],
-      [ "BIO_EXIT_HANDLER_REPLACED", "group__misc.html#gga109390316345b832bcfe797fe9628bbfa6455048785dfe41c5d11051e2ffca92e", null ],
       [ "BIO_EXIT_TERMINATE", "group__misc.html#gga109390316345b832bcfe797fe9628bbfa9d76340be89c156e1ab47eed17bd27b9", null ]
     ] ],
     [ "bio_current_time_ms", "group__misc.html#ga1e1cc40660a06792f0512bab1a96cd3a", null ],

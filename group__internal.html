@@ -153,12 +153,15 @@ Functions</h2></td></tr>
 <tr class="memitem:ga43f82f22377f8258d9d4b5631aca876a" id="r_ga43f82f22377f8258d9d4b5631aca876a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#ga43f82f22377f8258d9d4b5631aca876a">bio_platform_end_create_thread_pool</a> (void)</td></tr>
 <tr class="memdesc:ga43f82f22377f8258d9d4b5631aca876a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called after the async thread pool is created.  <br /></td></tr>
 <tr class="separator:ga43f82f22377f8258d9d4b5631aca876a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga0572049be4bd3ed1fdca225d73ae4cfb" id="r_ga0572049be4bd3ed1fdca225d73ae4cfb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#ga0572049be4bd3ed1fdca225d73ae4cfb">bio_platform_set_exit_signal</a> (<a class="el" href="structbio__signal__t.html">bio_signal_t</a> signal)</td></tr>
-<tr class="memdesc:ga0572049be4bd3ed1fdca225d73ae4cfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the signal to be raised when the OS requests that the program exits.  <br /></td></tr>
-<tr class="separator:ga0572049be4bd3ed1fdca225d73ae4cfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga23445cfef7f98c9731245d0f9f74d93a" id="r_ga23445cfef7f98c9731245d0f9f74d93a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#ga23445cfef7f98c9731245d0f9f74d93a">bio_platform_clear_exit_signal</a> (void)</td></tr>
-<tr class="memdesc:ga23445cfef7f98c9731245d0f9f74d93a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the previously set exit signal.  <br /></td></tr>
-<tr class="separator:ga23445cfef7f98c9731245d0f9f74d93a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga61eb93e9bd4fd428c02b698fa3f8046f" id="r_ga61eb93e9bd4fd428c02b698fa3f8046f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#ga61eb93e9bd4fd428c02b698fa3f8046f">bio_platform_block_exit_signal</a> (void)</td></tr>
+<tr class="memdesc:ga61eb93e9bd4fd428c02b698fa3f8046f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Block exit signals from the OS.  <br /></td></tr>
+<tr class="separator:ga61eb93e9bd4fd428c02b698fa3f8046f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga19f77e5453dd9eb02a02b5109832862b" id="r_ga19f77e5453dd9eb02a02b5109832862b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#ga19f77e5453dd9eb02a02b5109832862b">bio_platform_unblock_exit_signal</a> (void)</td></tr>
+<tr class="memdesc:ga19f77e5453dd9eb02a02b5109832862b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unblock exit signals from the OS.  <br /></td></tr>
+<tr class="separator:ga19f77e5453dd9eb02a02b5109832862b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga79c163d337d32617d4380d6c87897fd0" id="r_ga79c163d337d32617d4380d6c87897fd0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#ga79c163d337d32617d4380d6c87897fd0">bio_handle_exit_signal</a> (void)</td></tr>
+<tr class="memdesc:ga79c163d337d32617d4380d6c87897fd0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback for a platform implementation to notify bio of exit signal.  <br /></td></tr>
+<tr class="separator:ga79c163d337d32617d4380d6c87897fd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafe60c46b492ce128f7da494fd56bda1d" id="r_gafe60c46b492ce128f7da494fd56bda1d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__internal.html#gafe60c46b492ce128f7da494fd56bda1d">bio_fs_init</a> (void)</td></tr>
 <tr class="memdesc:gafe60c46b492ce128f7da494fd56bda1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the File I/O subsystem.  <br /></td></tr>
 <tr class="separator:gafe60c46b492ce128f7da494fd56bda1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -275,6 +278,26 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga79c163d337d32617d4380d6c87897fd0" name="ga79c163d337d32617d4380d6c87897fd0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga79c163d337d32617d4380d6c87897fd0">&#9670;&#160;</a></span>bio_handle_exit_signal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void bio_handle_exit_signal </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback for a platform implementation to notify bio of exit signal. </p>
+
+</div>
+</div>
 <a id="ga02c36cfbb4884b7af60302b7c1fcf5f6" name="ga02c36cfbb4884b7af60302b7c1fcf5f6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga02c36cfbb4884b7af60302b7c1fcf5f6">&#9670;&#160;</a></span>bio_net_cleanup()</h2>
 
@@ -335,6 +358,27 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga61eb93e9bd4fd428c02b698fa3f8046f" name="ga61eb93e9bd4fd428c02b698fa3f8046f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga61eb93e9bd4fd428c02b698fa3f8046f">&#9670;&#160;</a></span>bio_platform_block_exit_signal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void bio_platform_block_exit_signal </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Block exit signals from the OS. </p>
+<p>Whenever a signal is received, instead, the implementation would call <a class="el" href="group__internal.html#ga79c163d337d32617d4380d6c87897fd0">bio_handle_exit_signal</a> from <a class="el" href="group__internal.html#ga50419cd8fe5567c12d32f8f4f328a892">bio_platform_update</a>. </p>
+
+</div>
+</div>
 <a id="gad84f3cec9d1bddfa9e22612a9d757a8f" name="gad84f3cec9d1bddfa9e22612a9d757a8f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gad84f3cec9d1bddfa9e22612a9d757a8f">&#9670;&#160;</a></span>bio_platform_cleanup()</h2>
 
@@ -352,27 +396,6 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Cleanup the platform layer. </p>
-
-</div>
-</div>
-<a id="ga23445cfef7f98c9731245d0f9f74d93a" name="ga23445cfef7f98c9731245d0f9f74d93a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga23445cfef7f98c9731245d0f9f74d93a">&#9670;&#160;</a></span>bio_platform_clear_exit_signal()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void bio_platform_clear_exit_signal </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Clear the previously set exit signal. </p>
-<p>The program should revert to its previous signal handling behaviour. </p>
 
 </div>
 </div>
@@ -458,25 +481,24 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ga0572049be4bd3ed1fdca225d73ae4cfb" name="ga0572049be4bd3ed1fdca225d73ae4cfb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga0572049be4bd3ed1fdca225d73ae4cfb">&#9670;&#160;</a></span>bio_platform_set_exit_signal()</h2>
+<a id="ga19f77e5453dd9eb02a02b5109832862b" name="ga19f77e5453dd9eb02a02b5109832862b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga19f77e5453dd9eb02a02b5109832862b">&#9670;&#160;</a></span>bio_platform_unblock_exit_signal()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void bio_platform_set_exit_signal </td>
+          <td class="memname">void bio_platform_unblock_exit_signal </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structbio__signal__t.html">bio_signal_t</a>&#160;</td>
-          <td class="paramname"><em>signal</em></td><td>)</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Set the signal to be raised when the OS requests that the program exits. </p>
-<p>When this is not set, the program should follow the default action without any handling. Typically, this means exiting without cleanup.</p>
-<p>If this is set a second time, replace the old signal without triggering it. </p>
+<p>Unblock exit signals from the OS. </p>
+<p>Whenever a signal is received, exits without cleanup by default. </p>
 
 </div>
 </div>
