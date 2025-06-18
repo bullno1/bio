@@ -128,6 +128,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbio__cls__t.html">bio_cls_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coroutine-local storage (CLS) specification.  <a href="structbio__cls__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbio__coro__options__t.html">bio_coro_options_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coroutine spawn options.  <a href="structbio__coro__options__t.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -147,9 +150,12 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:gae947d3e23e02081e761fde6022c9805a" id="r_gae947d3e23e02081e761fde6022c9805a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structbio__coro__t.html">bio_coro_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__coro.html#gae947d3e23e02081e761fde6022c9805a">bio_spawn</a> (<a class="el" href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a> entrypoint, void *userdata)</td></tr>
-<tr class="memdesc:gae947d3e23e02081e761fde6022c9805a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spawn a new coroutine.  <br /></td></tr>
-<tr class="separator:gae947d3e23e02081e761fde6022c9805a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3581310f9082b27ab2e476b2a42c87b9" id="r_ga3581310f9082b27ab2e476b2a42c87b9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structbio__coro__t.html">bio_coro_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__coro.html#ga3581310f9082b27ab2e476b2a42c87b9">bio_spawn_ex</a> (<a class="el" href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a> entrypoint, void *userdata, const <a class="el" href="structbio__coro__options__t.html">bio_coro_options_t</a> *options)</td></tr>
+<tr class="memdesc:ga3581310f9082b27ab2e476b2a42c87b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spawn a new coroutine.  <br /></td></tr>
+<tr class="separator:ga3581310f9082b27ab2e476b2a42c87b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga99083106e829d879611b62e2b5f0d93a" id="r_ga99083106e829d879611b62e2b5f0d93a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structbio__coro__t.html">bio_coro_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__coro.html#ga99083106e829d879611b62e2b5f0d93a">bio_spawn</a> (<a class="el" href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a> entrypoint, void *userdata)</td></tr>
+<tr class="memdesc:ga99083106e829d879611b62e2b5f0d93a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spawn a new coroutine.  <br /></td></tr>
+<tr class="separator:ga99083106e829d879611b62e2b5f0d93a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaed9911140a74eb570e214fcc0ecc44e7" id="r_gaed9911140a74eb570e214fcc0ecc44e7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__coro.html#ga94f6989d9bb01e8af4b14575643ae55c">bio_coro_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__coro.html#gaed9911140a74eb570e214fcc0ecc44e7">bio_coro_state</a> (<a class="el" href="structbio__coro__t.html">bio_coro_t</a> coro)</td></tr>
 <tr class="memdesc:gaed9911140a74eb570e214fcc0ecc44e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check the state of a coroutine.  <br /></td></tr>
 <tr class="separator:gaed9911140a74eb570e214fcc0ecc44e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -200,7 +206,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Entrypoint for a coroutine. </p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__coro.html#gae947d3e23e02081e761fde6022c9805a" title="Spawn a new coroutine.">bio_spawn</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__coro.html#ga99083106e829d879611b62e2b5f0d93a" title="Spawn a new coroutine.">bio_spawn</a> </dd></dl>
 
 </div>
 </div>
@@ -461,14 +467,17 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="gae947d3e23e02081e761fde6022c9805a" name="gae947d3e23e02081e761fde6022c9805a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gae947d3e23e02081e761fde6022c9805a">&#9670;&#160;</a></span>bio_spawn()</h2>
+<a id="ga99083106e829d879611b62e2b5f0d93a" name="ga99083106e829d879611b62e2b5f0d93a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga99083106e829d879611b62e2b5f0d93a">&#9670;&#160;</a></span>bio_spawn()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="structbio__coro__t.html">bio_coro_t</a> bio_spawn </td>
+          <td class="memname">static <a class="el" href="structbio__coro__t.html">bio_coro_t</a> bio_spawn </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a>&#160;</td>
           <td class="paramname"><em>entrypoint</em>, </td>
@@ -485,6 +494,58 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Spawn a new coroutine. </p>
+<p>This is equivalent to:</p>
+<div class="fragment"><div class="line"><a class="code hl_function" href="group__coro.html#ga3581310f9082b27ab2e476b2a42c87b9">bio_spawn_ex</a>(entrypoint, userdata, NULL);</div>
+<div class="ttc" id="agroup__coro_html_ga3581310f9082b27ab2e476b2a42c87b9"><div class="ttname"><a href="group__coro.html#ga3581310f9082b27ab2e476b2a42c87b9">bio_spawn_ex</a></div><div class="ttdeci">bio_coro_t bio_spawn_ex(bio_entrypoint_t entrypoint, void *userdata, const bio_coro_options_t *options)</div><div class="ttdoc">Spawn a new coroutine.</div></div>
+</div><!-- fragment --><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">entrypoint</td><td>The entrypoint for the coroutine. </td></tr>
+    <tr><td class="paramname">userdata</td><td>Data to pass to the entrypoint. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A new coroutine handle. </dd></dl>
+
+</div>
+</div>
+<a id="ga3581310f9082b27ab2e476b2a42c87b9" name="ga3581310f9082b27ab2e476b2a42c87b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3581310f9082b27ab2e476b2a42c87b9">&#9670;&#160;</a></span>bio_spawn_ex()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structbio__coro__t.html">bio_coro_t</a> bio_spawn_ex </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a>&#160;</td>
+          <td class="paramname"><em>entrypoint</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>userdata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structbio__coro__options__t.html">bio_coro_options_t</a> *&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
 </div><div class="memdoc">
 
 <p>Spawn a new coroutine. </p>
@@ -492,6 +553,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">entrypoint</td><td>The entrypoint for the coroutine. </td></tr>
     <tr><td class="paramname">userdata</td><td>Data to pass to the entrypoint. </td></tr>
+    <tr><td class="paramname">options</td><td>Option for the new coroutine, can be <code>NULL</code>. </td></tr>
   </table>
   </dd>
 </dl>

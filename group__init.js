@@ -28,6 +28,7 @@ var group__init =
       [ "windows", "structbio__options__t.html#a5a6a977e63364be77ced362aeb62435c", null ]
     ] ],
     [ "bio_init", "group__init.html#ga264ca2e23caaa8e47cbed9ca63ffdebb", null ],
+    [ "bio_is_terminating", "group__init.html#gafda83941b57bf9c35e4064f2028163d7", null ],
     [ "bio_loop", "group__init.html#ga75aa8151c7d2cb5d9440e6dfeea5f553", null ],
     [ "bio_terminate", "group__init.html#gae1239670e86e7371c488355f3d7411ef", null ]
 ];

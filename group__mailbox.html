@@ -169,7 +169,7 @@ Macros</h2></td></tr>
 <div class="line">    <a class="code hl_define" href="group__mailbox.html#ga61fff74afc46959d3b47a00a3a449862">bio_open_mailbox</a>(mailbox, 16);  <span class="comment">// 16 messages in queue</span></div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// Pass this to other coroutines</span></div>
-<div class="line">    <a class="code hl_struct" href="structbio__coro__t.html">bio_coro_t</a> child_coro = <a class="code hl_function" href="group__coro.html#gae947d3e23e02081e761fde6022c9805a">bio_spawn</a>(child_entry, &amp;mailbox);</div>
+<div class="line">    <a class="code hl_struct" href="structbio__coro__t.html">bio_coro_t</a> child_coro = <a class="code hl_function" href="group__coro.html#ga99083106e829d879611b62e2b5f0d93a">bio_spawn</a>(child_entry, &amp;mailbox);</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// Message loop</span></div>
 <div class="line">    msg_t message;</div>
@@ -180,12 +180,12 @@ Macros</h2></td></tr>
 <div class="line">    <a class="code hl_define" href="group__mailbox.html#gad75808b3adebfeec2883a61ed5893cde">bio_close_mailbox</a>(mailbox);</div>
 <div class="line">    <a class="code hl_function" href="group__monitor.html#gaad31289fdd025143344b12e35da52d92">bio_join</a>(child_coro);</div>
 <div class="line">}</div>
-<div class="ttc" id="agroup__coro_html_gae947d3e23e02081e761fde6022c9805a"><div class="ttname"><a href="group__coro.html#gae947d3e23e02081e761fde6022c9805a">bio_spawn</a></div><div class="ttdeci">bio_coro_t bio_spawn(bio_entrypoint_t entrypoint, void *userdata)</div><div class="ttdoc">Spawn a new coroutine.</div></div>
+<div class="ttc" id="agroup__coro_html_ga99083106e829d879611b62e2b5f0d93a"><div class="ttname"><a href="group__coro.html#ga99083106e829d879611b62e2b5f0d93a">bio_spawn</a></div><div class="ttdeci">static bio_coro_t bio_spawn(bio_entrypoint_t entrypoint, void *userdata)</div><div class="ttdoc">Spawn a new coroutine.</div><div class="ttdef"><b>Definition</b> bio.h:688</div></div>
 <div class="ttc" id="agroup__mailbox_html_ga3aecbab6cea09bc10aa363b7dfa2e586"><div class="ttname"><a href="group__mailbox.html#ga3aecbab6cea09bc10aa363b7dfa2e586">BIO_MAILBOX</a></div><div class="ttdeci">#define BIO_MAILBOX(T)</div><div class="ttdoc">Define a mailbox type.</div><div class="ttdef"><b>Definition</b> mailbox.h:97</div></div>
 <div class="ttc" id="agroup__mailbox_html_ga61fff74afc46959d3b47a00a3a449862"><div class="ttname"><a href="group__mailbox.html#ga61fff74afc46959d3b47a00a3a449862">bio_open_mailbox</a></div><div class="ttdeci">#define bio_open_mailbox(ptr, capacity)</div><div class="ttdoc">Create a new mailbox.</div><div class="ttdef"><b>Definition</b> mailbox.h:108</div></div>
 <div class="ttc" id="agroup__mailbox_html_gac2a0a99a54719ac3adfa3ffe20c04792"><div class="ttname"><a href="group__mailbox.html#gac2a0a99a54719ac3adfa3ffe20c04792">bio_recv_message</a></div><div class="ttdeci">#define bio_recv_message(mailbox, message)</div><div class="ttdoc">Attempt to receive from a mailbox.</div><div class="ttdef"><b>Definition</b> mailbox.h:203</div></div>
 <div class="ttc" id="agroup__mailbox_html_gad75808b3adebfeec2883a61ed5893cde"><div class="ttname"><a href="group__mailbox.html#gad75808b3adebfeec2883a61ed5893cde">bio_close_mailbox</a></div><div class="ttdeci">#define bio_close_mailbox(mailbox)</div><div class="ttdoc">Close a mailbox.</div><div class="ttdef"><b>Definition</b> mailbox.h:120</div></div>
-<div class="ttc" id="agroup__monitor_html_gaad31289fdd025143344b12e35da52d92"><div class="ttname"><a href="group__monitor.html#gaad31289fdd025143344b12e35da52d92">bio_join</a></div><div class="ttdeci">static void bio_join(bio_coro_t coro)</div><div class="ttdoc">Convenient function to wait for a coroutine to terminate.</div><div class="ttdef"><b>Definition</b> bio.h:834</div></div>
+<div class="ttc" id="agroup__monitor_html_gaad31289fdd025143344b12e35da52d92"><div class="ttname"><a href="group__monitor.html#gaad31289fdd025143344b12e35da52d92">bio_join</a></div><div class="ttdeci">static void bio_join(bio_coro_t coro)</div><div class="ttdoc">Convenient function to wait for a coroutine to terminate.</div><div class="ttdef"><b>Definition</b> bio.h:904</div></div>
 <div class="ttc" id="astructbio__coro__t_html"><div class="ttname"><a href="structbio__coro__t.html">bio_coro_t</a></div><div class="ttdoc">Handle to a coroutine.</div><div class="ttdef"><b>Definition</b> bio.h:137</div></div>
 </div><!-- fragment --><dl class="section see"><dt>See also</dt><dd><a class="el" href="group__service.html" title="Idiomatic coroutine interaction.">Service</a> </dd></dl>
 <h2 class="groupheader">Macro Definition Documentation</h2>

@@ -111,6 +111,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbio__service__msg__base__t.html">bio_service_msg_base_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base for a message type of a service.  <a href="structbio__service__msg__base__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbio__service__options__t.html">bio_service_options_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Options for service.  <a href="structbio__service__options__t.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
@@ -120,9 +123,12 @@ Macros</h2></td></tr>
 <tr class="memitem:ga973c1cd2edcbf0afbe7d5f13b47a1c48" id="r_ga973c1cd2edcbf0afbe7d5f13b47a1c48"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__service.html#ga973c1cd2edcbf0afbe7d5f13b47a1c48">BIO_SERVICE_MSG</a>&#160;&#160;&#160;<a class="el" href="structbio__service__msg__base__t.html">bio_service_msg_base_t</a> bio__service_msg_base;</td></tr>
 <tr class="memdesc:ga973c1cd2edcbf0afbe7d5f13b47a1c48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper to include <a class="el" href="structbio__service__msg__base__t.html">bio_service_msg_base_t</a> in a message type.  <br /></td></tr>
 <tr class="separator:ga973c1cd2edcbf0afbe7d5f13b47a1c48"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad85fb81220dadbf8263aa7cc8ba33fa5" id="r_gad85fb81220dadbf8263aa7cc8ba33fa5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__service.html#gad85fb81220dadbf8263aa7cc8ba33fa5">bio_start_service</a>(ptr,  entry,  args,  mailbox_capacity)</td></tr>
-<tr class="memdesc:gad85fb81220dadbf8263aa7cc8ba33fa5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start a service coroutine.  <br /></td></tr>
-<tr class="separator:gad85fb81220dadbf8263aa7cc8ba33fa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9ab9ac7346633c440b300b0a9704e93e" id="r_ga9ab9ac7346633c440b300b0a9704e93e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__service.html#ga9ab9ac7346633c440b300b0a9704e93e">bio_start_service</a>(ptr,  entry,  args)&#160;&#160;&#160;	<a class="el" href="group__service.html#ga1eec559a3d047e1973a13caa06163a73">bio_start_service_ex</a>(ptr, entry, args, NULL)</td></tr>
+<tr class="memdesc:ga9ab9ac7346633c440b300b0a9704e93e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start a service coroutine.  <br /></td></tr>
+<tr class="separator:ga9ab9ac7346633c440b300b0a9704e93e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1eec559a3d047e1973a13caa06163a73" id="r_ga1eec559a3d047e1973a13caa06163a73"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__service.html#ga1eec559a3d047e1973a13caa06163a73">bio_start_service_ex</a>(ptr,  entry,  args,  options)</td></tr>
+<tr class="memdesc:ga1eec559a3d047e1973a13caa06163a73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start a service coroutine.  <br /></td></tr>
+<tr class="separator:ga1eec559a3d047e1973a13caa06163a73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadb9a8cd5a3721cd2ab34e4129de9fb93" id="r_gadb9a8cd5a3721cd2ab34e4129de9fb93"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__service.html#gadb9a8cd5a3721cd2ab34e4129de9fb93">bio_stop_service</a>(service)&#160;&#160;&#160;	bio__service_stop((service).coro, (service).mailbox.bio__handle)</td></tr>
 <tr class="memdesc:gadb9a8cd5a3721cd2ab34e4129de9fb93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop a service.  <br /></td></tr>
 <tr class="separator:gadb9a8cd5a3721cd2ab34e4129de9fb93"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -195,7 +201,7 @@ Enumerations</h2></td></tr>
 <div class="line">    <a class="code hl_define" href="group__service.html#ga1c4df06d5f793a5b6ec8b25221528d15">BIO_SERVICE</a>(msg_t) adder;</div>
 <div class="line">    <span class="comment">// Start argument is stack-allocated</span></div>
 <div class="line">    <span class="keywordtype">int</span> start_arg = 42;</div>
-<div class="line">    <a class="code hl_define" href="group__service.html#gad85fb81220dadbf8263aa7cc8ba33fa5">bio_start_service</a>(&amp;adder, service_entry, start_arg, 4);</div>
+<div class="line">    <a class="code hl_define" href="group__service.html#ga9ab9ac7346633c440b300b0a9704e93e">bio_start_service</a>(&amp;adder, service_entry, start_arg);</div>
 <div class="line"> </div>
 <div class="line">    <a class="code hl_struct" href="structbio__signal__t.html">bio_signal_t</a> no_cancel = { 0 };</div>
 <div class="line">    <span class="keywordtype">int</span> result;</div>
@@ -214,15 +220,15 @@ Enumerations</h2></td></tr>
 <div class="line">}</div>
 <div class="ttc" id="agroup__logging_html_ga92813c805769c27992b4704dfe21c241"><div class="ttname"><a href="group__logging.html#ga92813c805769c27992b4704dfe21c241">BIO_INFO</a></div><div class="ttdeci">#define BIO_INFO(...)</div><div class="ttdoc">Log a message at BIO_LOG_LEVEL_DEBUG level.</div><div class="ttdef"><b>Definition</b> bio.h:48</div></div>
 <div class="ttc" id="agroup__mailbox_html_ga3aecbab6cea09bc10aa363b7dfa2e586"><div class="ttname"><a href="group__mailbox.html#ga3aecbab6cea09bc10aa363b7dfa2e586">BIO_MAILBOX</a></div><div class="ttdeci">#define BIO_MAILBOX(T)</div><div class="ttdoc">Define a mailbox type.</div><div class="ttdef"><b>Definition</b> mailbox.h:97</div></div>
-<div class="ttc" id="agroup__service_html_ga0a5915441f5cf405f893a9eb22d3e3f0"><div class="ttname"><a href="group__service.html#ga0a5915441f5cf405f893a9eb22d3e3f0">bio_get_service_info</a></div><div class="ttdeci">#define bio_get_service_info(userdata, mailbox_ptr, args_ptr)</div><div class="ttdoc">The service entrypoint must call this as soon as possible.</div><div class="ttdef"><b>Definition</b> service.h:120</div></div>
-<div class="ttc" id="agroup__service_html_ga1c4df06d5f793a5b6ec8b25221528d15"><div class="ttname"><a href="group__service.html#ga1c4df06d5f793a5b6ec8b25221528d15">BIO_SERVICE</a></div><div class="ttdeci">#define BIO_SERVICE(T)</div><div class="ttdoc">A service reference struct.</div><div class="ttdef"><b>Definition</b> service.h:64</div></div>
-<div class="ttc" id="agroup__service_html_ga3f03d9d9599baa4177baf2ce940688c5"><div class="ttname"><a href="group__service.html#ga3f03d9d9599baa4177baf2ce940688c5">bio_service_loop</a></div><div class="ttdeci">#define bio_service_loop(msg, mailbox)</div><div class="ttdoc">Message loop helper for the service.</div><div class="ttdef"><b>Definition</b> service.h:217</div></div>
-<div class="ttc" id="agroup__service_html_ga955af950234d8b2b422e64b78ca7c93c"><div class="ttname"><a href="group__service.html#ga955af950234d8b2b422e64b78ca7c93c">bio_call_service</a></div><div class="ttdeci">#define bio_call_service(service, message, cancel_signal)</div><div class="ttdoc">Make a synchronous service call.</div><div class="ttdef"><b>Definition</b> service.h:148</div></div>
-<div class="ttc" id="agroup__service_html_ga973c1cd2edcbf0afbe7d5f13b47a1c48"><div class="ttname"><a href="group__service.html#ga973c1cd2edcbf0afbe7d5f13b47a1c48">BIO_SERVICE_MSG</a></div><div class="ttdeci">#define BIO_SERVICE_MSG</div><div class="ttdoc">Helper to include bio_service_msg_base_t in a message type.</div><div class="ttdef"><b>Definition</b> service.h:71</div></div>
+<div class="ttc" id="agroup__service_html_ga0a5915441f5cf405f893a9eb22d3e3f0"><div class="ttname"><a href="group__service.html#ga0a5915441f5cf405f893a9eb22d3e3f0">bio_get_service_info</a></div><div class="ttdeci">#define bio_get_service_info(userdata, mailbox_ptr, args_ptr)</div><div class="ttdoc">The service entrypoint must call this as soon as possible.</div><div class="ttdef"><b>Definition</b> service.h:152</div></div>
+<div class="ttc" id="agroup__service_html_ga1c4df06d5f793a5b6ec8b25221528d15"><div class="ttname"><a href="group__service.html#ga1c4df06d5f793a5b6ec8b25221528d15">BIO_SERVICE</a></div><div class="ttdeci">#define BIO_SERVICE(T)</div><div class="ttdoc">A service reference struct.</div><div class="ttdef"><b>Definition</b> service.h:84</div></div>
+<div class="ttc" id="agroup__service_html_ga3f03d9d9599baa4177baf2ce940688c5"><div class="ttname"><a href="group__service.html#ga3f03d9d9599baa4177baf2ce940688c5">bio_service_loop</a></div><div class="ttdeci">#define bio_service_loop(msg, mailbox)</div><div class="ttdoc">Message loop helper for the service.</div><div class="ttdef"><b>Definition</b> service.h:249</div></div>
+<div class="ttc" id="agroup__service_html_ga955af950234d8b2b422e64b78ca7c93c"><div class="ttname"><a href="group__service.html#ga955af950234d8b2b422e64b78ca7c93c">bio_call_service</a></div><div class="ttdeci">#define bio_call_service(service, message, cancel_signal)</div><div class="ttdoc">Make a synchronous service call.</div><div class="ttdef"><b>Definition</b> service.h:180</div></div>
+<div class="ttc" id="agroup__service_html_ga973c1cd2edcbf0afbe7d5f13b47a1c48"><div class="ttname"><a href="group__service.html#ga973c1cd2edcbf0afbe7d5f13b47a1c48">BIO_SERVICE_MSG</a></div><div class="ttdeci">#define BIO_SERVICE_MSG</div><div class="ttdoc">Helper to include bio_service_msg_base_t in a message type.</div><div class="ttdef"><b>Definition</b> service.h:91</div></div>
+<div class="ttc" id="agroup__service_html_ga9ab9ac7346633c440b300b0a9704e93e"><div class="ttname"><a href="group__service.html#ga9ab9ac7346633c440b300b0a9704e93e">bio_start_service</a></div><div class="ttdeci">#define bio_start_service(ptr, entry, args)</div><div class="ttdoc">Start a service coroutine.</div><div class="ttdef"><b>Definition</b> service.h:102</div></div>
 <div class="ttc" id="agroup__service_html_gaa4b6b490e1bdb2b2eef15deca482ab12"><div class="ttname"><a href="group__service.html#gaa4b6b490e1bdb2b2eef15deca482ab12">bio_call_status_t</a></div><div class="ttdeci">bio_call_status_t</div><div class="ttdoc">The status of a call using bio_call_service.</div><div class="ttdef"><b>Definition</b> service.h:39</div></div>
-<div class="ttc" id="agroup__service_html_gab20e348daa8e74079afab41baee2c011"><div class="ttname"><a href="group__service.html#gab20e348daa8e74079afab41baee2c011">bio_respond</a></div><div class="ttdeci">#define bio_respond(msg)</div><div class="ttdoc">Helper for cancellable service call.</div><div class="ttdef"><b>Definition</b> service.h:284</div></div>
-<div class="ttc" id="agroup__service_html_gad85fb81220dadbf8263aa7cc8ba33fa5"><div class="ttname"><a href="group__service.html#gad85fb81220dadbf8263aa7cc8ba33fa5">bio_start_service</a></div><div class="ttdeci">#define bio_start_service(ptr, entry, args, mailbox_capacity)</div><div class="ttdoc">Start a service coroutine.</div><div class="ttdef"><b>Definition</b> service.h:88</div></div>
-<div class="ttc" id="agroup__service_html_gadb9a8cd5a3721cd2ab34e4129de9fb93"><div class="ttname"><a href="group__service.html#gadb9a8cd5a3721cd2ab34e4129de9fb93">bio_stop_service</a></div><div class="ttdeci">#define bio_stop_service(service)</div><div class="ttdoc">Stop a service.</div><div class="ttdef"><b>Definition</b> service.h:109</div></div>
+<div class="ttc" id="agroup__service_html_gab20e348daa8e74079afab41baee2c011"><div class="ttname"><a href="group__service.html#gab20e348daa8e74079afab41baee2c011">bio_respond</a></div><div class="ttdeci">#define bio_respond(msg)</div><div class="ttdoc">Helper for cancellable service call.</div><div class="ttdef"><b>Definition</b> service.h:316</div></div>
+<div class="ttc" id="agroup__service_html_gadb9a8cd5a3721cd2ab34e4129de9fb93"><div class="ttname"><a href="group__service.html#gadb9a8cd5a3721cd2ab34e4129de9fb93">bio_stop_service</a></div><div class="ttdeci">#define bio_stop_service(service)</div><div class="ttdoc">Stop a service.</div><div class="ttdef"><b>Definition</b> service.h:141</div></div>
 <div class="ttc" id="agroup__service_html_ggaa4b6b490e1bdb2b2eef15deca482ab12a4be7a21b90a6c858417778e0218239d4"><div class="ttname"><a href="group__service.html#ggaa4b6b490e1bdb2b2eef15deca482ab12a4be7a21b90a6c858417778e0218239d4">BIO_CALL_OK</a></div><div class="ttdeci">@ BIO_CALL_OK</div><div class="ttdoc">The call was handled by the service.</div><div class="ttdef"><b>Definition</b> service.h:41</div></div>
 <div class="ttc" id="astructbio__signal__t_html"><div class="ttname"><a href="structbio__signal__t.html">bio_signal_t</a></div><div class="ttdoc">Handle to a signal.</div><div class="ttdef"><b>Definition</b> bio.h:147</div></div>
 </div><!-- fragment --><p>In the above example, the service consumer makes use of several stack-allocated values. This is typical for C code. They would be invalid to access if it has terminated. However, the service modules provide several guarantee so that it is safe to do so. These will be explained in this document. </p>
@@ -304,7 +310,7 @@ Enumerations</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A value of type <a class="el" href="group__service.html#gaa4b6b490e1bdb2b2eef15deca482ab12">bio_call_status_t</a></dd></dl>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__service.html#gad85fb81220dadbf8263aa7cc8ba33fa5" title="Start a service coroutine.">bio_start_service</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__service.html#ga9ab9ac7346633c440b300b0a9704e93e" title="Start a service coroutine.">bio_start_service</a> </dd></dl>
 
 </div>
 </div>
@@ -345,7 +351,7 @@ Enumerations</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">userdata</td><td>The userdata from the coroutine entrypoint. </td></tr>
     <tr><td class="paramname">mailbox_ptr</td><td>Pointer to a mailbox variable of the appropriate message type. </td></tr>
-    <tr><td class="paramname">args_ptr</td><td>Pointer to a variable of the same type as <code>args</code> that was passed to <a class="el" href="group__service.html#gad85fb81220dadbf8263aa7cc8ba33fa5">bio_start_service</a> </td></tr>
+    <tr><td class="paramname">args_ptr</td><td>Pointer to a variable of the same type as <code>args</code> that was passed to <a class="el" href="group__service.html#ga9ab9ac7346633c440b300b0a9704e93e">bio_start_service</a> </td></tr>
   </table>
   </dd>
 </dl>
@@ -419,7 +425,7 @@ Enumerations</h2></td></tr>
 <div class="line">    )</div>
 <div class="ttc" id="agroup__coro_html_gga94f6989d9bb01e8af4b14575643ae55ca07f18b2b5552c168a8cba22a9cd46214"><div class="ttname"><a href="group__coro.html#gga94f6989d9bb01e8af4b14575643ae55ca07f18b2b5552c168a8cba22a9cd46214">BIO_CORO_DEAD</a></div><div class="ttdeci">@ BIO_CORO_DEAD</div><div class="ttdoc">The coroutine has terminated.</div><div class="ttdef"><b>Definition</b> bio.h:512</div></div>
 <div class="ttc" id="agroup__mailbox_html_gadd2b9bb97deb42eec12a4d1c227f41c5"><div class="ttname"><a href="group__mailbox.html#gadd2b9bb97deb42eec12a4d1c227f41c5">bio_wait_and_send_message</a></div><div class="ttdeci">#define bio_wait_and_send_message(condition, mailbox, message)</div><div class="ttdoc">A more reliable way to send message.</div><div class="ttdef"><b>Definition</b> mailbox.h:176</div></div>
-<div class="ttc" id="agroup__service_html_ga1528d9454cb2120ca2914a863637b80e"><div class="ttname"><a href="group__service.html#ga1528d9454cb2120ca2914a863637b80e">bio_service_state</a></div><div class="ttdeci">#define bio_service_state(service)</div><div class="ttdoc">Check a service's state.</div><div class="ttdef"><b>Definition</b> service.h:167</div></div>
+<div class="ttc" id="agroup__service_html_ga1528d9454cb2120ca2914a863637b80e"><div class="ttname"><a href="group__service.html#ga1528d9454cb2120ca2914a863637b80e">bio_service_state</a></div><div class="ttdeci">#define bio_service_state(service)</div><div class="ttdoc">Check a service's state.</div><div class="ttdef"><b>Definition</b> service.h:199</div></div>
 </div><!-- fragment -->
 <p>Send a notification to a service. </p>
 <p>This is similar to <a class="el" href="group__service.html#ga955af950234d8b2b422e64b78ca7c93c">bio_call_service</a> but a respond is not expected. The calling coroutine might suspend until the message has been delivered or the service has terminated prematurely.</p>
@@ -468,7 +474,7 @@ Enumerations</h2></td></tr>
 <div class="line">        *msg.result = malloc(...);</div>
 <div class="line">    }</div>
 <div class="line">}</div>
-<div class="ttc" id="agroup__service_html_ga49ff241d09bde2da1e564e700f909368"><div class="ttname"><a href="group__service.html#ga49ff241d09bde2da1e564e700f909368">bio_is_call_cancelled</a></div><div class="ttdeci">#define bio_is_call_cancelled(msg)</div><div class="ttdoc">Check whether a call was cancelled.</div><div class="ttdef"><b>Definition</b> service.h:203</div></div>
+<div class="ttc" id="agroup__service_html_ga49ff241d09bde2da1e564e700f909368"><div class="ttname"><a href="group__service.html#ga49ff241d09bde2da1e564e700f909368">bio_is_call_cancelled</a></div><div class="ttdeci">#define bio_is_call_cancelled(msg)</div><div class="ttdoc">Check whether a call was cancelled.</div><div class="ttdef"><b>Definition</b> service.h:235</div></div>
 </div><!-- fragment --><p>Alternatively, the service might have allocated resources before hand and they should be freed upon cancellation:</p>
 <div class="fragment"><div class="line"><span class="comment">// Allocate resource for computation</span></div>
 <div class="line">resource_t* resource = alloc_resource();</div>
@@ -601,8 +607,8 @@ Enumerations</h2></td></tr>
 
 </div>
 </div>
-<a id="gad85fb81220dadbf8263aa7cc8ba33fa5" name="gad85fb81220dadbf8263aa7cc8ba33fa5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gad85fb81220dadbf8263aa7cc8ba33fa5">&#9670;&#160;</a></span>bio_start_service</h2>
+<a id="ga9ab9ac7346633c440b300b0a9704e93e" name="ga9ab9ac7346633c440b300b0a9704e93e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9ab9ac7346633c440b300b0a9704e93e">&#9670;&#160;</a></span>bio_start_service</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -623,13 +629,58 @@ Enumerations</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
+          <td class="paramname">args&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;	<a class="el" href="group__service.html#ga1eec559a3d047e1973a13caa06163a73">bio_start_service_ex</a>(ptr, entry, args, NULL)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Start a service coroutine. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ptr</td><td>Pointer to a variable of type <a class="el" href="group__service.html#ga1c4df06d5f793a5b6ec8b25221528d15">BIO_SERVICE</a> </td></tr>
+    <tr><td class="paramname">entry</td><td>Entrypoint to the service (<a class="el" href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a>) </td></tr>
+    <tr><td class="paramname">arg</td><td>Start argument to be passed to the service</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__service.html#ga1eec559a3d047e1973a13caa06163a73" title="Start a service coroutine.">bio_start_service_ex</a> </dd></dl>
+
+</div>
+</div>
+<a id="ga1eec559a3d047e1973a13caa06163a73" name="ga1eec559a3d047e1973a13caa06163a73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1eec559a3d047e1973a13caa06163a73">&#9670;&#160;</a></span>bio_start_service_ex</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define bio_start_service_ex</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ptr, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">entry, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
           <td class="paramname">args, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname">mailbox_capacity&#160;</td>
+          <td class="paramname">options&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -642,7 +693,7 @@ Enumerations</h2></td></tr>
 <div class="line">        &amp;(ptr)-&gt;coro, \</div>
 <div class="line">        &amp;(ptr)-&gt;mailbox.bio__handle, \</div>
 <div class="line">        <span class="keyword">sizeof</span>(*((ptr)-&gt;mailbox.bio__message)), \</div>
-<div class="line">        mailbox_capacity, \</div>
+<div class="line">        options, \</div>
 <div class="line">        entry, \</div>
 <div class="line">        &amp;args, \</div>
 <div class="line">        <span class="keyword">sizeof</span>(args) \</div>
@@ -653,9 +704,9 @@ Enumerations</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">ptr</td><td>Pointer to a variable of type <a class="el" href="group__service.html#ga1c4df06d5f793a5b6ec8b25221528d15">BIO_SERVICE</a> </td></tr>
-    <tr><td class="paramname">entry</td><td>Entrypoint to the service </td></tr>
+    <tr><td class="paramname">entry</td><td>Entrypoint to the service (<a class="el" href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a>) </td></tr>
     <tr><td class="paramname">arg</td><td>Start argument to be passed to the service </td></tr>
-    <tr><td class="paramname">mailbox_capacity</td><td>Mailbox capacity of the service</td></tr>
+    <tr><td class="paramname">options</td><td>Options for the service (<a class="el" href="structbio__service__options__t.html">const bio_service_options_t*</a>), can be <code>NULL</code></td></tr>
   </table>
   </dd>
 </dl>
@@ -682,7 +733,7 @@ Enumerations</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Stop a service. </p>
-<p>The caller will suspends until the targeted service has terminated. This is to ensure that the service can no longer refer to any shared resources that was passed through <a class="el" href="group__service.html#gad85fb81220dadbf8263aa7cc8ba33fa5">bio_start_service</a>. The caller may safely release them after this returns.</p>
+<p>The caller will suspends until the targeted service has terminated. This is to ensure that the service can no longer refer to any shared resources that was passed through <a class="el" href="group__service.html#ga9ab9ac7346633c440b300b0a9704e93e">bio_start_service</a>. The caller may safely release them after this returns.</p>
 <p>As with all bio's resources, stopping an already stopped service is not an error. </p>
 
 </div>

@@ -9,6 +9,10 @@ var group__coro =
       [ "init", "structbio__cls__t.html#a0677d711c8e3ab2eaf4c327e4faba33f", null ],
       [ "size", "structbio__cls__t.html#a8c3a76782a12d10b720976e42b2d6dd8", null ]
     ] ],
+    [ "bio_coro_options_t", "structbio__coro__options__t.html", [
+      [ "daemon", "structbio__coro__options__t.html#a35b23d6a02070b6e46ad8ad135dc1561", null ],
+      [ "stack_size", "structbio__coro__options__t.html#a5b86d71fa8432c53c561e165a7a48018", null ]
+    ] ],
     [ "bio_entrypoint_t", "group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5", null ],
     [ "bio_coro_state_t", "group__coro.html#ga94f6989d9bb01e8af4b14575643ae55c", [
       [ "BIO_CORO_READY", "group__coro.html#gga94f6989d9bb01e8af4b14575643ae55ca4ff0fc51ec5e3fe249b3b82a671843ed", null ],
@@ -23,6 +27,7 @@ var group__coro =
     [ "bio_get_coro_name", "group__coro.html#ga5d004977f3fb35d5e5088b951db80645", null ],
     [ "bio_set_coro_data", "group__coro.html#ga8b3ca02984a2e1c83528133cb2e5033a", null ],
     [ "bio_set_coro_name", "group__coro.html#ga97a7285e28a3af61e336163c931d0adb", null ],
-    [ "bio_spawn", "group__coro.html#gae947d3e23e02081e761fde6022c9805a", null ],
+    [ "bio_spawn", "group__coro.html#ga99083106e829d879611b62e2b5f0d93a", null ],
+    [ "bio_spawn_ex", "group__coro.html#ga3581310f9082b27ab2e476b2a42c87b9", null ],
     [ "bio_yield", "group__coro.html#ga6f37450bb3b8f1293eb53858af4de8a8", null ]
 ];

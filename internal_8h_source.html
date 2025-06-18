@@ -221,241 +221,244 @@ $(document).ready(function(){initNavTree('internal_8h_source.html',''); initResi
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno"><a class="line" href="structbio__coro__impl__s.html">  160</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structbio__coro__impl__s.html">bio_coro_impl_s</a> {</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    mco_coro* impl;</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <a class="code hl_typedef" href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a> entrypoint;</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <span class="keywordtype">void</span>* userdata;</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordtype">void</span>* extra_data;</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structbio__tag__t.html">bio_tag_t</a>* extra_data_tag;</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keyword">const</span> <span class="keywordtype">char</span>* name;</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    bio_cls_link_t* cls_buckets;</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <a class="code hl_struct" href="structbio__handle__t.html">bio_handle_t</a> handle;</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <a class="code hl_enumeration" href="group__coro.html#ga94f6989d9bb01e8af4b14575643ae55c">bio_coro_state_t</a> state;</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span> </div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    bio_signal_link_t pending_signals;</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    bio_monitor_link_t monitors;</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keywordtype">int</span> num_blocking_signals;</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordtype">int</span> wait_counter;</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>};</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <span class="keywordtype">bool</span> daemon;</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordtype">void</span>* userdata;</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordtype">void</span>* extra_data;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    <span class="keyword">const</span> <a class="code hl_struct" href="structbio__tag__t.html">bio_tag_t</a>* extra_data_tag;</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    <span class="keyword">const</span> <span class="keywordtype">char</span>* name;</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    bio_cls_link_t* cls_buckets;</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span> </div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <a class="code hl_struct" href="structbio__handle__t.html">bio_handle_t</a> handle;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <a class="code hl_enumeration" href="group__coro.html#ga94f6989d9bb01e8af4b14575643ae55c">bio_coro_state_t</a> state;</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    bio_signal_link_t pending_signals;</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    bio_monitor_link_t monitors;</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordtype">int</span> num_blocking_signals;</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordtype">int</span> wait_counter;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>};</div>
 </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
-<div class="foldopen" id="foldopen00179" data-start="{" data-end="};">
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno"><a class="line" href="structbio__monitor__impl__t.html">  179</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    bio_monitor_link_t link;</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    <a class="code hl_struct" href="structbio__handle__t.html">bio_handle_t</a> handle;</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    <a class="code hl_struct" href="structbio__signal__t.html">bio_signal_t</a> signal;</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>} <a class="code hl_struct" href="structbio__monitor__impl__t.html">bio_monitor_impl_t</a>;</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
+<div class="foldopen" id="foldopen00180" data-start="{" data-end="};">
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno"><a class="line" href="structbio__monitor__impl__t.html">  180</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    bio_monitor_link_t link;</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    <a class="code hl_struct" href="structbio__handle__t.html">bio_handle_t</a> handle;</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <a class="code hl_struct" href="structbio__signal__t.html">bio_signal_t</a> signal;</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>} <a class="code hl_struct" href="structbio__monitor__impl__t.html">bio_monitor_impl_t</a>;</div>
 </div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="keyword">typedef</span> <span class="keyword">struct </span>bio_worker_thread_s bio_worker_thread_t;</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span> </div>
-<div class="foldopen" id="foldopen00187" data-start="{" data-end="};">
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno"><a class="line" href="structbio__timer__entry__t.html">  187</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a> due_time_ms;</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <a class="code hl_struct" href="structbio__signal__t.html">bio_signal_t</a> signal;</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>} <a class="code hl_struct" href="structbio__timer__entry__t.html">bio_timer_entry_t</a>;</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span> </div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="keyword">typedef</span> <span class="keyword">struct </span>bio_worker_thread_s bio_worker_thread_t;</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
+<div class="foldopen" id="foldopen00188" data-start="{" data-end="};">
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno"><a class="line" href="structbio__timer__entry__t.html">  188</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a> due_time_ms;</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <a class="code hl_struct" href="structbio__signal__t.html">bio_signal_t</a> signal;</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>} <a class="code hl_struct" href="structbio__timer__entry__t.html">bio_timer_entry_t</a>;</div>
 </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
-<div class="foldopen" id="foldopen00192" data-start="{" data-end="};">
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno"><a class="line" href="structbio__fmt__buf__t.html">  192</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordtype">char</span>* ptr;</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keywordtype">int</span> len;</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>} <a class="code hl_struct" href="structbio__fmt__buf__t.html">bio_fmt_buf_t</a>;</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
+<div class="foldopen" id="foldopen00193" data-start="{" data-end="};">
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno"><a class="line" href="structbio__fmt__buf__t.html">  193</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keywordtype">char</span>* ptr;</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keywordtype">int</span> len;</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>} <a class="code hl_struct" href="structbio__fmt__buf__t.html">bio_fmt_buf_t</a>;</div>
 </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
-<div class="foldopen" id="foldopen00197" data-start="{" data-end="};">
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno"><a class="line" href="structbio__ctx__t.html">  197</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <a class="code hl_struct" href="structbio__options__t.html">bio_options_t</a> options;</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="comment">// Handle table</span></div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <a class="code hl_struct" href="structbio__handle__slot__t.html">bio_handle_slot_t</a>* handle_slots;</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    int32_t handle_capacity;</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    int32_t next_handle_slot;</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    int32_t num_handles;</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="comment">// Timer</span></div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <a class="code hl_struct" href="structbio__timer__entry__t.html">bio_timer_entry_t</a>* timer_entries;</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    int32_t timer_capacity;</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    int32_t num_timers;</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a> current_time_ms;</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="comment">// Scheduler</span></div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    BIO_ARRAY(<a class="code hl_struct" href="structbio__coro__impl__s.html">bio_coro_impl_t</a>*) current_ready_coros;</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    BIO_ARRAY(<a class="code hl_struct" href="structbio__coro__impl__s.html">bio_coro_impl_t</a>*) next_ready_coros;</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    int32_t num_coros;</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span> </div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    <span class="comment">// Logging</span></div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    bio_logger_link_t loggers;</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    <span class="keywordtype">int</span> log_prefix_len;</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    <span class="comment">// Thread pool</span></div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    bio_worker_thread_t* thread_pool;</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    int32_t num_running_async_jobs;</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span> </div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <span class="comment">// Platform specific</span></div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    <a class="code hl_struct" href="structbio__platform__t.html">bio_platform_t</a> platform;</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>} <a class="code hl_struct" href="structbio__ctx__t.html">bio_ctx_t</a>;</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span> </div>
+<div class="foldopen" id="foldopen00198" data-start="{" data-end="};">
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno"><a class="line" href="structbio__ctx__t.html">  198</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>{</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    <a class="code hl_struct" href="structbio__options__t.html">bio_options_t</a> options;</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">bool</span> is_terminating;</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="comment">// Handle table</span></div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <a class="code hl_struct" href="structbio__handle__slot__t.html">bio_handle_slot_t</a>* handle_slots;</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    int32_t handle_capacity;</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    int32_t next_handle_slot;</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    int32_t num_handles;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="comment">// Timer</span></div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <a class="code hl_struct" href="structbio__timer__entry__t.html">bio_timer_entry_t</a>* timer_entries;</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    int32_t timer_capacity;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    int32_t num_timers;</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a> current_time_ms;</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    <span class="comment">// Scheduler</span></div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>    BIO_ARRAY(<a class="code hl_struct" href="structbio__coro__impl__s.html">bio_coro_impl_t</a>*) current_ready_coros;</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    BIO_ARRAY(<a class="code hl_struct" href="structbio__coro__impl__s.html">bio_coro_impl_t</a>*) next_ready_coros;</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    int32_t num_coros;</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    int32_t num_daemons;</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="comment">// Logging</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>    bio_logger_link_t loggers;</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keywordtype">int</span> log_prefix_len;</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="comment">// Thread pool</span></div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    bio_worker_thread_t* thread_pool;</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    int32_t num_running_async_jobs;</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span> </div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    <span class="comment">// Platform specific</span></div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    <a class="code hl_struct" href="structbio__platform__t.html">bio_platform_t</a> platform;</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>} <a class="code hl_struct" href="structbio__ctx__t.html">bio_ctx_t</a>;</div>
 </div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>    BIO_PLATFORM_UPDATE_NO_WAIT,</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    BIO_PLATFORM_UPDATE_WAIT_INDEFINITELY,</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    BIO_PLATFORM_UPDATE_WAIT_NOTIFIABLE,</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>} bio_platform_update_type_t;</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="keyword">extern</span> <a class="code hl_struct" href="structbio__ctx__t.html">bio_ctx_t</a> bio_ctx;</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span>*</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>bio_realloc(<span class="keywordtype">void</span>* ptr, <span class="keywordtype">size_t</span> size) {</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    <span class="keywordflow">return</span> bio_ctx.options.<a class="code hl_variable" href="structbio__options__t.html#a4b6f9b36e040476bb6ddf38bd1cd36b9">allocator</a>.<a class="code hl_variable" href="structbio__allocator__t.html#a6920b7adc9c800e742931b2c44875660">realloc</a>(ptr, size, bio_ctx.options.<a class="code hl_variable" href="structbio__options__t.html#a4b6f9b36e040476bb6ddf38bd1cd36b9">allocator</a>.<a class="code hl_variable" href="structbio__allocator__t.html#a7018f6efd7e0cc67ee6721957d8e0a45">ctx</a>);</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>}</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span>*</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>bio_malloc(<span class="keywordtype">size_t</span> size) {</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keywordflow">return</span> bio_realloc(NULL, size);</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>}</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span></div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>bio_free(<span class="keywordtype">void</span>* ptr) {</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    bio_realloc(ptr, 0);</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>}</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="keyword">static</span> <span class="keyword">inline</span> uint32_t</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>bio_next_pow2(uint32_t v) {</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>    uint32_t next = v;</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    next--;</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    next |= next &gt;&gt; 1;</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    next |= next &gt;&gt; 2;</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    next |= next &gt;&gt; 4;</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    next |= next &gt;&gt; 8;</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    next |= next &gt;&gt; 16;</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    next++;</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    <span class="keywordflow">return</span> next;</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>}</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    BIO_PLATFORM_UPDATE_NO_WAIT,</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    BIO_PLATFORM_UPDATE_WAIT_INDEFINITELY,</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    BIO_PLATFORM_UPDATE_WAIT_NOTIFIABLE,</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>} bio_platform_update_type_t;</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="keyword">extern</span> <a class="code hl_struct" href="structbio__ctx__t.html">bio_ctx_t</a> bio_ctx;</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span>*</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>bio_realloc(<span class="keywordtype">void</span>* ptr, <span class="keywordtype">size_t</span> size) {</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>    <span class="keywordflow">return</span> bio_ctx.options.<a class="code hl_variable" href="structbio__options__t.html#a4b6f9b36e040476bb6ddf38bd1cd36b9">allocator</a>.<a class="code hl_variable" href="structbio__allocator__t.html#a6920b7adc9c800e742931b2c44875660">realloc</a>(ptr, size, bio_ctx.options.<a class="code hl_variable" href="structbio__options__t.html#a4b6f9b36e040476bb6ddf38bd1cd36b9">allocator</a>.<a class="code hl_variable" href="structbio__allocator__t.html#a7018f6efd7e0cc67ee6721957d8e0a45">ctx</a>);</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>}</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span> </div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span>*</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>bio_malloc(<span class="keywordtype">size_t</span> size) {</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>    <span class="keywordflow">return</span> bio_realloc(NULL, size);</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>}</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">void</span></div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>bio_free(<span class="keywordtype">void</span>* ptr) {</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    bio_realloc(ptr, 0);</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>}</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span><span class="keyword">static</span> <span class="keyword">inline</span> uint32_t</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>bio_next_pow2(uint32_t v) {</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    uint32_t next = v;</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>    next--;</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    next |= next &gt;&gt; 1;</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    next |= next &gt;&gt; 2;</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    next |= next &gt;&gt; 4;</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>    next |= next &gt;&gt; 8;</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    next |= next &gt;&gt; 16;</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    next++;</div>
 <div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span> </div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">int</span></div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>bio_vfmt(<a class="code hl_struct" href="structbio__fmt__buf__t.html">bio_fmt_buf_t</a>* buf, <span class="keyword">const</span> <span class="keywordtype">char</span>* fmt, va_list args) {</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    va_list args_copy;</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>    va_copy(args_copy, args);</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="keywordtype">int</span> num_chars = vsnprintf(buf-&gt;ptr, (<span class="keywordtype">size_t</span>)buf-&gt;len, fmt, args_copy);</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    va_end(args_copy);</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordflow">if</span> (num_chars &lt; 0) { <span class="keywordflow">return</span> num_chars; }  <span class="comment">// Format error</span></div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span> </div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="keywordflow">if</span> (num_chars &gt;= (<span class="keywordtype">int</span>)buf-&gt;len) {</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>        bio_free(buf-&gt;ptr);</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>        buf-&gt;ptr = bio_malloc(num_chars + 1);</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>        buf-&gt;len = num_chars + 1;</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>        vsnprintf(buf-&gt;ptr, (<span class="keywordtype">size_t</span>)buf-&gt;len, fmt, args);</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    }</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keywordflow">return</span> next;</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>}</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keywordtype">int</span></div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>bio_vfmt(<a class="code hl_struct" href="structbio__fmt__buf__t.html">bio_fmt_buf_t</a>* buf, <span class="keyword">const</span> <span class="keywordtype">char</span>* fmt, va_list args) {</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    va_list args_copy;</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>    va_copy(args_copy, args);</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="keywordtype">int</span> num_chars = vsnprintf(buf-&gt;ptr, (<span class="keywordtype">size_t</span>)buf-&gt;len, fmt, args_copy);</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    va_end(args_copy);</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="keywordflow">if</span> (num_chars &lt; 0) { <span class="keywordflow">return</span> num_chars; }  <span class="comment">// Format error</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>    <span class="keywordflow">if</span> (num_chars &gt;= (<span class="keywordtype">int</span>)buf-&gt;len) {</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>        bio_free(buf-&gt;ptr);</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>        buf-&gt;ptr = bio_malloc(num_chars + 1);</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>        buf-&gt;len = num_chars + 1;</div>
 <div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    buf-&gt;ptr[num_chars] = <span class="charliteral">&#39;\0&#39;</span>;</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keywordflow">return</span> num_chars;</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>}</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span> </div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>BIO_FORMAT_ATTRIBUTE(2, 3)</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>static inline <span class="keywordtype">int</span></div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>bio_fmt(<a class="code hl_struct" href="structbio__fmt__buf__t.html">bio_fmt_buf_t</a>* buf, const <span class="keywordtype">char</span>* fmt, ...) {</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    va_list args;</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    va_start(args, fmt);</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    <span class="keywordtype">int</span> num_chars = bio_vfmt(buf, fmt, args);</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    va_end(args);</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordflow">return</span> num_chars;</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>}</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span><span class="comment">// Platform</span></div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span> </div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno"><a class="line" href="group__internal.html#gaec90ae104fab2334fcf70021a61f4457">  306</a></span><a class="code hl_function" href="group__internal.html#gaec90ae104fab2334fcf70021a61f4457">bio_platform_init</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno"><a class="line" href="group__internal.html#gad84f3cec9d1bddfa9e22612a9d757a8f">  310</a></span><a class="code hl_function" href="group__internal.html#gad84f3cec9d1bddfa9e22612a9d757a8f">bio_platform_cleanup</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno"><a class="line" href="group__internal.html#ga50419cd8fe5567c12d32f8f4f328a892">  333</a></span><a class="code hl_function" href="group__internal.html#ga50419cd8fe5567c12d32f8f4f328a892">bio_platform_update</a>(<a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a> wait_timeout_ms, <span class="keywordtype">bool</span> notifiable);</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno"><a class="line" href="group__internal.html#gaf375f42c4d2c142009950925fb543392">  343</a></span><a class="code hl_function" href="group__internal.html#gaf375f42c4d2c142009950925fb543392">bio_platform_notify</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span><a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a></div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno"><a class="line" href="group__internal.html#gaab732a361c37452eb7681f57f7814a89">  351</a></span><a class="code hl_function" href="group__internal.html#gaab732a361c37452eb7681f57f7814a89">bio_platform_current_time_ms</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span> </div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno"><a class="line" href="group__internal.html#gaf07afefe7744173f43843c63806a0cdb">  355</a></span><a class="code hl_function" href="group__internal.html#gaf07afefe7744173f43843c63806a0cdb">bio_platform_begin_create_thread_pool</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span> </div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno"><a class="line" href="group__internal.html#ga43f82f22377f8258d9d4b5631aca876a">  359</a></span><a class="code hl_function" href="group__internal.html#ga43f82f22377f8258d9d4b5631aca876a">bio_platform_end_create_thread_pool</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span> </div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span><span class="comment">// File</span></div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span> </div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno"><a class="line" href="group__internal.html#gafe60c46b492ce128f7da494fd56bda1d">  365</a></span><a class="code hl_function" href="group__internal.html#gafe60c46b492ce128f7da494fd56bda1d">bio_fs_init</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span> </div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno"><a class="line" href="group__internal.html#gaf753f7a858b1de3d268f07083f23bbb8">  369</a></span><a class="code hl_function" href="group__internal.html#gaf753f7a858b1de3d268f07083f23bbb8">bio_fs_cleanup</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span><span class="comment">// Net</span></div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span> </div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno"><a class="line" href="group__internal.html#ga36d6ed102954273792159676d20773ab">  375</a></span><a class="code hl_function" href="group__internal.html#ga36d6ed102954273792159676d20773ab">bio_net_init</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span> </div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno"><a class="line" href="group__internal.html#ga02c36cfbb4884b7af60302b7c1fcf5f6">  379</a></span><a class="code hl_function" href="group__internal.html#ga02c36cfbb4884b7af60302b7c1fcf5f6">bio_net_cleanup</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span> </div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span><span class="comment">// Handle table</span></div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span> </div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>bio_handle_table_init(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>        vsnprintf(buf-&gt;ptr, (<span class="keywordtype">size_t</span>)buf-&gt;len, fmt, args);</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    }</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span> </div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    buf-&gt;ptr[num_chars] = <span class="charliteral">&#39;\0&#39;</span>;</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keywordflow">return</span> num_chars;</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>}</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>BIO_FORMAT_ATTRIBUTE(2, 3)</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>static inline <span class="keywordtype">int</span></div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>bio_fmt(<a class="code hl_struct" href="structbio__fmt__buf__t.html">bio_fmt_buf_t</a>* buf, const <span class="keywordtype">char</span>* fmt, ...) {</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    va_list args;</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    va_start(args, fmt);</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    <span class="keywordtype">int</span> num_chars = bio_vfmt(buf, fmt, args);</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    va_end(args);</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>    <span class="keywordflow">return</span> num_chars;</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>}</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span> </div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span><span class="comment">// Platform</span></div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span> </div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno"><a class="line" href="group__internal.html#gaec90ae104fab2334fcf70021a61f4457">  309</a></span><a class="code hl_function" href="group__internal.html#gaec90ae104fab2334fcf70021a61f4457">bio_platform_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno"><a class="line" href="group__internal.html#gad84f3cec9d1bddfa9e22612a9d757a8f">  313</a></span><a class="code hl_function" href="group__internal.html#gad84f3cec9d1bddfa9e22612a9d757a8f">bio_platform_cleanup</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno"><a class="line" href="group__internal.html#ga50419cd8fe5567c12d32f8f4f328a892">  336</a></span><a class="code hl_function" href="group__internal.html#ga50419cd8fe5567c12d32f8f4f328a892">bio_platform_update</a>(<a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a> wait_timeout_ms, <span class="keywordtype">bool</span> notifiable);</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span> </div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno"><a class="line" href="group__internal.html#gaf375f42c4d2c142009950925fb543392">  346</a></span><a class="code hl_function" href="group__internal.html#gaf375f42c4d2c142009950925fb543392">bio_platform_notify</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span> </div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span><a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a></div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno"><a class="line" href="group__internal.html#gaab732a361c37452eb7681f57f7814a89">  354</a></span><a class="code hl_function" href="group__internal.html#gaab732a361c37452eb7681f57f7814a89">bio_platform_current_time_ms</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span> </div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno"><a class="line" href="group__internal.html#gaf07afefe7744173f43843c63806a0cdb">  358</a></span><a class="code hl_function" href="group__internal.html#gaf07afefe7744173f43843c63806a0cdb">bio_platform_begin_create_thread_pool</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span> </div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno"><a class="line" href="group__internal.html#ga43f82f22377f8258d9d4b5631aca876a">  362</a></span><a class="code hl_function" href="group__internal.html#ga43f82f22377f8258d9d4b5631aca876a">bio_platform_end_create_thread_pool</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span> </div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span><span class="comment">// File</span></div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span> </div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno"><a class="line" href="group__internal.html#gafe60c46b492ce128f7da494fd56bda1d">  368</a></span><a class="code hl_function" href="group__internal.html#gafe60c46b492ce128f7da494fd56bda1d">bio_fs_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span> </div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno"><a class="line" href="group__internal.html#gaf753f7a858b1de3d268f07083f23bbb8">  372</a></span><a class="code hl_function" href="group__internal.html#gaf753f7a858b1de3d268f07083f23bbb8">bio_fs_cleanup</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span> </div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span><span class="comment">// Net</span></div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span> </div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno"><a class="line" href="group__internal.html#ga36d6ed102954273792159676d20773ab">  378</a></span><a class="code hl_function" href="group__internal.html#ga36d6ed102954273792159676d20773ab">bio_net_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span> </div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno"><a class="line" href="group__internal.html#ga02c36cfbb4884b7af60302b7c1fcf5f6">  382</a></span><a class="code hl_function" href="group__internal.html#ga02c36cfbb4884b7af60302b7c1fcf5f6">bio_net_cleanup</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span> </div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span><span class="comment">// Handle table</span></div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span> </div>
 <div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>bio_handle_table_cleanup(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>bio_handle_table_init(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span> </div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span><span class="comment">// Timer</span></div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span> </div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>bio_timer_init(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>bio_handle_table_cleanup(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span> </div>
+<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span><span class="comment">// Timer</span></div>
 <div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span> </div>
 <div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>bio_timer_cleanup(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>bio_timer_init(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span> </div>
 <div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>bio_timer_update(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>bio_timer_cleanup(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span> </div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span><a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a></div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>bio_time_until_next_timer(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>bio_timer_update(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span> </div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span><span class="comment">// Scheduler</span></div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span> </div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>bio_scheduler_init(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span><a class="code hl_typedef" href="group__misc.html#ga2731c29427c64b1067a9ef8ed3f95fca">bio_time_t</a></div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>bio_time_until_next_timer(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span> </div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span><span class="comment">// Scheduler</span></div>
 <div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span> </div>
 <div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>bio_scheduler_cleanup(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>bio_scheduler_init(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span> </div>
-<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span><span class="comment">// Thread</span></div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span> </div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>bio_thread_init(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>bio_scheduler_cleanup(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span> </div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span><span class="comment">// Thread</span></div>
 <div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span> </div>
 <div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>bio_thread_cleanup(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>bio_thread_init(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span> </div>
 <div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>bio_thread_update(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>bio_thread_cleanup(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span> </div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>int32_t</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>bio_num_running_async_jobs(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>bio_thread_update(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span> </div>
-<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span><span class="comment">// Logging</span></div>
-<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span> </div>
-<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>bio_logging_init(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>int32_t</div>
+<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>bio_num_running_async_jobs(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span> </div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span><span class="comment">// Logging</span></div>
 <div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span> </div>
 <div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span><span class="keywordtype">void</span></div>
-<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>bio_logging_cleanup(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>bio_logging_init(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span> </div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span><span class="keywordtype">void</span></div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>bio_logging_cleanup(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span> </div>
+<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="agroup__coro_html_ga329934e366d0c7a3de9becc8bc3c67c5"><div class="ttname"><a href="group__coro.html#ga329934e366d0c7a3de9becc8bc3c67c5">bio_entrypoint_t</a></div><div class="ttdeci">void(* bio_entrypoint_t)(void *userdata)</div><div class="ttdoc">Entrypoint for a coroutine.</div><div class="ttdef"><b>Definition</b> bio.h:120</div></div>
 <div class="ttc" id="agroup__coro_html_ga94f6989d9bb01e8af4b14575643ae55c"><div class="ttname"><a href="group__coro.html#ga94f6989d9bb01e8af4b14575643ae55c">bio_coro_state_t</a></div><div class="ttdeci">bio_coro_state_t</div><div class="ttdoc">State of a coroutine.</div><div class="ttdef"><b>Definition</b> bio.h:504</div></div>
 <div class="ttc" id="agroup__internal_html_ga02c36cfbb4884b7af60302b7c1fcf5f6"><div class="ttname"><a href="group__internal.html#ga02c36cfbb4884b7af60302b7c1fcf5f6">bio_net_cleanup</a></div><div class="ttdeci">void bio_net_cleanup(void)</div><div class="ttdoc">Cleanup the Network I/O subsystem.</div></div>
@@ -475,18 +478,18 @@ $(document).ready(function(){initNavTree('internal_8h_source.html',''); initResi
 <div class="ttc" id="astructbio__cls__entry__t_html"><div class="ttname"><a href="structbio__cls__entry__t.html">bio_cls_entry_t</a></div><div class="ttdef"><b>Definition</b> internal.h:153</div></div>
 <div class="ttc" id="astructbio__cls__t_html"><div class="ttname"><a href="structbio__cls__t.html">bio_cls_t</a></div><div class="ttdoc">Coroutine-local storage (CLS) specification.</div><div class="ttdef"><b>Definition</b> bio.h:317</div></div>
 <div class="ttc" id="astructbio__coro__impl__s_html"><div class="ttname"><a href="structbio__coro__impl__s.html">bio_coro_impl_s</a></div><div class="ttdef"><b>Definition</b> internal.h:160</div></div>
-<div class="ttc" id="astructbio__ctx__t_html"><div class="ttname"><a href="structbio__ctx__t.html">bio_ctx_t</a></div><div class="ttdef"><b>Definition</b> internal.h:197</div></div>
-<div class="ttc" id="astructbio__fmt__buf__t_html"><div class="ttname"><a href="structbio__fmt__buf__t.html">bio_fmt_buf_t</a></div><div class="ttdef"><b>Definition</b> internal.h:192</div></div>
+<div class="ttc" id="astructbio__ctx__t_html"><div class="ttname"><a href="structbio__ctx__t.html">bio_ctx_t</a></div><div class="ttdef"><b>Definition</b> internal.h:198</div></div>
+<div class="ttc" id="astructbio__fmt__buf__t_html"><div class="ttname"><a href="structbio__fmt__buf__t.html">bio_fmt_buf_t</a></div><div class="ttdef"><b>Definition</b> internal.h:193</div></div>
 <div class="ttc" id="astructbio__handle__slot__t_html"><div class="ttname"><a href="structbio__handle__slot__t.html">bio_handle_slot_t</a></div><div class="ttdef"><b>Definition</b> internal.h:127</div></div>
 <div class="ttc" id="astructbio__handle__t_html"><div class="ttname"><a href="structbio__handle__t.html">bio_handle_t</a></div><div class="ttdef"><b>Definition</b> bio.h:126</div></div>
-<div class="ttc" id="astructbio__monitor__impl__t_html"><div class="ttname"><a href="structbio__monitor__impl__t.html">bio_monitor_impl_t</a></div><div class="ttdef"><b>Definition</b> internal.h:179</div></div>
+<div class="ttc" id="astructbio__monitor__impl__t_html"><div class="ttname"><a href="structbio__monitor__impl__t.html">bio_monitor_impl_t</a></div><div class="ttdef"><b>Definition</b> internal.h:180</div></div>
 <div class="ttc" id="astructbio__options__t_html"><div class="ttname"><a href="structbio__options__t.html">bio_options_t</a></div><div class="ttdoc">Initialization options.</div><div class="ttdef"><b>Definition</b> bio.h:408</div></div>
 <div class="ttc" id="astructbio__options__t_html_a4b6f9b36e040476bb6ddf38bd1cd36b9"><div class="ttname"><a href="structbio__options__t.html#a4b6f9b36e040476bb6ddf38bd1cd36b9">bio_options_t::allocator</a></div><div class="ttdeci">bio_allocator_t allocator</div><div class="ttdoc">Custom allocator. Defaults to stdlib if not provided.</div><div class="ttdef"><b>Definition</b> bio.h:410</div></div>
 <div class="ttc" id="astructbio__platform__t_html"><div class="ttname"><a href="structbio__platform__t.html">bio_platform_t</a></div><div class="ttdef"><b>Definition</b> platform.h:34</div></div>
 <div class="ttc" id="astructbio__signal__impl__t_html"><div class="ttname"><a href="structbio__signal__impl__t.html">bio_signal_impl_t</a></div><div class="ttdef"><b>Definition</b> internal.h:144</div></div>
 <div class="ttc" id="astructbio__signal__t_html"><div class="ttname"><a href="structbio__signal__t.html">bio_signal_t</a></div><div class="ttdoc">Handle to a signal.</div><div class="ttdef"><b>Definition</b> bio.h:147</div></div>
 <div class="ttc" id="astructbio__tag__t_html"><div class="ttname"><a href="structbio__tag__t.html">bio_tag_t</a></div><div class="ttdoc">A unique tag.</div><div class="ttdef"><b>Definition</b> bio.h:189</div></div>
-<div class="ttc" id="astructbio__timer__entry__t_html"><div class="ttname"><a href="structbio__timer__entry__t.html">bio_timer_entry_t</a></div><div class="ttdef"><b>Definition</b> internal.h:187</div></div>
+<div class="ttc" id="astructbio__timer__entry__t_html"><div class="ttname"><a href="structbio__timer__entry__t.html">bio_timer_entry_t</a></div><div class="ttdef"><b>Definition</b> internal.h:188</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

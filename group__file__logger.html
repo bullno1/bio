@@ -129,14 +129,10 @@ Functions</h2></td></tr>
 <div class="line"><span class="keywordflow">while</span> (running) {</div>
 <div class="line">    <span class="comment">// ...</span></div>
 <div class="line">}</div>
-<div class="line"> </div>
-<div class="line"><span class="comment">// Flush messages and terminate the logger coroutine</span></div>
-<div class="line"><a class="code hl_function" href="group__logging.html#ga7a91dcd80415651546951f1865c0bffb">bio_remove_logger</a>(logger);</div>
 <div class="ttc" id="agroup__file__logger_html_ga88972606819ec9f08d9d98276993a26a"><div class="ttname"><a href="group__file__logger.html#ga88972606819ec9f08d9d98276993a26a">bio_add_file_logger</a></div><div class="ttdeci">bio_logger_t bio_add_file_logger(bio_log_level_t min_level, const bio_file_logger_options_t *options)</div><div class="ttdoc">Register the logger.</div></div>
 <div class="ttc" id="agroup__file_html_ga9348cdd606fc6924dd83ed557e432b5b"><div class="ttname"><a href="group__file.html#ga9348cdd606fc6924dd83ed557e432b5b">BIO_STDERR</a></div><div class="ttdeci">bio_file_t BIO_STDERR</div><div class="ttdoc">Standard error.</div></div>
-<div class="ttc" id="agroup__logging_html_ga7a91dcd80415651546951f1865c0bffb"><div class="ttname"><a href="group__logging.html#ga7a91dcd80415651546951f1865c0bffb">bio_remove_logger</a></div><div class="ttdeci">void bio_remove_logger(bio_logger_t logger)</div><div class="ttdoc">Remove a previously configured logger.</div></div>
 <div class="ttc" id="agroup__logging_html_ga92813c805769c27992b4704dfe21c241"><div class="ttname"><a href="group__logging.html#ga92813c805769c27992b4704dfe21c241">BIO_INFO</a></div><div class="ttdeci">#define BIO_INFO(...)</div><div class="ttdoc">Log a message at BIO_LOG_LEVEL_DEBUG level.</div><div class="ttdef"><b>Definition</b> bio.h:48</div></div>
-<div class="ttc" id="astructbio__file__logger__options__t_html"><div class="ttname"><a href="structbio__file__logger__options__t.html">bio_file_logger_options_t</a></div><div class="ttdoc">Configuration options.</div><div class="ttdef"><b>Definition</b> file.h:36</div></div>
+<div class="ttc" id="astructbio__file__logger__options__t_html"><div class="ttname"><a href="structbio__file__logger__options__t.html">bio_file_logger_options_t</a></div><div class="ttdoc">Configuration options.</div><div class="ttdef"><b>Definition</b> file.h:33</div></div>
 <div class="ttc" id="astructbio__logger__t_html"><div class="ttname"><a href="structbio__logger__t.html">bio_logger_t</a></div><div class="ttdoc">Handle to a logger.</div><div class="ttdef"><b>Definition</b> bio.h:167</div></div>
 </div><!-- fragment --> <h2 class="groupheader">Function Documentation</h2>
 <a id="ga88972606819ec9f08d9d98276993a26a" name="ga88972606819ec9f08d9d98276993a26a"></a>
@@ -166,7 +162,6 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Register the logger. </p>
-<dl class="section remark"><dt>Remarks</dt><dd>This will spawn a coroutine to handle writing and avoid making the calling coroutine context switch due to I/O. The returned <code><a class="el" href="structbio__logger__t.html" title="Handle to a logger.">bio_logger_t</a></code> should be removed with <a class="el" href="group__logging.html#ga7a91dcd80415651546951f1865c0bffb">bio_remove_logger</a> at the end of a program to ensure that <a class="el" href="group__init.html#ga75aa8151c7d2cb5d9440e6dfeea5f553">bio_loop</a> will terminate. </dd></dl>
 
 </div>
 </div>
