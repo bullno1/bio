@@ -8,6 +8,8 @@
 
 static const bio_tag_t BIO_PLATFORM_ERROR = BIO_TAG_INIT("bio.error.freebsd");
 
+static const char BIO_SIGNAL_POLL_DATA = 0;
+
 void
 bio_platform_init(void) {
 	bio_ctx.platform.kqueue = kqueuex(KQUEUE_CLOEXEC);
@@ -39,16 +41,15 @@ static void
 bio_platform_dispatch_events(struct kevent* events, int num_events) {
 	for (int i = 0; i < num_events; ++i) {
 		const struct kevent* event = &events[i];
-		bio_io_req_t* req = event->udata;
-		if (req != NULL) {
+		void* userdata = event->udata;
+		if (userdata == (void*)&BIO_SIGNAL_POLL_DATA) {
+			bio_handle_exit_signal();
+		} else if (userdata != NULL) {
+			bio_io_req_t* req = userdata;
 			if (req->result != NULL) {
 				*(req->result) = *event;
 			}
 			bio_raise_signal(req->signal);
-
-			if (req == &bio_ctx.platform.signal_req) {
-				bio_ctx.platform.signal_state = BIO_SIGNAL_UNBLOCKED;
-			}
 		}
 	}
 }
@@ -65,9 +66,14 @@ bio_platform_update(bio_time_t wait_timeout_ms, bool notifiable) {
 	size_t num_in_events = bio_array_len(bio_ctx.platform.in_events);
 	for (size_t event_index = 0; event_index < num_in_events; ++event_index) {
 		struct kevent event = bio_ctx.platform.in_events[event_index];
-		bio_io_req_t* req = event.udata;
-		if (!req->cancelled) {
+		void* userdata = event.udata;
+		if (userdata == &BIO_SIGNAL_POLL_DATA) {
 			bio_ctx.platform.in_events[out_index++] = event;
+		} else {
+			bio_io_req_t* req = userdata;
+			if (!req->cancelled) {
+				bio_ctx.platform.in_events[out_index++] = event;
+			}
 		}
 	}
 
@@ -164,44 +170,39 @@ void
 }
 
 void
-bio_platform_set_exit_signal(bio_signal_t signal) {
-	bio_ctx.platform.signal_req.signal = signal;
-	bio_ctx.platform.signal_req.cancelled = false;
+bio_platform_block_exit_signal(void) {
+	sigset_t sigset = { 0  };
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGTERM);
+	sigaddset(&sigset, SIGINT);
 
-	switch (bio_ctx.platform.signal_state) {
-		case BIO_SIGNAL_UNBLOCKED: {
-		   sigset_t sigset = { 0 };
-		   sigemptyset(&sigset);
-		   sigaddset(&sigset, SIGTERM);
-		   sigaddset(&sigset, SIGINT);
-		   pthread_sigmask(SIG_BLOCK, &sigset, &bio_ctx.platform.old_sigmask);
-		}
-		// Fallthrough
-		case BIO_SIGNAL_BLOCKED: {
-			struct kevent event = {
-				.filter = EVFILT_SIGNAL,
-				.flags = EV_ADD,
-				.udata = &bio_ctx.platform.signal_req,
-			};
+	struct sigaction action = {
+		.sa_mask = sigset,
+		.sa_flags = SA_RESTART,
+		.sa_handler = SIG_IGN,
+	};
 
-			event.ident = SIGTERM;
-			bio_array_push(bio_ctx.platform.in_events, event);
-			event.ident = SIGINT;
-			bio_array_push(bio_ctx.platform.in_events, event);
+	sigaction(SIGTERM, &action, &bio_ctx.platform.old_sigterm);
+	sigaction(SIGINT, &action, &bio_ctx.platform.old_sigint);
 
-			bio_ctx.platform.signal_state = BIO_SIGNAL_WAITED;
-		} break;
-		case BIO_SIGNAL_WAITED:
-			break;
+	if (!bio_ctx.platform.signal_monitored) {
+		struct kevent event = {
+			.filter = EVFILT_SIGNAL,
+			.flags = EV_ADD,
+			.udata = (void*)&BIO_SIGNAL_POLL_DATA,
+		};
+
+		event.ident = SIGTERM;
+		bio_array_push(bio_ctx.platform.in_events, event);
+		event.ident = SIGINT;
+		bio_array_push(bio_ctx.platform.in_events, event);
+
+		bio_ctx.platform.signal_monitored = true;
 	}
 }
 
 void
-bio_platform_clear_exit_signal(void) {
-	bio_ctx.platform.signal_req.signal.handle = BIO_INVALID_HANDLE;
-	bio_ctx.platform.signal_req.cancelled = true;
-	if (bio_ctx.platform.signal_state != BIO_SIGNAL_UNBLOCKED) {
-		pthread_sigmask(SIG_SETMASK, &bio_ctx.platform.old_sigmask, NULL);
-	}
-	bio_ctx.platform.signal_state = BIO_SIGNAL_UNBLOCKED;
+bio_platform_unblock_exit_signal(void) {
+	sigaction(SIGTERM, &bio_ctx.platform.old_sigterm, NULL);
+	sigaction(SIGINT, &bio_ctx.platform.old_sigint, NULL);
 }

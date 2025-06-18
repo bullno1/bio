@@ -38,20 +38,15 @@ typedef struct {
 	bool cancelled;
 } bio_io_req_t;
 
-typedef enum {
-	BIO_SIGNAL_UNBLOCKED,
-	BIO_SIGNAL_BLOCKED,
-	BIO_SIGNAL_WAITED,
-} bio_signal_state_t;
-
 typedef struct {
 	int kqueue;
 	BIO_ARRAY(struct kevent) in_events;
 	struct kevent* out_events;
 
 	sigset_t old_sigmask;
-	bio_signal_state_t signal_state;
-	bio_io_req_t signal_req;
+	struct sigaction old_sigterm;
+	struct sigaction old_sigint;
+	bool signal_monitored;
 } bio_platform_t;
 
 #endif
