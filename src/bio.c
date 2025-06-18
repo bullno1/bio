@@ -1,6 +1,7 @@
 #include "internal.h"
 #include <stdlib.h>
 #include <minicoro.h>
+#include <string.h>
 
 bio_ctx_t bio_ctx = { 0 };
 
@@ -20,7 +21,7 @@ bio_init(const bio_options_t* options) {
 	if (options == NULL) {
 		options = &(bio_options_t){ 0 };
 	}
-	bio_ctx.exit_handler = NULL;
+	memset(&bio_ctx, 0, sizeof(bio_ctx));
 
 	bio_ctx.options = *options;
 	if (bio_ctx.options.allocator.realloc == NULL) {

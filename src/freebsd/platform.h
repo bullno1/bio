@@ -2,7 +2,8 @@
 #define BIO_FREEBSD_PLATFORM_H
 
 #include "../array.h"
-#include <signal.h>
+#include <sys/signal.h>
+#include <bio/bio.h>
 
 /**
  * @defgroup freebsd FreeBSD
@@ -32,10 +33,25 @@
 struct kevent;
 
 typedef struct {
+	bio_signal_t signal;
+	struct kevent* result;
+	bool cancelled;
+} bio_io_req_t;
+
+typedef enum {
+	BIO_SIGNAL_UNBLOCKED,
+	BIO_SIGNAL_BLOCKED,
+	BIO_SIGNAL_WAITED,
+} bio_signal_state_t;
+
+typedef struct {
 	int kqueue;
 	BIO_ARRAY(struct kevent) in_events;
 	struct kevent* out_events;
+
 	sigset_t old_sigmask;
+	bio_signal_state_t signal_state;
+	bio_io_req_t signal_req;
 } bio_platform_t;
 
 #endif
