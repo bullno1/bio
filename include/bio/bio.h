@@ -619,13 +619,21 @@ bio_loop(void);
 /**
  * Cleanup
  *
- * @see bio_coro_options_t::daemon
+ * It will schedule @ref bio_coro_options_t::daemon "daemon" coroutines  to run
+ * so they can perform cleanup.
+ *
+ * @remarks
+ *   If the daemon coroutines do not terminate, this function will not return.
+ *
+ * @see bio_is_terminating
  */
 void
 bio_terminate(void);
 
 /**
  * Check whether the calling coroutine is executing inside @ref bio_terminate
+ *
+ * Daemon coroutines should check this and terminate.
  *
  * @see bio_coro_options_t::daemon
  */
