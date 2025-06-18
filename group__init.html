@@ -161,7 +161,7 @@ Functions</h2></td></tr>
 <div class="line"> </div>
 <div class="line">    <span class="keywordflow">return</span> 0;</div>
 <div class="line">}</div>
-<div class="ttc" id="agroup__coro_html_ga99083106e829d879611b62e2b5f0d93a"><div class="ttname"><a href="group__coro.html#ga99083106e829d879611b62e2b5f0d93a">bio_spawn</a></div><div class="ttdeci">static bio_coro_t bio_spawn(bio_entrypoint_t entrypoint, void *userdata)</div><div class="ttdoc">Spawn a new coroutine.</div><div class="ttdef"><b>Definition</b> bio.h:688</div></div>
+<div class="ttc" id="agroup__coro_html_ga99083106e829d879611b62e2b5f0d93a"><div class="ttname"><a href="group__coro.html#ga99083106e829d879611b62e2b5f0d93a">bio_spawn</a></div><div class="ttdeci">static bio_coro_t bio_spawn(bio_entrypoint_t entrypoint, void *userdata)</div><div class="ttdoc">Spawn a new coroutine.</div><div class="ttdef"><b>Definition</b> bio.h:696</div></div>
 <div class="ttc" id="agroup__init_html_ga264ca2e23caaa8e47cbed9ca63ffdebb"><div class="ttname"><a href="group__init.html#ga264ca2e23caaa8e47cbed9ca63ffdebb">bio_init</a></div><div class="ttdeci">void bio_init(const bio_options_t *options)</div><div class="ttdoc">Initialize the framework.</div></div>
 <div class="ttc" id="agroup__init_html_ga75aa8151c7d2cb5d9440e6dfeea5f553"><div class="ttname"><a href="group__init.html#ga75aa8151c7d2cb5d9440e6dfeea5f553">bio_loop</a></div><div class="ttdeci">void bio_loop(void)</div><div class="ttdoc">Enter the event loop until there is no running coroutines.</div></div>
 <div class="ttc" id="agroup__init_html_gae1239670e86e7371c488355f3d7411ef"><div class="ttname"><a href="group__init.html#gae1239670e86e7371c488355f3d7411ef">bio_terminate</a></div><div class="ttdeci">void bio_terminate(void)</div><div class="ttdoc">Cleanup.</div></div>
@@ -204,6 +204,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Check whether the calling coroutine is executing inside <a class="el" href="group__init.html#gae1239670e86e7371c488355f3d7411ef">bio_terminate</a>. </p>
+<p>Daemon coroutines should check this and terminate.</p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="structbio__coro__options__t.html#a35b23d6a02070b6e46ad8ad135dc1561" title="Whether this coroutine will be a daemon.">bio_coro_options_t::daemon</a> </dd></dl>
 
 </div>
@@ -245,7 +246,9 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Cleanup. </p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="structbio__coro__options__t.html#a35b23d6a02070b6e46ad8ad135dc1561" title="Whether this coroutine will be a daemon.">bio_coro_options_t::daemon</a> </dd></dl>
+<p>It will schedule <a class="el" href="structbio__coro__options__t.html#a35b23d6a02070b6e46ad8ad135dc1561">daemon</a> coroutines to run so they can perform cleanup.</p>
+<dl class="section remark"><dt>Remarks</dt><dd>If the daemon coroutines do not terminate, this function will not return.</dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="group__init.html#gafda83941b57bf9c35e4064f2028163d7" title="Check whether the calling coroutine is executing inside bio_terminate.">bio_is_terminating</a> </dd></dl>
 
 </div>
 </div>
