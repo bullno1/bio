@@ -20,6 +20,7 @@ futex(
 
 static void
 bio_platform_poll_signal(void) {
+	if (bio_ctx.platform.signal_polled) { return; }
 	struct io_uring_sqe* sqe = bio_acquire_io_req();
 	io_uring_prep_read(
 		sqe, bio_ctx.platform.signalfd,
@@ -27,6 +28,7 @@ bio_platform_poll_signal(void) {
 		0
 	);
 	io_uring_sqe_set_data(sqe, (void*)&BIO_SIGNAL_POLL_DATA);
+	bio_ctx.platform.signal_polled = true;
 }
 
 void
@@ -93,6 +95,7 @@ bio_drain_io_completions(void) {
 	io_uring_for_each_cqe(&bio_ctx.platform.ioring, head, cqe) {
 		void* userdata = io_uring_cqe_get_data(cqe);
 		if (userdata == (void*)&BIO_SIGNAL_POLL_DATA) {
+			bio_ctx.platform.signal_polled = false;
 			bio_platform_poll_signal();
 			bio_handle_exit_signal();
 		} else if (BIO_LIKELY(userdata != NULL)) {

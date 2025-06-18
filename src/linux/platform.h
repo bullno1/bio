@@ -47,6 +47,7 @@ typedef struct {
 	struct signalfd_siginfo siginfo;
 	sigset_t old_sigmask;
 	int signalfd;
+	bool signal_polled;
 
 	// Notification from thread pool
 	int eventfd;
