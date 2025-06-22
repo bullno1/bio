@@ -181,6 +181,7 @@ bio_thread_init(void) {
 	bio_platform_begin_create_thread_pool();
 	for (int i = 0; i < num_threads; ++i) {
 		bio_worker_thread_t* worker = &workers[i];
+		memset(worker, 0, sizeof(*worker));
 		bio_spscq_init(&worker->request_queue, queue_size);
 		bio_spscq_init(&worker->response_queue, queue_size * 2);
 		thrd_create(&worker->thread, bio_async_worker, worker);

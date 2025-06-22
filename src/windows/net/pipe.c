@@ -83,7 +83,7 @@ bio_net_pipe_accept(
 			bio_set_error(error, ERROR_NOT_SUPPORTED);
 			return false;
 		}
-		listen_data.name[num_chars] = '\0';
+		listen_data.name[name_prefix_len + num_chars] = '\0';
 
 		DWORD flags;
 		if (!GetNamedPipeInfo(socket->handle, &flags, NULL, NULL, NULL)) {
