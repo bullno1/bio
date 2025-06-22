@@ -2,6 +2,7 @@
 #include <threads.h>
 #include <stdatomic.h>
 #include <limits.h>
+#include <string.h>
 
 typedef struct {
 	mtx_t mtx;
