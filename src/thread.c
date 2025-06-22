@@ -178,10 +178,10 @@ bio_thread_init(void) {
 	bio_ctx.options.thread_pool.queue_size = queue_size;
 
 	bio_worker_thread_t* workers = bio_malloc(num_threads * sizeof(bio_worker_thread_t));
+	memset(workers, 0, num_threads * sizeof(bio_worker_thread_t));
 	bio_platform_begin_create_thread_pool();
 	for (int i = 0; i < num_threads; ++i) {
 		bio_worker_thread_t* worker = &workers[i];
-		memset(worker, 0, sizeof(*worker));
 		bio_spscq_init(&worker->request_queue, queue_size);
 		bio_spscq_init(&worker->response_queue, queue_size * 2);
 		thrd_create(&worker->thread, bio_async_worker, worker);
