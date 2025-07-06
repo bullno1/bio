@@ -129,7 +129,7 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:gaec99fd14e7f5562738c51ce095fe3e9d" id="r_gaec99fd14e7f5562738c51ce095fe3e9d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__logging.html#gaec99fd14e7f5562738c51ce095fe3e9d">BIO_LOG</a>(LEVEL, ...)&#160;&#160;&#160;	(BIO_FORMAT_CHECK(__VA_ARGS__), <a class="el" href="group__logging.html#gabbe21ed003674067e1de1799aafa72c0">bio_log</a>(LEVEL, __FILE__, __LINE__, __VA_ARGS__))</td></tr>
+<tr class="memitem:gaec99fd14e7f5562738c51ce095fe3e9d" id="r_gaec99fd14e7f5562738c51ce095fe3e9d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__logging.html#gaec99fd14e7f5562738c51ce095fe3e9d">BIO_LOG</a>(LEVEL, ...)&#160;&#160;&#160;	(BIO_FORMAT_CHECK(__VA_ARGS__), <a class="el" href="group__logging.html#ga74c37a0d9e5142a9e4c1ea91090e9877">bio_log</a>(LEVEL, __FILE__, __LINE__, __VA_ARGS__))</td></tr>
 <tr class="memdesc:gaec99fd14e7f5562738c51ce095fe3e9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message at a given log level.  <br /></td></tr>
 <tr class="separator:gaec99fd14e7f5562738c51ce095fe3e9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga09acf7df09bc1160f47ef14a17a334ef" id="r_ga09acf7df09bc1160f47ef14a17a334ef"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__logging.html#ga09acf7df09bc1160f47ef14a17a334ef">BIO_TRACE</a>(...)&#160;&#160;&#160;<a class="el" href="group__logging.html#gaec99fd14e7f5562738c51ce095fe3e9d">BIO_LOG</a>(<a class="el" href="group__logging.html#ggaf975e08f25fc299efe60b182358f7e4ca462372f30fea4258f1b696d37a0d66a8">BIO_LOG_LEVEL_TRACE</a>, __VA_ARGS__)</td></tr>
@@ -180,9 +180,12 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:gabbe21ed003674067e1de1799aafa72c0" id="r_gabbe21ed003674067e1de1799aafa72c0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__logging.html#gabbe21ed003674067e1de1799aafa72c0">bio_log</a> (<a class="el" href="group__logging.html#gaf975e08f25fc299efe60b182358f7e4c">bio_log_level_t</a> level, const char *file, int line, const char *fmt,...)</td></tr>
-<tr class="memdesc:gabbe21ed003674067e1de1799aafa72c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw logging function.  <br /></td></tr>
-<tr class="separator:gabbe21ed003674067e1de1799aafa72c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6972b8b57035b4dba83f3b1a253320f1" id="r_ga6972b8b57035b4dba83f3b1a253320f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__logging.html#ga6972b8b57035b4dba83f3b1a253320f1">bio_vlog</a> (<a class="el" href="group__logging.html#gaf975e08f25fc299efe60b182358f7e4c">bio_log_level_t</a> level, const char *file, int line, const char *fmt, va_list args)</td></tr>
+<tr class="memdesc:ga6972b8b57035b4dba83f3b1a253320f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw logging function.  <br /></td></tr>
+<tr class="separator:ga6972b8b57035b4dba83f3b1a253320f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga74c37a0d9e5142a9e4c1ea91090e9877" id="r_ga74c37a0d9e5142a9e4c1ea91090e9877"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__logging.html#ga74c37a0d9e5142a9e4c1ea91090e9877">bio_log</a> (<a class="el" href="group__logging.html#gaf975e08f25fc299efe60b182358f7e4c">bio_log_level_t</a> level, const char *file, int line, const char *fmt,...)</td></tr>
+<tr class="memdesc:ga74c37a0d9e5142a9e4c1ea91090e9877"><td class="mdescLeft">&#160;</td><td class="mdescRight">Raw logging function.  <br /></td></tr>
+<tr class="separator:ga74c37a0d9e5142a9e4c1ea91090e9877"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7f741fecec2424220baf8d48c4b3a545" id="r_ga7f741fecec2424220baf8d48c4b3a545"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structbio__logger__t.html">bio_logger_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__logging.html#ga7f741fecec2424220baf8d48c4b3a545">bio_add_logger</a> (<a class="el" href="group__logging.html#gaf975e08f25fc299efe60b182358f7e4c">bio_log_level_t</a> min_level, <a class="el" href="group__logging.html#gaae0be0e5c35cd06945de52815b04c846">bio_log_fn_t</a> log_fn, void *userdata)</td></tr>
 <tr class="memdesc:ga7f741fecec2424220baf8d48c4b3a545"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a new logger.  <br /></td></tr>
 <tr class="separator:ga7f741fecec2424220baf8d48c4b3a545"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -195,7 +198,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Write text to console or file. </p>
-<p>There are several <a class="el" href="group__logging.html#gaec99fd14e7f5562738c51ce095fe3e9d">logging macros</a> that should be used instead of the raw <a class="el" href="group__logging.html#gabbe21ed003674067e1de1799aafa72c0">bio_log</a> function.</p>
+<p>There are several <a class="el" href="group__logging.html#gaec99fd14e7f5562738c51ce095fe3e9d">logging macros</a> that should be used instead of the raw <a class="el" href="group__logging.html#ga74c37a0d9e5142a9e4c1ea91090e9877">bio_log</a> function.</p>
 <dl class="section remark"><dt>Remarks</dt><dd>By default, there is no logger configured. See <a class="el" href="group__file__logger.html">File logger</a>.</dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="structbio__options__t.html#a1570f6ac709f2c99915facf9f9dd9897" title="Logging options.">bio_options_t::log_options</a> </dd></dl>
 <h2 class="groupheader">Macro Definition Documentation</h2>
@@ -286,8 +289,8 @@ Functions</h2></td></tr>
 <div class="line">    ((error)-&gt;code), \</div>
 <div class="line">    ((error)-&gt;file ? (error)-&gt;file : <span class="stringliteral">&quot;&lt;no source info&gt;&quot;</span>), \</div>
 <div class="line">    ((error)-&gt;line)</div>
-<div class="ttc" id="agroup__error_html_ga24fa8b46751397836b40e5f442c2b34c"><div class="ttname"><a href="group__error.html#ga24fa8b46751397836b40e5f442c2b34c">bio_has_error</a></div><div class="ttdeci">static bool bio_has_error(bio_error_t *error)</div><div class="ttdoc">Convenient function to check whether an error was encountered.</div><div class="ttdef"><b>Definition</b> bio.h:1281</div></div>
-<div class="ttc" id="agroup__error_html_ga95d800595d87604c70de5a6818c0211e"><div class="ttname"><a href="group__error.html#ga95d800595d87604c70de5a6818c0211e">bio_strerror</a></div><div class="ttdeci">static const char * bio_strerror(bio_error_t *error)</div><div class="ttdoc">Convenient function to format an error into a string.</div><div class="ttdef"><b>Definition</b> bio.h:1300</div></div>
+<div class="ttc" id="agroup__error_html_ga24fa8b46751397836b40e5f442c2b34c"><div class="ttname"><a href="group__error.html#ga24fa8b46751397836b40e5f442c2b34c">bio_has_error</a></div><div class="ttdeci">static bool bio_has_error(bio_error_t *error)</div><div class="ttdoc">Convenient function to check whether an error was encountered.</div><div class="ttdef"><b>Definition</b> bio.h:1302</div></div>
+<div class="ttc" id="agroup__error_html_ga95d800595d87604c70de5a6818c0211e"><div class="ttname"><a href="group__error.html#ga95d800595d87604c70de5a6818c0211e">bio_strerror</a></div><div class="ttdeci">static const char * bio_strerror(bio_error_t *error)</div><div class="ttdoc">Convenient function to format an error into a string.</div><div class="ttdef"><b>Definition</b> bio.h:1321</div></div>
 </div><!-- fragment -->
 <p>Helper for logging a <a class="el" href="structbio__error__t.html">bio_error_t</a>. </p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__logging.html#ga8abbd34554f363d69d174fe8d0fd41b3" title="Helper for logging a bio_error_t.">BIO_ERROR_FMT</a> </dd></dl>
@@ -355,7 +358,7 @@ Functions</h2></td></tr>
         <tr>
           <td></td>
           <td>)</td>
-          <td></td><td>&#160;&#160;&#160;	(BIO_FORMAT_CHECK(__VA_ARGS__), <a class="el" href="group__logging.html#gabbe21ed003674067e1de1799aafa72c0">bio_log</a>(LEVEL, __FILE__, __LINE__, __VA_ARGS__))</td>
+          <td></td><td>&#160;&#160;&#160;	(BIO_FORMAT_CHECK(__VA_ARGS__), <a class="el" href="group__logging.html#ga74c37a0d9e5142a9e4c1ea91090e9877">bio_log</a>(LEVEL, __FILE__, __LINE__, __VA_ARGS__))</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -428,7 +431,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>A log callback. </p>
-<p>This will be called for every message passed to <a class="el" href="group__logging.html#gabbe21ed003674067e1de1799aafa72c0">bio_log</a>.</p>
+<p>This will be called for every message passed to <a class="el" href="group__logging.html#ga74c37a0d9e5142a9e4c1ea91090e9877">bio_log</a>.</p>
 <dl class="section remark"><dt>Remarks</dt><dd>When <a class="el" href="group__logging.html#ga7a91dcd80415651546951f1865c0bffb">bio_remove_logger</a> is called, this will be invoked with <code>ctx</code> and <code>msg</code> set to <code>NULL</code> instead. The callback should perform cleanup or "flush" buffered messages.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -521,14 +524,17 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="gabbe21ed003674067e1de1799aafa72c0" name="gabbe21ed003674067e1de1799aafa72c0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gabbe21ed003674067e1de1799aafa72c0">&#9670;&#160;</a></span>bio_log()</h2>
+<a id="ga74c37a0d9e5142a9e4c1ea91090e9877" name="ga74c37a0d9e5142a9e4c1ea91090e9877"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga74c37a0d9e5142a9e4c1ea91090e9877">&#9670;&#160;</a></span>bio_log()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void bio_log </td>
+          <td class="memname">static void bio_log </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="group__logging.html#gaf975e08f25fc299efe60b182358f7e4c">bio_log_level_t</a>&#160;</td>
           <td class="paramname"><em>level</em>, </td>
@@ -563,6 +569,11 @@ Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Raw logging function. </p>
@@ -618,6 +629,55 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Change the minimum log level for a given logger. </p>
+
+</div>
+</div>
+<a id="ga6972b8b57035b4dba83f3b1a253320f1" name="ga6972b8b57035b4dba83f3b1a253320f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6972b8b57035b4dba83f3b1a253320f1">&#9670;&#160;</a></span>bio_vlog()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void bio_vlog </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__logging.html#gaf975e08f25fc299efe60b182358f7e4c">bio_log_level_t</a>&#160;</td>
+          <td class="paramname"><em>level</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>file</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>fmt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">va_list&#160;</td>
+          <td class="paramname"><em>args</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Raw logging function. </p>
+<p>Use the <a class="el" href="group__logging.html#gaec99fd14e7f5562738c51ce095fe3e9d">logging macros</a> instead. </p>
 
 </div>
 </div>

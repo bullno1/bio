@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"structbio__coro__options__t.html#a35b23d6a02070b6e46ad8ad135dc1561":[1,1,5,0],
 "structbio__coro__options__t.html#a5b86d71fa8432c53c561e165a7a48018":[1,1,5,1],
 "structbio__coro__t.html":[1,1,2],
 "structbio__ctx__t.html":[2,0,8],

@@ -41,7 +41,7 @@ var searchData=
   ['bio_5fis_5fterminating_38',['bio_is_terminating',['../group__init.html#gafda83941b57bf9c35e4064f2028163d7',1,'bio.h']]],
   ['bio_5fis_5ftimer_5fpending_39',['bio_is_timer_pending',['../group__timer.html#ga98698ccd282fd5c47f85e178884a6d3a',1,'timer.h']]],
   ['bio_5fjoin_40',['bio_join',['../group__monitor.html#gaad31289fdd025143344b12e35da52d92',1,'bio.h']]],
-  ['bio_5flog_41',['bio_log',['../group__logging.html#gabbe21ed003674067e1de1799aafa72c0',1,'bio.h']]],
+  ['bio_5flog_41',['bio_log',['../group__logging.html#ga74c37a0d9e5142a9e4c1ea91090e9877',1,'bio.h']]],
   ['bio_5floop_42',['bio_loop',['../group__init.html#ga75aa8151c7d2cb5d9440e6dfeea5f553',1,'bio.h']]],
   ['bio_5fmake_5fbuffer_43',['bio_make_buffer',['../group__buffering.html#ga47ac3a78fae69174a7fe08863d64fda0',1,'buffering.h']]],
   ['bio_5fmake_5ffile_5fread_5fbuffer_44',['bio_make_file_read_buffer',['../group__buffering.html#ga6f7d0c41f95ef0d367cf8af953ee6324',1,'buffering.h']]],
@@ -90,8 +90,9 @@ var searchData=
   ['bio_5fstrerror_87',['bio_strerror',['../group__error.html#ga95d800595d87604c70de5a6818c0211e',1,'bio.h']]],
   ['bio_5fterminate_88',['bio_terminate',['../group__init.html#gae1239670e86e7371c488355f3d7411ef',1,'bio.h']]],
   ['bio_5funmonitor_89',['bio_unmonitor',['../group__monitor.html#ga3b3d079bf3966b7230297242292e3818',1,'bio.h']]],
-  ['bio_5fwait_5ffor_5fexit_90',['bio_wait_for_exit',['../group__misc.html#ga59568cf958677e078da9193390e412cb',1,'bio.h']]],
-  ['bio_5fwait_5ffor_5fone_5fsignal_91',['bio_wait_for_one_signal',['../group__signal.html#ga9296cf9935d2e125e328a9d9d8366800',1,'bio.h']]],
-  ['bio_5fwait_5ffor_5fsignals_92',['bio_wait_for_signals',['../group__signal.html#ga597c43ed24c744093330e1939423072b',1,'bio.h']]],
-  ['bio_5fyield_93',['bio_yield',['../group__coro.html#ga6f37450bb3b8f1293eb53858af4de8a8',1,'bio.h']]]
+  ['bio_5fvlog_90',['bio_vlog',['../group__logging.html#ga6972b8b57035b4dba83f3b1a253320f1',1,'bio.h']]],
+  ['bio_5fwait_5ffor_5fexit_91',['bio_wait_for_exit',['../group__misc.html#ga59568cf958677e078da9193390e412cb',1,'bio.h']]],
+  ['bio_5fwait_5ffor_5fone_5fsignal_92',['bio_wait_for_one_signal',['../group__signal.html#ga9296cf9935d2e125e328a9d9d8366800',1,'bio.h']]],
+  ['bio_5fwait_5ffor_5fsignals_93',['bio_wait_for_signals',['../group__signal.html#ga597c43ed24c744093330e1939423072b',1,'bio.h']]],
+  ['bio_5fyield_94',['bio_yield',['../group__coro.html#ga6f37450bb3b8f1293eb53858af4de8a8',1,'bio.h']]]
 ];

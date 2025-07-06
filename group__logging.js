@@ -31,7 +31,8 @@ var group__logging =
       [ "BIO_LOG_LEVEL_FATAL", "group__logging.html#ggaf975e08f25fc299efe60b182358f7e4cad7bb83f7adef3508e8a2b6c042d3ca96", null ]
     ] ],
     [ "bio_add_logger", "group__logging.html#ga7f741fecec2424220baf8d48c4b3a545", null ],
-    [ "bio_log", "group__logging.html#gabbe21ed003674067e1de1799aafa72c0", null ],
+    [ "bio_log", "group__logging.html#ga74c37a0d9e5142a9e4c1ea91090e9877", null ],
     [ "bio_remove_logger", "group__logging.html#ga7a91dcd80415651546951f1865c0bffb", null ],
-    [ "bio_set_min_log_level", "group__logging.html#ga3805f5d66692823d67f75df29584b006", null ]
+    [ "bio_set_min_log_level", "group__logging.html#ga3805f5d66692823d67f75df29584b006", null ],
+    [ "bio_vlog", "group__logging.html#ga6972b8b57035b4dba83f3b1a253320f1", null ]
 ];
