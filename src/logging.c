@@ -149,12 +149,12 @@ static const bio_cls_t bio_logging_cls = {
 };
 
 void
-bio_log(
+bio_vlog(
 	bio_log_level_t level,
 	const char* filename,
 	int line,
 	const char* fmt,
-	...
+	va_list args
 ) {
 	filename = filename != NULL ? filename : "<unknown>";
 	int filename_len = (int)strlen(filename);
@@ -188,10 +188,7 @@ bio_log(
 			// Delay formatting until it's actually needed
 			if (msg == NULL) {
 				bio_logging_cls_t* cls = bio_get_cls(&bio_logging_cls);
-				va_list args;
-				va_start(args, fmt);
 				msg_len = bio_vfmt(&cls->log_msg_buf, fmt, args);
-				va_end(args);
 				if (msg_len < 0) { return; }
 				msg = cls->log_msg_buf.ptr;
 			}

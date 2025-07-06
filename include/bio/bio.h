@@ -1213,15 +1213,36 @@ bio_handle_compare(bio_handle_t lhs, bio_handle_t rhs) {
  *
  * @ingroup logging
  */
-BIO_FORMAT_ATTRIBUTE(4, 5)
 void
+bio_vlog(
+	bio_log_level_t level,
+	const char* file,
+	int line,
+	const char* fmt,
+	va_list args
+);
+
+/**
+ * Raw logging function.
+ *
+ * Use the @ref BIO_LOG "logging macros" instead.
+ *
+ * @ingroup logging
+ */
+BIO_FORMAT_ATTRIBUTE(4, 5)
+static inline void
 bio_log(
 	bio_log_level_t level,
 	const char* file,
 	int line,
 	const char* fmt,
 	...
-);
+) {
+	va_list args;
+	va_start(args, fmt);
+	bio_vlog(level, file, line, fmt, args);
+	va_end(args);
+}
 
 /**
  * Add a new logger
